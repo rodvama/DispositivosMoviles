@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">ProyectoFinal</string>
+    <string name="text_results_title_device">Resutlados del dispositivo</string>
+    <string name="text_results_title_manual">Resutlados manuales</string>
+    <string name="text_diastolic">diastólica</string>
+    <string name="text_systolic">sistólica</string>
+    <string name="text_forward_slash">/</string>
+    <string name="button_accept">Aceptar</string>
+    <string name="button_retry">Reintentar</string>
+    <string name="check_verify">Verificar medición</string>
 </resources>
