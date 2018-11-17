@@ -5,13 +5,8 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
-import android.support.v4.app.ActivityCompat.startActivityForResult
-import com.jjoe64.graphview.series.DataPoint
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.delay
 import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 import java.util.*
 
 class BluetoothHelper(var activity: Activity) {
@@ -28,19 +23,6 @@ class BluetoothHelper(var activity: Activity) {
             activity.startActivityForResult(enableBtIntent, 1)
         } else {
             startConnection()
-//            var mDevice: BluetoothDevice? = null
-//            val pairedDevices = mBluetoothAdapter.bondedDevices
-//            if (pairedDevices.size > 0) {
-//                for (device in pairedDevices) {
-//                    mDevice = device
-//                }
-//            }
-//
-//            mConnectThread = ConnectThread(mDevice!!)
-//            mConnectThread?.start()
-//
-//            mConnectedThread = ConnectedThread(mConnectThread?.mmSocket!!)
-//            mConnectedThread?.start()
         }
     }
 
@@ -116,28 +98,6 @@ class BluetoothHelper(var activity: Activity) {
 
             mmInStream = tmpIn
         }
-
-//        override fun run() {
-//            var data: String
-//            var counter = 0.0
-//            while (true) {
-//                try {
-//                    data = mmInStream!!.bufferedReader().readLine()
-//                    if (data.filter { s -> s == ';' }.count() == 2) {
-//                        var pressure = data.substringBeforeLast(';').substringAfterLast(';')
-//                        var pulse = data.substringAfterLast(';')
-//                        if (pressure.toFloat() > 20f)
-//                            activity.runOnUiThread {
-//                                //activity.speedMeter.setSpeed(pressure.toFloat())
-//                                //mSeries.appendData(DataPoint(counter, pulse.toDouble()), true, 1000)
-//                                counter++
-//                            }
-//                    }
-//                } catch (e: IOException) {
-//                    break
-//                }
-//            }
-//        }
 
         fun cancel() {
             try {
