@@ -70,13 +70,13 @@ class MainActivity : AppCompatActivity() {
         graph.viewport.setMaxX(40.toDouble())
     }
 
-    fun goToDetail() {
+    private fun goToDetail() {
         val intent = Intent(this, ActivityDetail::class.java)
         for (data in dataList) {
             data.timer = data.timer - dataList.first().timer
         }
         intent.putExtra("DataList", dataList.toTypedArray())
-        startActivityForResult(intent, 1)
+        startActivityForResult(intent, 2)
     }
 
     fun setTestData() {
@@ -88,6 +88,42 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             mBluetoothHelper?.startConnection()
+            launch {
+                mBluetoothHelper?.mConnectedThread.run {
+                    var counter = 0.0
+                    while (true) {
+                        try {
+                            val data = this?.mmInStream?.bufferedReader()?.readLine()
+                            if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+                                val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+                                val pulse = data.substringAfterLast(';')
+                                if (pressure.toFloat() > 20f) {
+                                    if (!started) {
+                                        started = true
+                                    }
+                                    runOnUiThread {
+                                        speedMeter.setSpeed(pressure.toFloat())
+                                        mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
+                                        counter++
+                                    }
+                                } else {
+                                    if (started) {
+                                        goToDetail()
+                                    }
+                                }
+                            }
+                        } catch (e: IOException) {
+                            break
+                        }
+                    }
+                }
+            }
+        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
+            setResult(Activity.RESULT_OK)
+            finish()
+        } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
+            started = false
+
             launch {
                 mBluetoothHelper?.mConnectedThread.run {
                     var counter = 0.0
