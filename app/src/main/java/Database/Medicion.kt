@@ -11,7 +11,7 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
                     @ColumnInfo(name = "manDiastolica") var manDiastolica: String?,
                     @ColumnInfo(name = "pulso") var pulso: String?,
                     @ColumnInfo(name = "fecha") var fecha: String?,
-                    @ColumnInfo(name = "verificado") var verificado: String?,
+                    @ColumnInfo(name = "verificado") var verificado: Boolean?,
                     @ColumnInfo(name ="brazo") var brazo: String?,
                     @ColumnInfo(name = "grafica") var grafica: ByteArray?): Parcelable {
     @ColumnInfo(name = "_id")
@@ -25,7 +25,7 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
-            parcel.readString(),
+            parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
             parcel.readString(),
             parcel.createByteArray()) {
         _id = parcel.readInt()
@@ -38,7 +38,7 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
         parcel.writeString(manDiastolica)
         parcel.writeString(pulso)
         parcel.writeString(fecha)
-        parcel.writeString(verificado)
+        parcel.writeValue(verificado)
         parcel.writeString(brazo)
         parcel.writeByteArray(grafica)
         parcel.writeInt(_id)
@@ -57,5 +57,6 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
             return arrayOfNulls(size)
         }
     }
+
 
 }
