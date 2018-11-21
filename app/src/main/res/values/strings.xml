@@ -9,4 +9,8 @@
     <string name="button_accept">Aceptar</string>
     <string name="button_retry">Reintentar</string>
     <string name="check_verify">Verificar medición</string>
+    <string name="title_activity_patient_list">PatientList</string>
+    <string name="enviar_por_email">Enviar por correo</string>
+    <string name="manual">Manual</string>
+    <string name="dispositivo">Dispositivo</string>
 </resources>
