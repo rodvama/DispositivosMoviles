@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.activity_configuration.*
 class ConfigurationActivity : AppCompatActivity() {
 
     companion object {
-        public var isNurse = false
+        var isNurseMode = true
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,8 +18,8 @@ class ConfigurationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_configuration)
         this.title = "Configuración"
 
-        switch1.setOnCheckedChangeListener { buttonView, isChecked ->
-            isNurse = isChecked
+        switch1.setOnCheckedChangeListener { buttonView, nurseChecked ->
+            isNurseMode = nurseChecked
         }
 
         var bluetoothHelper = BluetoothHelper(this)

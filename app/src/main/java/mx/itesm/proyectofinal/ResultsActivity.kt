@@ -45,6 +45,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
 
         calculateResults(dataList)
+        verifyNurseMode()
 
         button_accept.setOnClickListener { v -> onClick(v) }
         button_retry.setOnClickListener { v -> onClick(v) }
@@ -269,6 +270,18 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         val results = systolic[0]!!.toInt().toString() + " / " + diastolic[0]!!.toInt().toString()
 
         tv_device_results.text = results
+    }
+
+    private fun verifyNurseMode () {
+        if(ConfigurationActivity.isNurseMode){
+            tv_device_results_title.visibility = View.GONE
+            tv_device_results.visibility = View.GONE
+            tv_device_diastolic.visibility = View.GONE
+            tv_device_systolic.visibility = View.GONE
+            divider2.visibility = View.GONE
+            divider3.visibility = View.GONE
+            time_graph.visibility = View.GONE
+        }
     }
 
 }
