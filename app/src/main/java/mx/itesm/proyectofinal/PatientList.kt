@@ -12,7 +12,7 @@ class PatientList : Activity() {
 
     lateinit var instanceDatabase: MedicionDatabase
     var listener: CustomItemClickListener? = null
-    private var mediciones: List<Medicion>? = null
+    private var mediciones: ArrayList<Medicion>? = MedicionData().listaMedicion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
