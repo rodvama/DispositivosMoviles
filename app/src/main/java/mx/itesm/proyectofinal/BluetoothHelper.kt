@@ -9,7 +9,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
-class BluetoothHelper(var activity: Activity) {
+class BluetoothHelper(activity: Activity) {
     private var mConnectThread: ConnectThread?
     var mConnectedThread: ConnectedThread?
     var mBluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
