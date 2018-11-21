@@ -1,11 +1,33 @@
 package mx.itesm.proyectofinal
 
+import android.app.Activity
+import android.content.Intent
+import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import com.jjoe64.graphview.series.DataPoint
+import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_results.*
 import java.lang.Math.abs
 
-class ResultsActivity : AppCompatActivity() {
+class ResultsActivity : AppCompatActivity(), View.OnClickListener {
+
+    companion object {
+        const val SYSTOLIC_DEVICE = "systolic_results"
+        const val DIASTOLIC_DEVICE = "diastolic_results"
+        const val SYSTOLIC_MANUAL = "systolic_manual_results"
+        const val DIASTOLIC_MANUAL = "diastolic_manual_results"
+        const val VERIFIED_VALUE = "verified_check"
+        const val GRAPH_ID = "generated_graph"
+    }
+
+    var systolicRes: Double = 0.0
+    var diastolicRes: Double = 0.0
+    var validateCheck: Boolean = false
+
+    private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,12 +37,52 @@ class ResultsActivity : AppCompatActivity() {
 
         val extras = intent.extras?:return
 
-        val dataList: List<Measurement> = extras.getParcelableArrayList(intentString)
+        val dataList: List<Data> = extras.getParcelableArrayList(MainActivity.LIST_ID)!!
+
+        mSeries.color = Color.parseColor("#FF6860")
+        time_graph.addSeries(mSeries)
+        time_graph.title = "Datos de presión"
+
 
         calculateResults(dataList)
+
+        button_accept.setOnClickListener { v -> onClick(v) }
+        button_retry.setOnClickListener { v -> onClick(v) }
+
+        checkBox_verify_results.setOnCheckedChangeListener { _, isChecked ->
+            validateCheck = isChecked
+        }
     }
 
-    private fun calculateResults(data: List<Measurement>){
+    override fun onClick(view: View?) {
+        when(view!!.id){
+            R.id.button_accept -> {
+                if(edit_diastolic_manual.text.isEmpty() || edit_systolic_manual.text.isEmpty()) {
+                    val resultIntent = Intent()
+
+                    resultIntent.putExtra(SYSTOLIC_DEVICE, systolicRes)
+                    resultIntent.putExtra(DIASTOLIC_DEVICE, diastolicRes)
+                    resultIntent.putExtra(SYSTOLIC_MANUAL, edit_systolic_manual.text)
+                    resultIntent.putExtra(DIASTOLIC_MANUAL, edit_diastolic_manual.text)
+                    resultIntent.putExtra(VERIFIED_VALUE, validateCheck)
+                    resultIntent.putExtra(GRAPH_ID, time_graph.takeSnapshot())
+
+                    setResult(Activity.RESULT_OK, resultIntent)
+                    finish()
+                }
+                else {
+                    Toast.makeText(this, "Llena los campos manuales", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            R.id.button_retry -> {
+                setResult(Activity.RESULT_CANCELED)
+                finish()
+            }
+        }
+    }
+
+    private fun calculateResults(data: List<Data>){
 
         val fixed = arrayOfNulls<Double>(data.size)     //Arreglo para almacenar los valores de Fixed mmHg
         var fixedSum = 0.0                              //Suma de valores de Fixed mmHg, utilizado para cálculos de mmHg mov
@@ -44,6 +106,9 @@ class ResultsActivity : AppCompatActivity() {
         fixed[0] = data[0].mmHg
         fixed[1] = data[1].mmHg
 
+        mSeries.appendData(DataPoint(fixed[0]!!, data[0].timer), false, data.size)
+        mSeries.appendData(DataPoint(fixed[1]!!, data[1].timer), false, data.size)
+
 
         //Primer recorrido
         for(i in 2 until data.size){
@@ -57,6 +122,8 @@ class ResultsActivity : AppCompatActivity() {
             }else{
                 fixed[i] = data[i-1].mmHg
             }
+
+            mSeries.appendData(DataPoint(fixed[i]!!, data[i].timer), false, data.size)
 
             //Cálculo de mmHg mov (hasta n-5)
             fixedSum += fixed[i]!!
@@ -115,7 +182,7 @@ class ResultsActivity : AppCompatActivity() {
             //Cálculo de start memory y start time
             if(start[i]!=null){
                 startMem[i] = start[i]
-                startTime[i] = data[i].time
+                startTime[i] = data[i].timer.toInt()
             } else{
                 startMem[i] = startMem[i-1]
                 startTime[i] = startTime[i-1]
@@ -141,7 +208,7 @@ class ResultsActivity : AppCompatActivity() {
             //Cálculo de start memory y start time
             if(start[i]!=null){
                 startMem[i] = start[i]
-                startTime[i] = data[i].time
+                startTime[i] = data[i].timer.toInt()
             } else{
                 startMem[i] = startMem[i-1]
                 startTime[i] = startTime[i-1]
@@ -159,7 +226,7 @@ class ResultsActivity : AppCompatActivity() {
         for(i in data.size-1 downTo 5){
             if(start[i]!=null){
                 endMem[i] = startMem[i]
-                endTime[i] = data[i].time
+                endTime[i] = data[i].timer.toInt()
             }else{
                 endMem[i] = endMem[i+1]
                 endTime[i] = endTime[i+1]
@@ -167,7 +234,7 @@ class ResultsActivity : AppCompatActivity() {
 
             //Cálculo de Peak cuff y Peak Amplitude
             if(peaks[i]!=null){
-                cuff[i]	= ((endMem[i]!! - startMem[i]!!)/(endTime[i]!! - startTime[i]!!))*(data[i].time - startTime[i]) + startMem[i]
+                cuff[i]	= ((endMem[i]!! - startMem[i]!!)/(endTime[i]!! - startTime[i]!!))*(data[i].timer.toInt() - startTime[i]!!) + startMem[i]!!
                 amp[i] = peaks[i]!! - cuff[i]!!
 
                 //Encontrar la amplitud máxima
@@ -196,8 +263,12 @@ class ResultsActivity : AppCompatActivity() {
             }
         }
 
-        val results = systolic[0].toString() + " / " + diastolic[0].toString()
+        systolicRes = systolic[0]!!
+        diastolicRes = diastolic[0]!!
+
+        val results = systolic[0]!!.toInt().toString() + " / " + diastolic[0]!!.toInt().toString()
 
         tv_device_results.text = results
     }
+
 }
