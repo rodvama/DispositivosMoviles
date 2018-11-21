@@ -9,12 +9,10 @@ import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.launch
 import android.content.Intent
-import android.os.CountDownTimer
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 import java.io.IOException
 import java.util.*
-import kotlin.concurrent.timer
 
 class MainActivity : AppCompatActivity() {
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
@@ -72,10 +70,13 @@ class MainActivity : AppCompatActivity() {
         graph.viewport.setMaxX(40.toDouble())
     }
 
-    fun goToDetail() {
-        var intent = Intent(this, ActivityDetail::class.java)
+    private fun goToDetail() {
+        val intent = Intent(this, ActivityDetail::class.java)
+        for (data in dataList) {
+            data.timer = data.timer - dataList.first().timer
+        }
         intent.putExtra("DataList", dataList.toTypedArray())
-        startActivityForResult(intent, 1)
+        startActivityForResult(intent, 2)
     }
 
     fun setTestData() {
@@ -96,12 +97,56 @@ class MainActivity : AppCompatActivity() {
                             if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
                                 val pressure = data.substringBeforeLast(';').substringAfterLast(';')
                                 val pulse = data.substringAfterLast(';')
-                                if (pressure.toFloat() > 20f)
+                                if (pressure.toFloat() > 20f) {
+                                    if (!started) {
+                                        started = true
+                                    }
                                     runOnUiThread {
                                         speedMeter.setSpeed(pressure.toFloat())
                                         mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
                                         counter++
                                     }
+                                } else {
+                                    if (started) {
+                                        goToDetail()
+                                    }
+                                }
+                            }
+                        } catch (e: IOException) {
+                            break
+                        }
+                    }
+                }
+            }
+        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
+            setResult(Activity.RESULT_OK)
+            finish()
+        } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
+            started = false
+
+            launch {
+                mBluetoothHelper?.mConnectedThread.run {
+                    var counter = 0.0
+                    while (true) {
+                        try {
+                            val data = this?.mmInStream?.bufferedReader()?.readLine()
+                            if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+                                val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+                                val pulse = data.substringAfterLast(';')
+                                if (pressure.toFloat() > 20f) {
+                                    if (!started) {
+                                        started = true
+                                    }
+                                    runOnUiThread {
+                                        speedMeter.setSpeed(pressure.toFloat())
+                                        mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
+                                        counter++
+                                    }
+                                } else {
+                                    if (started) {
+                                        goToDetail()
+                                    }
+                                }
                             }
                         } catch (e: IOException) {
                             break
