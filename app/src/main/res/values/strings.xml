@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">ProyectoFinal</string>
-    <string name="text_results_title_device">Resutlados del dispositivo</string>
-    <string name="text_results_title_manual">Resutlados manuales</string>
+    <string name="text_results_title_device">Resultados del dispositivo</string>
+    <string name="text_results_title_manual">Resultados manuales</string>
+    <string name="text_results_title_bpm">Ritmo cardiaco</string>
     <string name="text_diastolic">diastólica</string>
     <string name="text_systolic">sistólica</string>
     <string name="text_forward_slash">/</string>
