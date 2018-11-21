@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Switch
 import kotlinx.android.synthetic.main.activity_configuration.*
 import kotlinx.android.synthetic.main.activity_configuration.view.*
+import kotlinx.android.synthetic.main.activity_configuration.*
 
 class ConfigurationActivity : AppCompatActivity() {
 
@@ -19,6 +20,14 @@ class ConfigurationActivity : AppCompatActivity() {
 
         switch1.setOnCheckedChangeListener { buttonView, isChecked ->
             isNurse = isChecked
+        }
+
+        var bluetoothHelper = BluetoothHelper(this)
+
+        if (bluetoothHelper.isEnabled() && bluetoothHelper.isDeviceConnected()) {
+            textView4.text = "El dispositivo de onda de pulso se encuentra conectado."
+        } else {
+            textView4.text = "El dispositivo de onda de pulso no se encuentra conectado."
         }
     }
 }

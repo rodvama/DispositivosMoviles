@@ -20,6 +20,9 @@ class MainActivity : AppCompatActivity() {
     var dataList: MutableList<Data> = Arrays.asList()
     var started = false
 
+    companion object {
+        const val LIST_ID = "DataList"
+    }
 
     init {
 
@@ -159,6 +162,6 @@ class MainActivity : AppCompatActivity() {
 }
 
 @Parcelize
-data class Data(var timer: Double, var pressure: Double, var pulse: Double) : Parcelable
+data class Data(var timer: Double, var mmHg: Double, var pulse: Double) : Parcelable
 
 

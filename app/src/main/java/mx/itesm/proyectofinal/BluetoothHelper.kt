@@ -26,6 +26,14 @@ class BluetoothHelper(activity: Activity) {
         }
     }
 
+    fun isDeviceConnected(): Boolean {
+        return mBluetoothAdapter.bondedDevices.size > 0
+    }
+
+    fun isEnabled(): Boolean {
+        return mBluetoothAdapter.isEnabled
+    }
+
     fun startConnection() {
         var mDevice: BluetoothDevice? = null
         val pairedDevices = mBluetoothAdapter.bondedDevices
