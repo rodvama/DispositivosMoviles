@@ -20,6 +20,9 @@ class MainActivity : AppCompatActivity() {
     var dataList: MutableList<Data> = Arrays.asList()
     var started = false
 
+    companion object {
+        const val LIST_ID = "DataList"
+    }
 
     init {
 
