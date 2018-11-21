@@ -159,6 +159,6 @@ class MainActivity : AppCompatActivity() {
 }
 
 @Parcelize
-data class Data(var timer: Double, var pressure: Double, var pulse: Double) : Parcelable
+data class Data(var timer: Double, var mmHg: Double, var pulse: Double) : Parcelable
 
 
