@@ -11,6 +11,10 @@ import kotlinx.android.synthetic.main.activity_patient_list.*
 
 class PatientList : Activity(), CustomItemClickListener {
 
+    companion object {
+        var PATIENT_KEY:String = "Medicion"
+    }
+
     lateinit var instanceDatabase: MedicionDatabase
 
     private var mediciones: ArrayList<Medicion>? = MedicionData().listaMedicion
@@ -41,15 +45,18 @@ class PatientList : Activity(), CustomItemClickListener {
     }
 
     override fun onCustomItemClick(medicion: Medicion) {
+        val intent = Intent(this, ActivityDetail::class.java)
 
+        intent.putExtra(PATIENT_KEY, medicion._id)
+        startActivity(intent)
     }
-
-
 
     private fun loadMediciones() {
         ioThread {
             mediciones = ArrayList(instanceDatabase.medicionDao().cargarMeciciones())
-            lista_pacientes.adapter?.notifyDataSetChanged()
+            runOnUiThread {
+                lista_pacientes.adapter?.notifyDataSetChanged()
+            }
         }
     }
 

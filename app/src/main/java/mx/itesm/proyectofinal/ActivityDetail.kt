@@ -9,17 +9,20 @@ import kotlinx.android.synthetic.main.activity_detail.*
 
 class ActivityDetail : AppCompatActivity() {
 
+    lateinit var instanceDatabase: MedicionDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
 
-        val instanceDatabase = MedicionDatabase.getInstance(this)
+        instanceDatabase = MedicionDatabase.getInstance(this)
 
         val extras = intent.extras?:return
-        val id = extras.getInt(PATIENT_KEY)
+        val id = extras.getInt(PatientList.PATIENT_KEY)
 
         ioThread {
             val measurementObj = instanceDatabase.medicionDao().cargarMedicionId(id)
+
             runOnUiThread{
                 title = "ID " + id.toString()
 
