@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.RadioButton
 import android.widget.Toast
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
@@ -20,12 +21,14 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         const val SYSTOLIC_MANUAL = "systolic_manual_results"
         const val DIASTOLIC_MANUAL = "diastolic_manual_results"
         const val VERIFIED_VALUE = "verified_check"
+        const val SELECTED_ARM = "arm_id"
         const val GRAPH_ID = "generated_graph"
     }
 
     var systolicRes: Double = 0.0
     var diastolicRes: Double = 0.0
     var validateCheck: Boolean = false
+    var selectedArm: String = ""
 
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
 
@@ -57,13 +60,14 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View?) {
         when(view!!.id){
             R.id.button_accept -> {
-                if(edit_diastolic_manual.text.isEmpty() || edit_systolic_manual.text.isEmpty()) {
+                if(!(edit_diastolic_manual.text.isEmpty() || edit_systolic_manual.text.isEmpty() || selectedArm == "")) {
                     val resultIntent = Intent()
 
                     resultIntent.putExtra(SYSTOLIC_DEVICE, systolicRes)
                     resultIntent.putExtra(DIASTOLIC_DEVICE, diastolicRes)
                     resultIntent.putExtra(SYSTOLIC_MANUAL, edit_systolic_manual.text)
                     resultIntent.putExtra(DIASTOLIC_MANUAL, edit_diastolic_manual.text)
+                    resultIntent.putExtra(SELECTED_ARM, selectedArm)
                     resultIntent.putExtra(VERIFIED_VALUE, validateCheck)
                     resultIntent.putExtra(GRAPH_ID, time_graph.takeSnapshot())
 
@@ -71,13 +75,32 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
                     finish()
                 }
                 else {
-                    Toast.makeText(this, "Llena los campos manuales", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Llena todos los campos manuales", Toast.LENGTH_LONG).show()
                 }
             }
 
             R.id.button_retry -> {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
+            }
+        }
+    }
+
+    fun onRadioButtonClicked(view: View) {
+        if (view is RadioButton) {
+            // Is the button now checked?
+            val checked = view.isChecked
+
+            // Check which radio button was clicked
+            when (view.getId()) {
+                R.id.radio_arm_left ->
+                    if (checked) {
+                        selectedArm = "I"
+                    }
+                R.id.radio_arm_right ->
+                    if (checked) {
+                        selectedArm = "D"
+                    }
             }
         }
     }
