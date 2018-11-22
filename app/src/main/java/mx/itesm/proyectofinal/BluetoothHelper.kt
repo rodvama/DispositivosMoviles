@@ -48,6 +48,7 @@ class BluetoothHelper(activity: Activity) {
         mConnectThread?.start()
 
         mConnectedThread = ConnectedThread(mConnectThread?.mmSocket!!)
+       // Thread.sleep(1000)
         mConnectedThread?.start()
     }
 
@@ -66,8 +67,7 @@ class BluetoothHelper(activity: Activity) {
             mmDevice = device
             try {
                 tmp = device.createRfcommSocketToServiceRecord(GENERIC_UUID)
-            } catch (e: IOException) {
-            }
+            } catch (e: IOException) { }
             mmSocket = tmp!!
         }
 
