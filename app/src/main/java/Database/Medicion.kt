@@ -3,8 +3,10 @@ package Database
 import android.arch.persistence.room.*
 import android.os.Parcel
 import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.sql.Date
 
+@Parcelize
 @Entity(tableName = "Medicion")
 data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?,
                     @ColumnInfo(name = "appDiastolica") var appDiastolica: String?,
@@ -15,48 +17,8 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
                     @ColumnInfo(name ="brazo") var brazo: String?,
                     @ColumnInfo(name = "grafica") var grafica: ByteArray?,
                     @ColumnInfo(name = "iniciales") var iniciales: String?): Parcelable {
+
     @ColumnInfo(name = "_id")
     @PrimaryKey(autoGenerate = true)
-    var _id: Int = 0
-
-    constructor(parcel: Parcel) : this(
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readString(),
-            parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
-            parcel.readString(),
-            parcel.createByteArray(),
-            parcel.readString()) {
-        _id = parcel.readInt()
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(appSistolica)
-        parcel.writeString(appDiastolica)
-        parcel.writeString(manSistolica)
-        parcel.writeString(manDiastolica)
-        parcel.writeString(fecha)
-        parcel.writeValue(verificado)
-        parcel.writeString(brazo)
-        parcel.writeByteArray(grafica)
-        parcel.writeString(iniciales)
-        parcel.writeInt(_id)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<Medicion> {
-        override fun createFromParcel(parcel: Parcel): Medicion {
-            return Medicion(parcel)
-        }
-
-        override fun newArray(size: Int): Array<Medicion?> {
-            return arrayOfNulls(size)
-        }
-    }
-
+    var _id:Int = 0
 }

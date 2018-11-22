@@ -5,23 +5,22 @@ import Database.MedicionDatabase
 import Database.ioThread
 import android.os.Bundle
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.arch.lifecycle.Observer
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_patient_list.*
+import java.util.*
 
-class PatientList : Activity(), CustomItemClickListener {
+class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     companion object {
         var PATIENT_KEY:String = "Medicion"
     }
 
     lateinit var instanceDatabase: MedicionDatabase
-
-    private var mediciones: ArrayList<Medicion>? = MedicionData().listaMedicion
-
-    init {
-        mediciones = MedicionData().listaMedicion
-    }
+    val adapter = MeditionAdapter(this, this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,19 +28,34 @@ class PatientList : Activity(), CustomItemClickListener {
 
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
-        lista_pacientes.adapter = MeditionAdapter(mediciones!!, this)
-        lista_pacientes.adapter?.notifyDataSetChanged()
 
         instanceDatabase = MedicionDatabase.getInstance(this)
 
-        floatingActionButton.setOnClickListener { v -> onMeasure() }
+        lista_pacientes.adapter = adapter
 
-        ioThread { loadMediciones() }
+        ioThread {
+            val measureNum = instanceDatabase.medicionDao().getAnyMedicion()
+
+            if(measureNum == 0){
+                insertMeasurements(this)
+            } else{
+                loadMediciones()
+            }
+        }
+
+        floatingActionButton.setOnClickListener { v -> onMeasure() }
     }
 
     private fun onMeasure() {
         var intent = Intent(this, MainActivity::class.java)
         startActivityForResult(intent, 2)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == 2 && resultCode == Activity.RESULT_OK){
+            //loadMediciones()
+        }
     }
 
     override fun onCustomItemClick(medicion: Medicion) {
@@ -52,11 +66,24 @@ class PatientList : Activity(), CustomItemClickListener {
     }
 
     private fun loadMediciones() {
-        ioThread {
-            mediciones = ArrayList(instanceDatabase.medicionDao().cargarMeciciones())
-            runOnUiThread {
+        val measurements = instanceDatabase.medicionDao().cargarMeciciones()
+
+        measurements.observe(this, object: Observer<List<Medicion>> {
+            override fun onChanged(t: List<Medicion>?) {
+                adapter.setMedicion(t!!)
+                lista_pacientes.adapter = adapter
                 lista_pacientes.adapter?.notifyDataSetChanged()
+
             }
+        })
+
+    }
+
+    fun insertMeasurements(context: Context){
+        val measurements:List<Medicion> = MedicionData(context).listaMedicion
+        ioThread {
+            instanceDatabase.medicionDao().insertartListaMediciones(measurements)
+            loadMediciones()
         }
     }
 

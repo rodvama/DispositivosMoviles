@@ -1,7 +1,9 @@
 package mx.itesm.proyectofinal
 
+import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
+import android.arch.lifecycle.Observer
 import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -18,37 +20,41 @@ class ActivityDetail : AppCompatActivity() {
         instanceDatabase = MedicionDatabase.getInstance(this)
 
         val extras = intent.extras?:return
-        val id = extras.getInt(PatientList.PATIENT_KEY)
+        val idExtra = extras.getInt(PatientList.PATIENT_KEY)
 
         ioThread {
-            val measurementObj = instanceDatabase.medicionDao().cargarMedicionId(id)
+            val measurementObj = instanceDatabase.medicionDao().cargarMedicionId(idExtra)
 
-            runOnUiThread{
-                title = "ID " + id.toString()
+            measurementObj.observe(this, object: Observer<Medicion>{
+                override fun onChanged(measurementObj: Medicion?) {
+                    title = measurementObj?.iniciales
 
-                checkbox_verified.isChecked = measurementObj.verificado!!
+                    checkbox_verified.isChecked = measurementObj?.verificado!!
 
-                val deviceResults = measurementObj.appSistolica + " / " + measurementObj.appDiastolica
-                tv_device_results.text = deviceResults
+                    val deviceResults = measurementObj.appSistolica + " / " + measurementObj.appDiastolica
+                    tv_device_results.text = deviceResults
 
-                val manualResults = measurementObj.manSistolica + " / " + measurementObj.manDiastolica
-                tv_manual_results.text = manualResults
+                    val manualResults = measurementObj.manSistolica + " / " + measurementObj.manDiastolica
+                    tv_manual_results.text = manualResults
 
-                if(measurementObj.brazo == "I"){
-                    tv_arm_results.text = "Izquierdo"
+                    if(measurementObj.brazo == "I"){
+                        tv_arm_results.text = "Izquierdo"
+                    }
+                    else if(measurementObj.brazo == "D") {
+                        tv_arm_results.text = "Derecho"
+                    }
+
+                    if(measurementObj.grafica != null) {
+                        val image = BitmapFactory.decodeByteArray(measurementObj.grafica, 0, measurementObj.grafica!!.size)
+                        image_graph.setImageBitmap(image)
+                    }
                 }
-                else if(measurementObj.brazo == "D") {
-                    tv_arm_results.text = "Derecho"
-                }
-
-                val image = BitmapFactory.decodeByteArray(measurementObj.grafica, 0, measurementObj.grafica!!.size)
-                image_graph.setImageBitmap(image)
-            }
+            })
         }
 
         checkbox_verified.setOnCheckedChangeListener { buttonView, isChecked ->
             ioThread {
-                instanceDatabase.medicionDao().updateMedicion(id, isChecked)
+                instanceDatabase.medicionDao().updateMedicion(idExtra, isChecked)
             }
         }
 
