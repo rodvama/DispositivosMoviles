@@ -3,17 +3,18 @@ package Database
 import android.arch.persistence.room.*
 import android.os.Parcel
 import android.os.Parcelable
+import java.sql.Date
 
 @Entity(tableName = "Medicion")
 data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?,
                     @ColumnInfo(name = "appDiastolica") var appDiastolica: String?,
                     @ColumnInfo(name = "manSistolica") var manSistolica: String?,
                     @ColumnInfo(name = "manDiastolica") var manDiastolica: String?,
-                    @ColumnInfo(name = "pulso") var pulso: String?,
                     @ColumnInfo(name = "fecha") var fecha: String?,
                     @ColumnInfo(name = "verificado") var verificado: Boolean?,
                     @ColumnInfo(name ="brazo") var brazo: String?,
-                    @ColumnInfo(name = "grafica") var grafica: ByteArray?): Parcelable {
+                    @ColumnInfo(name = "grafica") var grafica: ByteArray?,
+                    @ColumnInfo(name = "iniciales") var iniciales: String?): Parcelable {
     @ColumnInfo(name = "_id")
     @PrimaryKey(autoGenerate = true)
     var _id: Int = 0
@@ -24,10 +25,10 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
-            parcel.readString(),
             parcel.readValue(Boolean::class.java.classLoader) as? Boolean,
             parcel.readString(),
-            parcel.createByteArray()) {
+            parcel.createByteArray(),
+            parcel.readString()) {
         _id = parcel.readInt()
     }
 
@@ -36,11 +37,11 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
         parcel.writeString(appDiastolica)
         parcel.writeString(manSistolica)
         parcel.writeString(manDiastolica)
-        parcel.writeString(pulso)
         parcel.writeString(fecha)
         parcel.writeValue(verificado)
         parcel.writeString(brazo)
         parcel.writeByteArray(grafica)
+        parcel.writeString(iniciales)
         parcel.writeInt(_id)
     }
 
@@ -57,6 +58,5 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
             return arrayOfNulls(size)
         }
     }
-
 
 }

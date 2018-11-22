@@ -39,7 +39,8 @@ class BluetoothHelper(activity: Activity) {
         val pairedDevices = mBluetoothAdapter.bondedDevices
         if (pairedDevices.size > 0) {
             for (device in pairedDevices) {
-                mDevice = device
+                if (device.address == "20:15:05:27:15:42")
+                    mDevice = device
             }
         }
 

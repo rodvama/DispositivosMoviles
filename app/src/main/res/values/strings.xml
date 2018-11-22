@@ -2,11 +2,18 @@
     <string name="app_name">ProyectoFinal</string>
     <string name="text_results_title_device">Resultados del dispositivo</string>
     <string name="text_results_title_manual">Resultados manuales</string>
-    <string name="text_results_title_bpm">Ritmo cardiaco</string>
+    <string name="text_results_title_arm">Brazo usado</string>
     <string name="text_diastolic">diastólica</string>
     <string name="text_systolic">sistólica</string>
     <string name="text_forward_slash">/</string>
     <string name="button_accept">Aceptar</string>
     <string name="button_retry">Reintentar</string>
     <string name="check_verify">Verificar medición</string>
+    <string name="title_activity_patient_list">PatientList</string>
+    <string name="enviar_por_email">Enviar por correo</string>
+    <string name="manual">Manual</string>
+    <string name="dispositivo">Dispositivo</string>
+    <string name="verified">Medición verificada</string>
+    <string name="radio_left">Brazo izquierdo</string>
+    <string name="radio_right">Brazo derecho</string>
 </resources>
