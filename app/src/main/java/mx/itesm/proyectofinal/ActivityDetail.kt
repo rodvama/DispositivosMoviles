@@ -16,7 +16,7 @@ class ActivityDetail : AppCompatActivity() {
         val instanceDatabase = MedicionDatabase.getInstance(this)
 
         val extras = intent.extras?:return
-        val id = extras.getInt(PATIENT_KEY)
+        val id = extras.getInt(PatientList.PATIENT_KEY)
 
         ioThread {
             val measurementObj = instanceDatabase.medicionDao().cargarMedicionId(id)
