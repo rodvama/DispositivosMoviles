@@ -23,7 +23,7 @@ class ActivityDetail : AppCompatActivity() {
             runOnUiThread{
                 title = "ID " + id.toString()
 
-                checkbox_verified.isChecked = measurementObj.verificado
+                checkbox_verified.isChecked = measurementObj.verificado!!
 
                 val deviceResults = measurementObj.appSistolica + " / " + measurementObj.appDiastolica
                 tv_device_results.text = deviceResults

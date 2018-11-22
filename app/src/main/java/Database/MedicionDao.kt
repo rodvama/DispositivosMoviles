@@ -16,4 +16,7 @@ interface MedicionDao {
 
     @Query("SELECT * FROM Medicion WHERE _id = :id")
     fun cargarMedicionId(id: Int): Medicion
+
+    @Query ("UPDATE Medicion SET verificado = :verification WHERE _id = :id")
+    fun updateMedicion(id: Int, verification: Boolean)
 }
