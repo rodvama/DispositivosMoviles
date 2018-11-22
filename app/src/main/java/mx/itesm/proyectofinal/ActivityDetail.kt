@@ -3,10 +3,12 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
+import android.content.Intent
 import android.arch.lifecycle.Observer
 import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_detail.*
 
 class ActivityDetail : AppCompatActivity() {
@@ -58,5 +60,32 @@ class ActivityDetail : AppCompatActivity() {
             }
         }
 
+        button_enviarCorreo.setOnClickListener { v ->  sendMail(idExtra) }
+    }
+
+    fun sendMail (id:Int) {
+        ioThread {
+            val measure = instanceDatabase.medicionDao().cargarMedicionPorId(id)
+            val i = Intent(Intent.ACTION_SEND)
+            i.type = "message/rfc822"
+            //Cliente ingresa correo de remitente
+            i.putExtra(Intent.EXTRA_EMAIL, arrayOf(""))
+            i.putExtra(Intent.EXTRA_SUBJECT, "Medicion: " + measure.fecha + " " + measure.iniciales)
+
+            var text = "Fecha: " + measure.fecha +
+                    "\nIniciales: " + measure.iniciales +
+                    "\nBrazo: " + measure.brazo +
+                    "\n\nApp: \n" + "    Diastolica: " + measure.appDiastolica + "\n   Sistolica: " + measure.appSistolica +
+                    "\n\nManual: \n" + "    Diastolica: " + measure.manDiastolica + "\n   Sistolica: " + measure.manDiastolica
+
+            i.putExtra(Intent.EXTRA_TEXT, text)
+            try {
+                startActivity(Intent.createChooser(i, "Send mail..."))
+            } catch (ex: android.content.ActivityNotFoundException) {
+                Toast.makeText(applicationContext, "There are no email clients installed.", Toast.LENGTH_SHORT)
+                        .show()
+            }
+
+        }
     }
 }
