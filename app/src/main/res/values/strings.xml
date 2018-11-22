@@ -3,6 +3,7 @@
     <string name="text_results_title_device">Resultados del dispositivo</string>
     <string name="text_results_title_manual">Resultados manuales</string>
     <string name="text_results_title_arm">Brazo usado</string>
+    <string name="text_results_title_initials">Iniciales de paciente</string>
     <string name="text_diastolic">diastólica</string>
     <string name="text_systolic">sistólica</string>
     <string name="text_forward_slash">/</string>

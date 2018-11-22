@@ -10,6 +10,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.launch
 import android.content.Intent
 import android.os.Parcelable
+import android.widget.Toast
 import kotlinx.android.parcel.Parcelize
 import java.io.IOException
 import java.util.*
@@ -78,8 +79,10 @@ class MainActivity : AppCompatActivity() {
         for (data in dataList) {
             data.timer = data.timer - dataList.first().timer
         }
-        intent.putExtra(LIST_ID, ArrayList<Data>(dataList))
-        startActivityForResult(intent, 2)
+        if(dataList.size>20) {
+            intent.putExtra(LIST_ID, ArrayList<Data>(dataList))
+            startActivityForResult(intent, 2)
+        }
     }
 
     fun setTestData() {

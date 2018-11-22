@@ -1,9 +1,10 @@
 package mx.itesm.proyectofinal
 
+import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
-import android.arch.persistence.room.Database
 import android.content.Intent
+import android.arch.lifecycle.Observer
 import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -21,49 +22,55 @@ class ActivityDetail : AppCompatActivity() {
         instanceDatabase = MedicionDatabase.getInstance(this)
 
         val extras = intent.extras?:return
-        val id = extras.getInt(PATIENT_KEY)
+        val idExtra = extras.getInt(PatientList.PATIENT_KEY)
 
         ioThread {
-            val measurementObj = instanceDatabase.medicionDao().cargarMedicionId(id)
-            runOnUiThread{
-                title = "ID " + id.toString()
+            val measurementObj = instanceDatabase.medicionDao().cargarMedicionId(idExtra)
 
-                checkbox_verified.isChecked = measurementObj.verificado!!
+            measurementObj.observe(this, object: Observer<Medicion>{
+                override fun onChanged(measurementObj: Medicion?) {
+                    title = measurementObj?.iniciales
 
-                val deviceResults = measurementObj.appSistolica + " / " + measurementObj.appDiastolica
-                tv_device_results.text = deviceResults
+                    checkbox_verified.isChecked = measurementObj?.verificado!!
 
-                val manualResults = measurementObj.manSistolica + " / " + measurementObj.manDiastolica
-                tv_manual_results.text = manualResults
+                    val deviceResults = measurementObj.appSistolica + " / " + measurementObj.appDiastolica
+                    tv_device_results.text = deviceResults
 
-                if(measurementObj.brazo == "I"){
-                    tv_arm_results.text = "Izquierdo"
+                    val manualResults = measurementObj.manSistolica + " / " + measurementObj.manDiastolica
+                    tv_manual_results.text = manualResults
+
+                    if(measurementObj.brazo == "I"){
+                        tv_arm_results.text = "Izquierdo"
+                    }
+                    else if(measurementObj.brazo == "D") {
+                        tv_arm_results.text = "Derecho"
+                    }
+
+                    if(measurementObj.grafica != null) {
+                        val image = BitmapFactory.decodeByteArray(measurementObj.grafica, 0, measurementObj.grafica!!.size)
+                        image_graph.setImageBitmap(image)
+                    }
                 }
-                else if(measurementObj.brazo == "D") {
-                    tv_arm_results.text = "Derecho"
-                }
-
-                val image = BitmapFactory.decodeByteArray(measurementObj.grafica, 0, measurementObj.grafica!!.size)
-                image_graph.setImageBitmap(image)
-            }
+            })
         }
 
         checkbox_verified.setOnCheckedChangeListener { buttonView, isChecked ->
             ioThread {
-                instanceDatabase.medicionDao().updateMedicion(id, isChecked)
+                instanceDatabase.medicionDao().updateMedicion(idExtra, isChecked)
             }
         }
 
-        button_enviarCorreo.setOnClickListener { v ->  sendMail(id) }
+        button_enviarCorreo.setOnClickListener { v ->  sendMail(idExtra) }
     }
 
     fun sendMail (id:Int) {
         ioThread {
-            val measure = instanceDatabase.medicionDao().cargarMedicionId(id)
+            val measure = instanceDatabase.medicionDao().cargarMedicionPorId(id)
             val i = Intent(Intent.ACTION_SEND)
             i.type = "message/rfc822"
-            i.putExtra(Intent.EXTRA_EMAIL, arrayOf("recipient@example.com"))
-            i.putExtra(Intent.EXTRA_SUBJECT, "subject of email")
+            //Cliente ingresa correo de remitente
+            i.putExtra(Intent.EXTRA_EMAIL, arrayOf(""))
+            i.putExtra(Intent.EXTRA_SUBJECT, "Medicion: " + measure.fecha + " " + measure.iniciales)
 
             var text = "Fecha: " + measure.fecha +
                     "\nIniciales: " + measure.iniciales +
