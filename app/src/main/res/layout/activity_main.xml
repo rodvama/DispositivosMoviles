@@ -19,7 +19,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:unitOfMeasurement="mmHg"
         app:speed_limit="280"
-        app:speed="0"
         app:animationTime="500"
         app:unitOfMeasurementTextSize="24dp"
         app:minSpeed="20"

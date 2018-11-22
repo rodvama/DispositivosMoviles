@@ -321,7 +321,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
             tv_device_systolic.visibility = View.GONE
             divider2.visibility = View.GONE
             divider3.visibility = View.GONE
-            time_graph.visibility = View.GONE
+            time_graph.visibility = View.INVISIBLE
         }
     }
 

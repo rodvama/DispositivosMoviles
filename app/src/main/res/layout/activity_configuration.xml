@@ -43,41 +43,41 @@
         android:layout_height="2dp"
         android:background="?android:attr/listDivider" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_margin="10dp"-->
+        <!--android:orientation="vertical">-->
 
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Correo electrónico"
-            android:textColor="@color/colorButton"
-            android:textStyle="bold" />
+        <!--<TextView-->
+            <!--android:id="@+id/textView10"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Correo electrónico"-->
+            <!--android:textColor="@color/colorButton"-->
+            <!--android:textStyle="bold" />-->
 
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Correo electrónico"
-            tools:text="Configura la dirección de correo a la cuál se podrán mandar las mediciones" />
+        <!--<TextView-->
+            <!--android:id="@+id/textView9"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Correo electrónico"-->
+            <!--tools:text="Configura la dirección de correo a la cuál se podrán mandar las mediciones" />-->
 
-        <EditText
-            android:id="@+id/editText2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Escribe tu correo aquí"
-            android:inputType="textPersonName" />
-    </LinearLayout>
+        <!--<EditText-->
+            <!--android:id="@+id/editText2"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:ems="10"-->
+            <!--android:hint="Escribe tu correo aquí"-->
+            <!--android:inputType="textPersonName" />-->
+    <!--</LinearLayout>-->
 
-    <View
-        android:id="@+id/divider4"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="?android:attr/listDivider" />
+    <!--<View-->
+        <!--android:id="@+id/divider4"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="2dp"-->
+        <!--android:background="?android:attr/listDivider" />-->
 
     <LinearLayout
         android:layout_width="match_parent"
