@@ -106,8 +106,8 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         fixed[0] = data[0].mmHg
         fixed[1] = data[1].mmHg
 
-        mSeries.appendData(DataPoint(fixed[0]!!, data[0].timer), false, data.size)
-        mSeries.appendData(DataPoint(fixed[1]!!, data[1].timer), false, data.size)
+        mSeries.appendData(DataPoint(data[0].timer, fixed[0]!!), false, data.size)
+        mSeries.appendData(DataPoint(data[1].timer, fixed[1]!!), false, data.size)
 
 
         //Primer recorrido
@@ -123,7 +123,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
                 fixed[i] = data[i-1].mmHg
             }
 
-            mSeries.appendData(DataPoint(fixed[i]!!, data[i].timer), false, data.size)
+            mSeries.appendData(DataPoint(data[i].timer, fixed[i]!!), false, data.size)
 
             //Cálculo de mmHg mov (hasta n-5)
             fixedSum += fixed[i]!!
