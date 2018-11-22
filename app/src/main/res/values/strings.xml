@@ -9,6 +9,7 @@
     <string name="button_accept">Aceptar</string>
     <string name="button_retry">Reintentar</string>
     <string name="check_verify">Verificar medición</string>
+    <string name="verified">Medición verificada</string>
     <string name="radio_left">Brazo izquierdo</string>
     <string name="radio_right">Brazo derecho</string>
 </resources>
