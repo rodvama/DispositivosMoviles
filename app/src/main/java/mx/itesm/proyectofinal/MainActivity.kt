@@ -18,7 +18,7 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
-    var mBluetoothHelper: BluetoothHelper? = null
+    var mBluetoothHelper: BluetoothHelper? = PatientList.bluetoothHelper
     var dataList: MutableList<Data> = mutableListOf<Data>()
     var started = false
 
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mBluetoothHelper = BluetoothHelper(this)
+
         launch {
             mBluetoothHelper?.mConnectedThread.run {
                 var counter = 0.0
@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goToDetail() {
+        mBluetoothHelper?.closeConnection()
         val intent = Intent(this, ResultsActivity::class.java)
         var max = 0
         var actualData = ArrayList<Data>()
