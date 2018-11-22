@@ -24,6 +24,10 @@ interface MedicionDao {
     @Query("SELECT * FROM Medicion WHERE _id = :id")
     fun cargarMedicionId(id: Int): LiveData<Medicion>
 
+    //Cargar medicion por Id devuelve una medicion
+    @Query("SELECT * FROM Medicion WHERE _id = :id")
+    fun cargarMedicionPorId(id: Int): Medicion
+
     @Query ("UPDATE Medicion SET verificado = :verification WHERE _id = :id")
     fun updateMedicion(id: Int, verification: Boolean)
 }
