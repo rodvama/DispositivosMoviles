@@ -55,6 +55,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
 
         calculateResults(dataList)
+        verifyNurseMode()
 
         button_accept.setOnClickListener { v -> onClick(v) }
         button_retry.setOnClickListener { v -> onClick(v) }
@@ -310,6 +311,20 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         tv_device_results.text = results
     }
 
+    private fun verifyNurseMode () {
+        var examplePrefs = getSharedPreferences("Shared", 0)
+        var shared = examplePrefs.getBoolean("Shared", false)
+        if (shared) {
+            tv_device_results_title.visibility = View.GONE
+            tv_device_results.visibility = View.GONE
+            tv_device_diastolic.visibility = View.GONE
+            tv_device_systolic.visibility = View.GONE
+            divider2.visibility = View.GONE
+            divider3.visibility = View.GONE
+            time_graph.visibility = View.GONE
+        }
+    }
+
     fun toString(date: Date?): String? {
         val format = SimpleDateFormat("dd/MM/yyyy")
         return format.format(date)
@@ -320,5 +335,4 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream)
         return outputStream.toByteArray()
     }
-
 }
