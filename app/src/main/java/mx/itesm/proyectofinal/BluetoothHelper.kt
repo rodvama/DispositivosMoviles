@@ -47,8 +47,10 @@ class BluetoothHelper(activity: Activity) {
         mConnectThread = ConnectThread(mDevice!!)
         mConnectThread?.start()
 
+
+        //Thread.sleep(1000)
+
         mConnectedThread = ConnectedThread(mConnectThread?.mmSocket!!)
-       // Thread.sleep(1000)
         mConnectedThread?.start()
     }
 

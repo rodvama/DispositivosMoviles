@@ -19,6 +19,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     companion object {
         var PATIENT_KEY:String = "Medicion"
+        var bluetoothHelper: BluetoothHelper? = null
     }
 
     lateinit var instanceDatabase: MedicionDatabase
@@ -28,6 +29,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
         //setSupportActionBar(findViewById(R.id.my_toolbar))
+
+        bluetoothHelper = BluetoothHelper(this)
 
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
