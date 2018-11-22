@@ -10,6 +10,8 @@ import android.content.Intent
 import android.arch.lifecycle.Observer
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_patient_list.*
 import java.util.*
 
@@ -25,6 +27,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
+        //setSupportActionBar(findViewById(R.id.my_toolbar))
 
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
@@ -44,6 +47,11 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
 
         floatingActionButton.setOnClickListener { v -> onMeasure() }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
     }
 
     private fun onMeasure() {
@@ -84,6 +92,20 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         ioThread {
             instanceDatabase.medicionDao().insertartListaMediciones(measurements)
             loadMediciones()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId){
+            R.id.action_settings ->{
+                val intent = Intent(this, ConfigurationActivity::class.java)
+
+                startActivity(intent)
+                return true
+            }
+            else -> {
+                return false
+            }
         }
     }
 
