@@ -1,16 +1,24 @@
 package mx.itesm.proyectofinal
 
+import Database.Medicion
+import Database.MedicionDatabase
+import Database.ioThread
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.RadioButton
 import android.widget.Toast
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_results.*
+import java.io.ByteArrayOutputStream
 import java.lang.Math.abs
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -20,12 +28,14 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         const val SYSTOLIC_MANUAL = "systolic_manual_results"
         const val DIASTOLIC_MANUAL = "diastolic_manual_results"
         const val VERIFIED_VALUE = "verified_check"
+        const val SELECTED_ARM = "arm_id"
         const val GRAPH_ID = "generated_graph"
     }
 
     var systolicRes: Double = 0.0
     var diastolicRes: Double = 0.0
     var validateCheck: Boolean = false
+    var selectedArm: String = ""
 
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
 
@@ -58,27 +68,56 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View?) {
         when(view!!.id){
             R.id.button_accept -> {
-                if(edit_diastolic_manual.text.isEmpty() || edit_systolic_manual.text.isEmpty()) {
+                if(!(edit_diastolic_manual.text.isEmpty() || edit_systolic_manual.text.isEmpty() || selectedArm == "" || edit_initials.text.isEmpty())) {
                     val resultIntent = Intent()
 
-                    resultIntent.putExtra(SYSTOLIC_DEVICE, systolicRes)
-                    resultIntent.putExtra(DIASTOLIC_DEVICE, diastolicRes)
-                    resultIntent.putExtra(SYSTOLIC_MANUAL, edit_systolic_manual.text)
-                    resultIntent.putExtra(DIASTOLIC_MANUAL, edit_diastolic_manual.text)
-                    resultIntent.putExtra(VERIFIED_VALUE, validateCheck)
-                    resultIntent.putExtra(GRAPH_ID, time_graph.takeSnapshot())
+                    val fecha = toString(Calendar.getInstance().time)
 
-                    setResult(Activity.RESULT_OK, resultIntent)
+                    val image = toByteArray(time_graph.takeSnapshot())
+
+                    val instanceDatabase = MedicionDatabase.getInstance(this)
+                    ioThread {
+                        instanceDatabase.medicionDao().insertarMedicion(Medicion(systolicRes.toInt().toString(),
+                                diastolicRes.toInt().toString(),
+                                edit_systolic_manual.text.toString(),
+                                edit_diastolic_manual.text.toString(),
+                                fecha,
+                                validateCheck,
+                                selectedArm,
+                                image,
+                                edit_initials.text.toString()))
+                    }
+
+                    setResult(Activity.RESULT_OK)
                     finish()
                 }
                 else {
-                    Toast.makeText(this, "Llena los campos manuales", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Llena todos los campos manuales", Toast.LENGTH_LONG).show()
                 }
             }
 
             R.id.button_retry -> {
                 setResult(Activity.RESULT_CANCELED)
                 finish()
+            }
+        }
+    }
+
+    fun onRadioButtonClicked(view: View) {
+        if (view is RadioButton) {
+            // Is the button now checked?
+            val checked = view.isChecked
+
+            // Check which radio button was clicked
+            when (view.getId()) {
+                R.id.radio_arm_left ->
+                    if (checked) {
+                        selectedArm = "I"
+                    }
+                R.id.radio_arm_right ->
+                    if (checked) {
+                        selectedArm = "D"
+                    }
             }
         }
     }
@@ -95,9 +134,9 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         val peaks = arrayOfNulls<Double>(data.size)     //Arreglo para almacenar la ocurrencia de picos
         val start = arrayOfNulls<Double>(data.size)     //Arreglo para almacenar la ocurrencia de start
         val startMem = arrayOfNulls<Double>(data.size)  //Arreglo para guardar los valores de Start Memory
-        val startTime = arrayOfNulls<Int>(data.size)    //Arreglo para guardar los valores de Start Time
+        val startTime = arrayOfNulls<Long>(data.size)    //Arreglo para guardar los valores de Start Time
         val endMem = arrayOfNulls<Double>(data.size)    //Arreglo para guardar los valores de End Memory
-        val endTime = arrayOfNulls<Int>(data.size)      //Arreglo para guardar los valores de End Time
+        val endTime = arrayOfNulls<Long>(data.size)      //Arreglo para guardar los valores de End Time
         val cuff = arrayOfNulls<Double>(data.size)      //Arreglo donde se vayan registrando los Peak cuff
         val amp = arrayOfNulls<Double>(data.size)       //Arreglo donde se vayan registrando las amplitudes de los picos
         val systolic = arrayOfNulls<Double>(data.size)  //Arreglo para guardar los cálculos de presión sistólica
@@ -107,8 +146,8 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         fixed[0] = data[0].mmHg
         fixed[1] = data[1].mmHg
 
-        mSeries.appendData(DataPoint(fixed[0]!!, data[0].timer), false, data.size)
-        mSeries.appendData(DataPoint(fixed[1]!!, data[1].timer), false, data.size)
+        mSeries.appendData(DataPoint(data[0].timer, fixed[0]!!), false, 1000)
+        mSeries.appendData(DataPoint(data[1].timer, fixed[1]!!), false, 1000)
 
 
         //Primer recorrido
@@ -118,13 +157,13 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
                 fixed[i] = data[i].mmHg
             } else if(abs(data[i-1].mmHg - data[i-2].mmHg) >= 4){
                 fixed[i] = data[i].mmHg
-            } else if(data[i+1].mmHg != null){
+            } else if(i+1>=data.size){
                 fixed[i] = (data[i-1].mmHg + data[i+1].mmHg) / 2
             }else{
                 fixed[i] = data[i-1].mmHg
             }
 
-            mSeries.appendData(DataPoint(fixed[i]!!, data[i].timer), false, data.size)
+            mSeries.appendData(DataPoint(data[i].timer, fixed[i]!!), false, 1000)
 
             //Cálculo de mmHg mov (hasta n-5)
             fixedSum += fixed[i]!!
@@ -154,8 +193,8 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         var sumPendN = 0.0                      //Variable que se usará para el cálculo de Pend Norm mov
 
         //Inicializar valores de Start en 0
-        startMem[4] = 0.0
-        startTime[4] = 0
+        startMem[0] = 0.0
+        startTime[0] = 0
 
         //Cálculo de pendiente normalizada
         for(i in 5 until data.size){
@@ -170,23 +209,23 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
             if(i>13){
                 //Cálculo de Peaks
-                if(pendNMov[i]!! < pendNMov[i-1]!! && pendNMov[i-1]!! * pendNMov[i]!! < 0){
-                    peaks[i] = mov[i]
+                if(pendNMov[i-4]!! < pendNMov[i-5]!! && pendNMov[i-4]!! * pendNMov[i-5]!! < 0){
+                    peaks[i-4] = mov[i-4]
                 }
 
                 //Cálculo de start
-                if(pendNMov[i]!! > pendNMov[i-1]!! && pendNMov[i-1]!! * pendNMov[i]!! < 0){
-                    start[i] = mov[i]
+                if(pendNMov[i-4]!! > pendNMov[i-5]!! && pendNMov[i-5]!! * pendNMov[i-4]!! < 0){
+                    start[i-4] = mov[i-4]
                 }
             }
 
             //Cálculo de start memory y start time
-            if(start[i]!=null){
-                startMem[i] = start[i]
-                startTime[i] = data[i].timer.toInt()
+            if(start[i-4]!=null){
+                startMem[i-4] = start[i-4]
+                startTime[i-4] = data[i-4].timer.toLong()
             } else{
-                startMem[i] = startMem[i-1]
-                startTime[i] = startTime[i-1]
+                startMem[i-4] = startMem[i-5]
+                startTime[i-4] = startTime[i-5]
             }
         }
 
@@ -209,7 +248,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
             //Cálculo de start memory y start time
             if(start[i]!=null){
                 startMem[i] = start[i]
-                startTime[i] = data[i].timer.toInt()
+                startTime[i] = data[i].timer.toLong()
             } else{
                 startMem[i] = startMem[i-1]
                 startTime[i] = startTime[i-1]
@@ -224,10 +263,10 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         var ampMax = 0.0
 
         //Recorrido a la inversa para End memory y End Time
-        for(i in data.size-1 downTo 5){
+        for(i in data.size-2 downTo 5){
             if(start[i]!=null){
                 endMem[i] = startMem[i]
-                endTime[i] = data[i].timer.toInt()
+                endTime[i] = data[i].timer.toLong()
             }else{
                 endMem[i] = endMem[i+1]
                 endTime[i] = endTime[i+1]
@@ -250,7 +289,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         diastolic[data.size - 1] = 0.0
 
         //Recorrido a la inversa para el cálculo de Systolic y Diastolic
-        for(i in data.size-1 downTo 0){
+        for(i in data.size-2 downTo 0){
             if(amp[i] != null && amp[i]!! >= 0.5*ampMax){
                 systolic[i] = peaks[i]
             } else{
@@ -273,7 +312,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun verifyNurseMode () {
-        if(ConfigurationActivity.isNurseMode){
+        if (ConfigurationActivity.isNurseMode) {
             tv_device_results_title.visibility = View.GONE
             tv_device_results.visibility = View.GONE
             tv_device_diastolic.visibility = View.GONE
@@ -284,4 +323,14 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    fun toString(date: Date?): String? {
+        val format = SimpleDateFormat("dd/MM/yyyy")
+        return format.format(date)
+    }
+
+    fun toByteArray(bitmap: Bitmap): ByteArray {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream)
+        return outputStream.toByteArray()
+    }
 }

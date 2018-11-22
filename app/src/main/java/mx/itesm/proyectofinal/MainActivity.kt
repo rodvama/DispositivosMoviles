@@ -10,14 +10,16 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.launch
 import android.content.Intent
 import android.os.Parcelable
+import android.widget.Toast
 import kotlinx.android.parcel.Parcelize
 import java.io.IOException
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
     var mBluetoothHelper: BluetoothHelper? = null
-    var dataList: MutableList<Data> = Arrays.asList()
+    var dataList: MutableList<Data> = mutableListOf<Data>()
     var started = false
 
     companion object {
@@ -52,10 +54,9 @@ class MainActivity : AppCompatActivity() {
                                     mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
                                     counter++
                                 }
-                            } else {
-                                if (started) {
-                                    goToDetail()
-                                }
+                            } else if (started) {
+                                goToDetail()
+                                started = false
                             }
                         }
                     } catch (e: IOException) {
@@ -74,12 +75,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goToDetail() {
-        val intent = Intent(this, ActivityDetail::class.java)
+        val intent = Intent(this, ResultsActivity::class.java)
         for (data in dataList) {
             data.timer = data.timer - dataList.first().timer
         }
-        intent.putExtra("DataList", dataList.toTypedArray())
-        startActivityForResult(intent, 2)
+        if(dataList.size>20) {
+            intent.putExtra(LIST_ID, ArrayList<Data>(dataList))
+            startActivityForResult(intent, 2)
+        }
     }
 
     fun setTestData() {

@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.activity_configuration.*
 class ConfigurationActivity : AppCompatActivity() {
 
     companion object {
-        var isNurseMode = true
+        var isNurseMode = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
