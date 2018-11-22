@@ -76,11 +76,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun goToDetail() {
         val intent = Intent(this, ResultsActivity::class.java)
-        for (data in dataList) {
-            data.timer = data.timer - dataList.first().timer
+        var max = 0
+        var actualData = ArrayList<Data>()
+        for (i in 0 until dataList.size-1) {
+            if (dataList[max].mmHg < dataList[i].mmHg)
+                max = i
         }
-        if(dataList.size>20) {
-            intent.putExtra(LIST_ID, ArrayList<Data>(dataList))
+        var firstTime = dataList[max].timer
+        for (i in max..dataList.size-1) {
+            dataList[i].timer -= firstTime
+            actualData.add(dataList[i])
+        }
+        if(actualData.size>20) {
+            intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)
         }
     }
