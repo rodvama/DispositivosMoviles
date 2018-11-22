@@ -44,10 +44,10 @@ class MeditionAdapter(var context: Context,
         fun bind (index:Int) {
             medicion = mediciones?.get(index)!!
 
-            itemView.id_paciente.text = medicion._id.toString()
-            itemView.fecha_paciente.text = medicion.fecha
-            itemView.paciente_resultado_auto.text = medicion.appSistolica.toString() + "/" + medicion.appDiastolica.toString()
-            itemView.paciente_resultado_manual.text = medicion.manSistolica.toString() + "/" + medicion.manDiastolica.toString()
+            itemView.card_initials.text = medicion.iniciales
+            itemView.card_date.text = medicion.fecha
+            itemView.card_calc.text = medicion.appSistolica.toString() + "/" + medicion.appDiastolica.toString()
+            itemView.card_manual.text = medicion.manSistolica.toString() + "/" + medicion.manDiastolica.toString()
         }
 
         override fun onClick(v: View?) {
