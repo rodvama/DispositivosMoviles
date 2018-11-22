@@ -312,7 +312,9 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun verifyNurseMode () {
-        if (ConfigurationActivity.isNurseMode) {
+        var examplePrefs = getSharedPreferences("Shared", 0)
+        var shared = examplePrefs.getBoolean("Shared", false)
+        if (shared) {
             tv_device_results_title.visibility = View.GONE
             tv_device_results.visibility = View.GONE
             tv_device_diastolic.visibility = View.GONE

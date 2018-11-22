@@ -75,8 +75,8 @@ class ActivityDetail : AppCompatActivity() {
             var text = "Fecha: " + measure.fecha +
                     "\nIniciales: " + measure.iniciales +
                     "\nBrazo: " + measure.brazo +
-                    "\n\nApp: \n" + "    Diastolica: " + measure.appDiastolica + "\n   Sistolica: " + measure.appSistolica +
-                    "\n\nManual: \n" + "    Diastolica: " + measure.manDiastolica + "\n   Sistolica: " + measure.manDiastolica
+                    "\n\nApp: \n" + "    Sistolica: " + measure.appSistolica + "\n   Diastolica: " + measure.appDiastolica +
+                    "\n\nManual: \n" + "    Sistolica: " + measure.manSistolica + "\n   Diastolica: " + measure.manDiastolica
 
             i.putExtra(Intent.EXTRA_TEXT, text)
             try {
