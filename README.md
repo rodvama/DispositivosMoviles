@@ -30,8 +30,8 @@ Fecha de última actualización: 25/11/2018
 | Nombre  | Correo electrónico |
 | ------------- | ------------- |
 | Juan Manuel Pérez  | a00819815@itesm.mx, juanmapf97@gmail.com  |
-| Rodrigo Valencia  | <email del Tec>, <email personal>  |
-| Renato Sanchez  | <email del Tec>, <email personal>  |
+| Rodrigo Valencia  | A00818256@itesm.mx, rodvama@gmail.com  |
+| Renato Sanchez  | A01281104@itesm.mx, renatosancheznevarez@gmail.com  |
 | Ian Granados  | <email del Tec>, <email personal>  |
 
 ### Profesor:
