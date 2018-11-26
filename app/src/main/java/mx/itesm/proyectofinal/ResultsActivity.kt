@@ -115,6 +115,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.button_retry -> {
                 setResult(Activity.RESULT_CANCELED)
+                PatientList.bluetoothHelper?.startConnection()
                 finish()
             }
         }

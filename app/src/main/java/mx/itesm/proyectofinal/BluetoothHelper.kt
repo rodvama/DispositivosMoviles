@@ -30,6 +30,9 @@ class BluetoothHelper(activity: Activity) {
     private var mConnectThread: ConnectThread?
     var mConnectedThread: ConnectedThread?
     var mBluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    var dataList: MutableList<Data> = mutableListOf()
+    var started = false
+    //var counter = 0.0
 
     init {
         mConnectThread = null
@@ -52,6 +55,7 @@ class BluetoothHelper(activity: Activity) {
     }
 
     fun startConnection() {
+        dataList.clear()
         var mDevice: BluetoothDevice? = null
         val pairedDevices = mBluetoothAdapter.bondedDevices
         if (pairedDevices.size > 0) {
@@ -63,9 +67,6 @@ class BluetoothHelper(activity: Activity) {
 
         mConnectThread = ConnectThread(mDevice!!)
         mConnectThread?.start()
-
-
-        //Thread.sleep(1000)
 
         mConnectedThread = ConnectedThread(mConnectThread?.mmSocket!!)
         mConnectedThread?.start()
@@ -125,6 +126,34 @@ class BluetoothHelper(activity: Activity) {
             }
 
             mmInStream = tmpIn
+        }
+
+        override fun run() {
+            while (true) {
+                try {
+                    val data = mmInStream?.bufferedReader()?.readLine()
+                    if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+                        val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+                        val pulse = data.substringAfterLast(';')
+                        if (pressure.toFloat() > 20f) {
+                            if (!started) {
+                                started = true
+                            }
+                            dataList.add(Data(System.currentTimeMillis().toDouble(), pressure.toDouble(), pulse.toDouble()))
+                            //counter++
+//                            runOnUiThread {
+//                                speedMeter.setSpeed(pressure.toFloat())
+//                                mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
+//                                counter++
+//                            }
+                        } else if (started) {
+                            started = false
+                        }
+                    }
+                } catch (e: IOException) {
+                    break
+                }
+            }
         }
 
         fun cancel() {
