@@ -22,6 +22,9 @@ import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 
+/*
+ * Declares the entity of the Measurement database based on a Singleton design pattern.
+ */
 @Database(entities = [Medicion::class], version = 1, exportSchema = false)
 abstract class MedicionDatabase : RoomDatabase() {
 

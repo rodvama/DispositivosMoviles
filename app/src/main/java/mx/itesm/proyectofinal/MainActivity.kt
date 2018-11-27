@@ -33,6 +33,9 @@ import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
 
+/*
+ * MainActivity class declares the activity and inflates the view.
+ */
 class MainActivity : AppCompatActivity() {
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
     var mBluetoothHelper: BluetoothHelper? = PatientList.bluetoothHelper
@@ -47,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Creates the view and initialized the run method for the connected thread.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -91,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         graph.viewport.setMaxX(40.toDouble())
     }
 
+    // Handles redirecting and passing information to the ResultsActivity
     private fun goToDetail() {
         mBluetoothHelper?.closeConnection()
         val intent = Intent(this, ResultsActivity::class.java)
@@ -115,6 +120,8 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Handles receiving information from the ResultsActivity and either restarting measurement or
+    // redirecting to PatientsList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -190,6 +197,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+// Data class. An ArrayList of this type is sent to ResultsActivity
 @Parcelize
 data class Data(var timer: Double, var mmHg: Double, var pulse: Double) : Parcelable
 

@@ -20,6 +20,7 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import android.content.Context
 
+// Declares test data for the application.
 class MedicionData(val context: Context) {
 
     var listaMedicion: ArrayList<Medicion> = ArrayList()

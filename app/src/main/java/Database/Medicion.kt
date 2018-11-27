@@ -23,6 +23,9 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 import java.sql.Date
 
+/*
+ * Declares the measurement data that is stored in the database
+ */
 @Parcelize
 @Entity(tableName = "Medicion")
 data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?,

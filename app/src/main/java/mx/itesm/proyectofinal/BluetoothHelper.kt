@@ -26,11 +26,27 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.*
 
+/*
+ * Bluetooth Helper. Handles connecting and disconnecting bluetooth communication to and from
+ * external device. Declares sockets and selects device to connect to.
+ * @params. activity. The activity that handles the bluetooth communication. Preferably an activity
+ * that executes at the start of the application.
+ */
 class BluetoothHelper(activity: Activity) {
+    // The thread that searches and extracts the socket through which communication with the
+    // bluetooth device is initiated.
     private var mConnectThread: ConnectThread?
+
+    // Thread that handles receiving information from external device.
     var mConnectedThread: ConnectedThread?
+
+    // The default bluetooth adapter from the device.
     var mBluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
+    /*
+     * Initializes the connection threads and checks that bluetooth is enabled in the device.
+     * Proceeds to call the bluetooth enabling intent or start the connection.
+     */
     init {
         mConnectThread = null
         mConnectedThread = null
@@ -43,14 +59,24 @@ class BluetoothHelper(activity: Activity) {
         }
     }
 
+    /*
+     * Returns if the bluetooth device is connected and ready to communicate
+     */
     fun isDeviceConnected(): Boolean {
         return mBluetoothAdapter.bondedDevices.size > 0
     }
 
+    /*
+     * Returns if the bluetooth adapter is enabled
+     */
     fun isEnabled(): Boolean {
         return mBluetoothAdapter.isEnabled
     }
 
+    /*
+     * Handles starting the connection to the external device depending on the paired devices with
+     * the smart phone and runs both connect and connected threads.
+     */
     fun startConnection() {
         var mDevice: BluetoothDevice? = null
         val pairedDevices = mBluetoothAdapter.bondedDevices
@@ -64,23 +90,29 @@ class BluetoothHelper(activity: Activity) {
         mConnectThread = ConnectThread(mDevice!!)
         mConnectThread?.start()
 
-
-        //Thread.sleep(1000)
-
         mConnectedThread = ConnectedThread(mConnectThread?.mmSocket!!)
         mConnectedThread?.start()
     }
 
+    /*
+     * Closes both connect and connected threads.
+     */
     fun closeConnection() {
         mConnectThread?.cancel()
         mConnectedThread?.cancel()
     }
 
+    /*
+     * Declaration of the Connect Thread. Inherits behaviour from the Thread class.
+     */
     inner class ConnectThread(device: BluetoothDevice) : Thread() {
         var mmSocket: BluetoothSocket?
         var mmDevice: BluetoothDevice?
         private val GENERIC_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")!!
 
+        /*
+         * Initializes the bluetooth socket and starts communication
+         */
         init {
             var tmp: BluetoothSocket? = null
             mmDevice = device
@@ -90,6 +122,10 @@ class BluetoothHelper(activity: Activity) {
             mmSocket = tmp!!
         }
 
+        /*
+         * Code that is ran when the thread is started. Cancels discovery and starts connection
+         * with socket.
+         */
         override fun run() {
             mBluetoothAdapter.cancelDiscovery()
             try {
@@ -105,6 +141,9 @@ class BluetoothHelper(activity: Activity) {
 
         }
 
+        /*
+         * Cancels connection to socket
+         */
         fun cancel() {
             try {
                 mmSocket?.close()
@@ -113,10 +152,15 @@ class BluetoothHelper(activity: Activity) {
 
         }
     }
-
+     /*
+      * Declaration of the Connected Thread. Inherits behaviour from the Thread class.
+      */
     inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
         val mmInStream: InputStream?
 
+         /*
+         * Initializes the bluetooth input stream and starts communication
+         */
         init {
             var tmpIn: InputStream? = null
             try {
@@ -127,6 +171,9 @@ class BluetoothHelper(activity: Activity) {
             mmInStream = tmpIn
         }
 
+         /*
+          * Closes connection to socket
+          */
         fun cancel() {
             try {
                 mmSocket.close()
