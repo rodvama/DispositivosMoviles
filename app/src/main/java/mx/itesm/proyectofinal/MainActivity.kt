@@ -27,12 +27,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.launch
 import android.content.Intent
 import android.os.Parcelable
-import android.widget.Toast
 import kotlinx.android.parcel.Parcelize
-import java.io.IOException
-import java.util.*
+import kotlinx.coroutines.experimental.cancel
 import kotlin.collections.ArrayList
 
+/*
+ * MainActivity class declares the activity and inflates the view.
+ */
 class MainActivity : AppCompatActivity() {
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
     var mBluetoothHelper: BluetoothHelper? = PatientList.bluetoothHelper
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    // Creates the view and initialized the run method for the connected thread.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -89,10 +91,15 @@ class MainActivity : AppCompatActivity() {
         graph.viewport.isXAxisBoundsManual = true
         graph.viewport.setMinX(0.toDouble())
         graph.viewport.setMaxX(40.toDouble())
+
+        mBluetoothHelper?.started = true
+
+        launchRefreshUiCheck()
     }
 
+    // Handles redirecting and passing information to the ResultsActivity
     fun goToDetail() {
-        mBluetoothHelper?.closeConnection()
+        //mBluetoothHelper?.closeConnection()
         val intent = Intent(this, ResultsActivity::class.java)
         var max = 0
         var actualData = ArrayList<Data>()
@@ -106,6 +113,8 @@ class MainActivity : AppCompatActivity() {
             actualData.add(mBluetoothHelper?.dataList!![i])
         }
         if(actualData.size > 20) {
+            mBluetoothHelper?.dataList?.clear()
+            mSeries.resetData(arrayOfNulls(0))
             intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)
         }
@@ -119,20 +128,29 @@ class MainActivity : AppCompatActivity() {
                 if (dataSize != mBluetoothHelper?.dataList!!.size) {
                     dataSize = mBluetoothHelper?.dataList!!.size
                     runOnUiThread {
-                        speedMeter.setSpeed(mBluetoothHelper?.dataList!![dataSize-1].mmHg.toFloat())
-                        mSeries.appendData(DataPoint(counter, mBluetoothHelper?.dataList!![dataSize-1].pulse), false, 1000)
-                        counter++
+                        if (mBluetoothHelper?.dataList!!.size > 0) {
+                            speedMeter.setSpeed(mBluetoothHelper?.dataList!![dataSize-1].mmHg.toFloat())
+                            mSeries.appendData(DataPoint(counter, mBluetoothHelper?.dataList!![dataSize-1].pulse), false, 1000)
+                            counter++
+                        }
                     }
+                    if (mBluetoothHelper?.dataList != null && mBluetoothHelper?.dataList!!.size > 0 && mBluetoothHelper?.dataList!!.size > 250 && mBluetoothHelper?.dataList!!.last().mmHg >= 0 && mBluetoothHelper?.dataList!!.last().mmHg <= 25)
+                        mBluetoothHelper?.started = false
                 }
             }
+            goToDetail()
         }
     }
 
+    // Handles receiving information from the ResultsActivity and either restarting measurement or
+    // redirecting to PatientsList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            mBluetoothHelper?.startConnection()
+            //mBluetoothHelper?.startConnection()
+            mBluetoothHelper?.started = true
+            launchRefreshUiCheck()
 //            launch {
 //                mBluetoothHelper?.mConnectedThread.run {
 //                    var counter = 0.0
@@ -167,9 +185,9 @@ class MainActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK)
             finish()
         } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
-            mBluetoothHelper?.started = false
-            mBluetoothHelper?.startConnection()
-
+            //mBluetoothHelper?.startConnection()
+            mBluetoothHelper?.started = true
+            launchRefreshUiCheck()
 //            launch {
 //                mBluetoothHelper?.mConnectedThread.run {
 //                    var counter = 0.0
@@ -204,6 +222,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+// Data class. An ArrayList of this type is sent to ResultsActivity
 @Parcelize
 data class Data(var timer: Double, var mmHg: Double, var pulse: Double) : Parcelable
 

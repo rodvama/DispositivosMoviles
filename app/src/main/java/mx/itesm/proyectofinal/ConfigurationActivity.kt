@@ -22,8 +22,10 @@ import android.os.Bundle
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_configuration.*
 
+// Configuration activity declaration and view inflation
 class ConfigurationActivity : AppCompatActivity() {
 
+    // Creates the activity and inflates the view
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_configuration)
@@ -38,15 +40,14 @@ class ConfigurationActivity : AppCompatActivity() {
             editor.commit()
         }
 
-        var bluetoothHelper = BluetoothHelper(this)
-
-        if (bluetoothHelper.isEnabled() && bluetoothHelper.isDeviceConnected()) {
+        if (PatientList.bluetoothHelper!!.isEnabled() && PatientList.bluetoothHelper!!.isDeviceConnected()) {
             textView4.text = "El dispositivo de onda de pulso se encuentra conectado."
         } else {
             textView4.text = "El dispositivo de onda de pulso no se encuentra conectado."
         }
     }
 
+    // Handles clicking the back button
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> {
@@ -57,6 +58,7 @@ class ConfigurationActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    // Handles clicking the back button
     override fun onBackPressed() {
         super.onBackPressed()
         finish()

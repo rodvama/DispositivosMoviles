@@ -21,6 +21,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.*
 import android.arch.persistence.room.Dao
 
+// Data handling of the information in the database
 @Dao
 interface MedicionDao {
     @Query("SELECT * FROM Medicion")

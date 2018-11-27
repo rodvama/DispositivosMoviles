@@ -37,6 +37,9 @@ import java.lang.Math.abs
 import java.text.SimpleDateFormat
 import java.util.*
 
+/*
+ * Resulsts activtiy. Creates the activity and inflates the view.
+ */
 class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
@@ -115,7 +118,6 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.button_retry -> {
                 setResult(Activity.RESULT_CANCELED)
-                PatientList.bluetoothHelper?.startConnection()
                 finish()
             }
         }

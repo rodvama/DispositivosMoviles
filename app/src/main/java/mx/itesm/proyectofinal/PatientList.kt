@@ -32,16 +32,29 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_patient_list.*
 import java.util.*
 
+/*
+ * Declares the patient measurements list. This is the first and main page of the application
+ */
 class PatientList : AppCompatActivity(), CustomItemClickListener {
 
+    /*
+     * Companion objects. Since this is the first activity to execute, this one declares the
+     * bluetooth helper and initializes it.
+     */
     companion object {
         var PATIENT_KEY:String = "Medicion"
         var bluetoothHelper: BluetoothHelper? = null
     }
 
+    // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
+
+    // The RecyclerView adapter declaration
     val adapter = MeditionAdapter(this, this)
 
+    /*
+     * Creates the Patient List activity and inflates the view. Also initializes database calls.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
@@ -69,16 +82,21 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         floatingActionButton.setOnClickListener { v -> onMeasure() }
     }
 
+    /*
+     * Inflates FAB button
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
+    // Starts the MainActivity, which starts measuring data from the bluetooth device.
     private fun onMeasure() {
         var intent = Intent(this, MainActivity::class.java)
         startActivityForResult(intent, 2)
     }
 
+    // When receiving information from the measurement class
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == 2 && resultCode == Activity.RESULT_OK){
@@ -86,6 +104,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
     }
 
+    // Custom item click listener for each measurement
     override fun onCustomItemClick(medicion: Medicion) {
         val intent = Intent(this, ActivityDetail::class.java)
 
@@ -93,6 +112,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         startActivity(intent)
     }
 
+    // Loads measurements from database
     private fun loadMediciones() {
         val measurements = instanceDatabase.medicionDao().cargarMeciciones()
 
@@ -107,6 +127,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     }
 
+    // Inserts a new measurements to the list in DB
     fun insertMeasurements(context: Context){
         val measurements:List<Medicion> = MedicionData(context).listaMedicion
         ioThread {
@@ -115,6 +136,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
     }
 
+    // Handles clicking options item
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId){
             R.id.action_settings ->{
