@@ -101,17 +101,18 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, ResultsActivity::class.java)
         var max = 0
         var actualData = ArrayList<Data>()
-        for (i in 0 until mBluetoothHelper?.dataList!!.size-1) {
-            if (mBluetoothHelper?.dataList!![max].mmHg < mBluetoothHelper?.dataList!![i].mmHg)
+        var holder = mBluetoothHelper?.dataList!!
+        for (i in 0 until holder.size-1) {
+            if (holder[max].mmHg < holder[i].mmHg)
                 max = i
         }
-        var firstTime = mBluetoothHelper?.dataList!![max].timer
-        for (i in max until mBluetoothHelper?.dataList!!.size-1) {
-            mBluetoothHelper?.dataList!![i].timer -= firstTime
-            actualData.add(mBluetoothHelper?.dataList!![i])
+        var firstTime = holder[max].timer
+        for (i in max until holder.size-1) {
+            holder[i].timer -= firstTime
+            actualData.add(holder[i])
         }
         if(actualData.size > 20) {
-            mBluetoothHelper?.dataList?.clear()
+            mBluetoothHelper?.dataList!!.clear()
             mSeries.resetData(arrayOfNulls(0))
             intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)

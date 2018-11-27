@@ -99,6 +99,10 @@ class ActivityDetail : AppCompatActivity() {
     // Handles clicking options item
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
+            android.R.id.home -> {
+                this.onBackPressed()
+                return true
+            }
             R.id.action_delete ->{
                 val data = Intent()
                 data.putExtra(
@@ -146,5 +150,11 @@ class ActivityDetail : AppCompatActivity() {
             }
 
         }
+    }
+
+    // Handles clicking the back button
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
 }
