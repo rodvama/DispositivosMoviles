@@ -5,25 +5,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ActivityDetail">
-    
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <CheckBox
                 android:id="@+id/checkbox_verified"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_width="190dp"
+                android:layout_height="28dp"
                 android:layout_marginStart="16dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="33dp"
                 android:text="@string/verified"
-                android:textSize="18sp"/>
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_title_device"
@@ -35,7 +38,7 @@
                 android:textColor="@color/colorButton"
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/checkbox_verified"/>
+                app:layout_constraintTop_toBottomOf="@id/checkbox_verified" />
 
             <TextView
                 android:id="@+id/tv_device_results"
@@ -46,7 +49,7 @@
                 android:textColor="@color/colorGoodText"
                 android:textSize="56sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_title_device"/>
+                app:layout_constraintTop_toBottomOf="@id/tv_title_device" />
 
             <View
                 android:id="@+id/divider1"
@@ -56,7 +59,7 @@
                 android:background="?android:attr/listDivider"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_device_results"/>
+                app:layout_constraintTop_toBottomOf="@id/tv_device_results" />
 
             <TextView
                 android:id="@+id/tv_title_manual"
@@ -68,7 +71,7 @@
                 android:textColor="@color/colorButton"
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/divider1"/>
+                app:layout_constraintTop_toBottomOf="@id/divider1" />
 
             <TextView
                 android:id="@+id/tv_manual_results"
@@ -79,7 +82,7 @@
                 android:textColor="@android:color/black"
                 android:textSize="48sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_title_manual"/>
+                app:layout_constraintTop_toBottomOf="@id/tv_title_manual" />
 
             <View
                 android:id="@+id/divider2"
@@ -89,7 +92,7 @@
                 android:background="?android:attr/listDivider"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_manual_results"/>
+                app:layout_constraintTop_toBottomOf="@id/tv_manual_results" />
 
             <TextView
                 android:id="@+id/tv_title_arm"
@@ -101,7 +104,7 @@
                 android:textColor="@color/colorButton"
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/divider2"/>
+                app:layout_constraintTop_toBottomOf="@id/divider2" />
 
             <TextView
                 android:id="@+id/tv_arm_results"
@@ -112,7 +115,7 @@
                 android:textColor="@android:color/black"
                 android:textSize="22sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_title_arm"/>
+                app:layout_constraintTop_toBottomOf="@id/tv_title_arm" />
 
             <View
                 android:id="@+id/divider3"
@@ -122,26 +125,18 @@
                 android:background="?android:attr/listDivider"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_arm_results"/>
+                app:layout_constraintTop_toBottomOf="@id/tv_arm_results" />
 
             <ImageView
                 android:id="@+id/image_graph"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin = "16dp"
+                android:layout_margin="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/divider3"
-                app:srcCompat="@drawable/pressure_graph"/>
-            <Button
-                android:id="@+id/button_enviarCorreo"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/image_graph"
-                android:text="@string/enviar_por_email" />
+                app:srcCompat="@drawable/pressure_graph" />
+
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

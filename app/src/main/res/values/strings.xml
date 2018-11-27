@@ -12,6 +12,7 @@
     <string name="check_verify">Verificar medición</string>
     <string name="title_activity_patient_list">PatientList</string>
     <string name="enviar_por_email">Enviar por correo</string>
+    <string name="eliminar">Eliminar medicion</string>
     <string name="manual">Manual</string>
     <string name="dispositivo">Dispositivo</string>
     <string name="verified">Medición verificada</string>
