@@ -28,8 +28,6 @@ import kotlinx.coroutines.experimental.launch
 import android.content.Intent
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.experimental.cancel
-import kotlin.collections.ArrayList
 
 /*
  * MainActivity class declares the activity and inflates the view.

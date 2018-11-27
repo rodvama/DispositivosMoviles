@@ -20,17 +20,25 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
+import android.app.Activity
+import android.arch.lifecycle.LiveData
 import android.content.Intent
 import android.arch.lifecycle.Observer
 import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_detail.*
+import mx.itesm.proyectofinal.PatientList.Companion.DEL
+import mx.itesm.proyectofinal.PatientList.Companion.DELETE_ID
 
 class ActivityDetail : AppCompatActivity() {
 
     lateinit var instanceDatabase: MedicionDatabase
+    var idExtra: Int = 0
+    lateinit var measurementObj: LiveData<Medicion>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +46,12 @@ class ActivityDetail : AppCompatActivity() {
 
         instanceDatabase = MedicionDatabase.getInstance(this)
 
+
         val extras = intent.extras?:return
-        val idExtra = extras.getInt(PatientList.PATIENT_KEY)
+        idExtra = extras.getInt(PatientList.PATIENT_KEY)
 
         ioThread {
-            val measurementObj = instanceDatabase.medicionDao().cargarMedicionId(idExtra)
+           measurementObj = instanceDatabase.medicionDao().cargarMedicionId(idExtra)
 
             measurementObj.observe(this, object: Observer<Medicion>{
                 override fun onChanged(measurementObj: Medicion?) {
@@ -77,12 +86,45 @@ class ActivityDetail : AppCompatActivity() {
             }
         }
 
-        button_enviarCorreo.setOnClickListener { v ->  sendMail(idExtra) }
     }
 
-    fun sendMail (id:Int) {
+    /*
+ * Inflates FAB button
+ */
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_detail, menu)
+        return true
+    }
+
+    // Handles clicking options item
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.action_delete ->{
+                val data = Intent()
+                data.putExtra(
+                        DELETE_ID,
+                        this.idExtra
+                )
+                data.putExtra(DEL, true )
+                setResult(Activity.RESULT_OK, data)
+
+                measurementObj.removeObservers(this)
+                finish()
+                true
+            }
+            R.id.action_sendEmail-> {
+                sendMail()
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
+    fun sendMail () {
         ioThread {
-            val measure = instanceDatabase.medicionDao().cargarMedicionPorId(id)
+            val measure = instanceDatabase.medicionDao().cargarMedicionPorId(idExtra)
             val i = Intent(Intent.ACTION_SEND)
             i.type = "message/rfc822"
             //Cliente ingresa correo de remitente
