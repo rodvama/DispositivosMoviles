@@ -30,7 +30,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_patient_list.*
-import java.util.*
 
 /*
  * Declares the patient measurements list. This is the first and main page of the application
@@ -44,6 +43,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     companion object {
         var PATIENT_KEY:String = "Medicion"
         var bluetoothHelper: BluetoothHelper? = null
+        var DELETE_ID: String = "id"
+        var DEL: String = "Borrar ?"
     }
 
     // Database variable initialization
@@ -58,7 +59,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
-        //setSupportActionBar(findViewById(R.id.my_toolbar))
 
         bluetoothHelper = BluetoothHelper(this)
 
@@ -102,6 +102,14 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         if(requestCode == 2 && resultCode == Activity.RESULT_OK){
             //loadMediciones()
         }
+
+        if (requestCode == 3 && resultCode == Activity.RESULT_OK){
+            if (data?.getBooleanExtra(DEL, false) == true) {
+                ioThread {
+                    instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
+                }
+            }
+        }
     }
 
     // Custom item click listener for each measurement
@@ -109,7 +117,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val intent = Intent(this, ActivityDetail::class.java)
 
         intent.putExtra(PATIENT_KEY, medicion._id)
-        startActivity(intent)
+        startActivityForResult(intent, 3)
     }
 
     // Loads measurements from database
@@ -138,15 +146,15 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Handles clicking options item
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId){
+        return when (item?.itemId){
             R.id.action_settings ->{
                 val intent = Intent(this, ConfigurationActivity::class.java)
 
                 startActivity(intent)
-                return true
+                true
             }
             else -> {
-                return false
+                false
             }
         }
     }

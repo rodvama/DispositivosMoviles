@@ -21,7 +21,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PatientList"/>
         </activity>
-        <activity android:name=".ActivityDetail" />
+        <activity
+            android:name=".ActivityDetail"
+            android:parentActivityName=".PatientList"
+            />
         <activity
             android:name=".PatientList"
             android:label="@string/title_activity_patient_list">

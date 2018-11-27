@@ -27,10 +27,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.launch
 import android.content.Intent
 import android.os.Parcelable
-import android.widget.Toast
 import kotlinx.android.parcel.Parcelize
 import java.io.IOException
-import java.util.*
 import kotlin.collections.ArrayList
 
 /*
@@ -114,10 +112,6 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)
         }
-    }
-
-    fun setTestData() {
-
     }
 
     // Handles receiving information from the ResultsActivity and either restarting measurement or

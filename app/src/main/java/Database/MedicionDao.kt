@@ -36,8 +36,8 @@ interface MedicionDao {
     @Insert
     fun insertartListaMediciones(mediciones: List<Medicion>)
 
-    @Delete
-    fun borrarMedicion(meciones: Medicion)
+    @Query("DELETE FROM Medicion WHERE _id = :id")
+    fun borrarMedicion(id: Int)
 
     @Query("SELECT * FROM Medicion WHERE _id = :id")
     fun cargarMedicionId(id: Int): LiveData<Medicion>
