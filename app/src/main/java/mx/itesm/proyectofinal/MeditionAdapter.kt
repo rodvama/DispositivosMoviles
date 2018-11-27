@@ -25,6 +25,7 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.row.view.*
 
+// Declares the adapter for the RecyclerView in PatientsList
 class MeditionAdapter(var context: Context,
                       val listener: CustomItemClickListener): RecyclerView.Adapter<MeditionAdapter.MeditionViewHolder>() {
 

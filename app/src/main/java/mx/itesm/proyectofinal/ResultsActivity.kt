@@ -37,6 +37,9 @@ import java.lang.Math.abs
 import java.text.SimpleDateFormat
 import java.util.*
 
+/*
+ * Resulsts activtiy. Creates the activity and inflates the view.
+ */
 class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
