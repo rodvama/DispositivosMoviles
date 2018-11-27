@@ -40,9 +40,7 @@ class ConfigurationActivity : AppCompatActivity() {
             editor.commit()
         }
 
-        var bluetoothHelper = BluetoothHelper(this)
-
-        if (bluetoothHelper.isEnabled() && bluetoothHelper.isDeviceConnected()) {
+        if (PatientList.bluetoothHelper!!.isEnabled() && PatientList.bluetoothHelper!!.isDeviceConnected()) {
             textView4.text = "El dispositivo de onda de pulso se encuentra conectado."
         } else {
             textView4.text = "El dispositivo de onda de pulso no se encuentra conectado."

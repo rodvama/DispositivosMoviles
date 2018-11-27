@@ -28,8 +28,6 @@ import kotlinx.coroutines.experimental.launch
 import android.content.Intent
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
-import java.io.IOException
-import kotlin.collections.ArrayList
 
 /*
  * MainActivity class declares the activity and inflates the view.
@@ -37,8 +35,8 @@ import kotlin.collections.ArrayList
 class MainActivity : AppCompatActivity() {
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
     var mBluetoothHelper: BluetoothHelper? = PatientList.bluetoothHelper
-    var dataList: MutableList<Data> = mutableListOf<Data>()
-    var started = false
+    //var dataList: MutableList<Data> = mutableListOf<Data>()
+    //var started = false
 
     companion object {
         const val LIST_ID = "DataList"
@@ -54,36 +52,36 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        launch {
-            mBluetoothHelper?.mConnectedThread.run {
-                var counter = 0.0
-                while (true) {
-                    try {
-                        val data = this?.mmInStream?.bufferedReader()?.readLine()
-                        if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
-                            val pressure = data.substringBeforeLast(';').substringAfterLast(';')
-                            val pulse = data.substringAfterLast(';')
-                            if (pressure.toFloat() > 20f) {
-                                if (!started) {
-                                    started = true
-                                }
-                                dataList.add(Data(System.currentTimeMillis().toDouble(), pressure.toDouble(), pulse.toDouble()))
-                                runOnUiThread {
-                                    speedMeter.setSpeed(pressure.toFloat())
-                                    mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
-                                    counter++
-                                }
-                            } else if (started) {
-                                goToDetail()
-                                started = false
-                            }
-                        }
-                    } catch (e: IOException) {
-                        break
-                    }
-                }
-            }
-        }
+//        launch {
+//            mBluetoothHelper?.mConnectedThread.run {
+//                var counter = 0.0
+//                while (true) {
+//                    try {
+//                        val data = this?.mmInStream?.bufferedReader()?.readLine()
+//                        if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+//                            val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+//                            val pulse = data.substringAfterLast(';')
+//                            if (pressure.toFloat() > 20f) {
+//                                if (!started) {
+//                                    started = true
+//                                }
+//                                dataList.add(Data(System.currentTimeMillis().toDouble(), pressure.toDouble(), pulse.toDouble()))
+//                                runOnUiThread {
+//                                    speedMeter.setSpeed(pressure.toFloat())
+//                                    mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
+//                                    counter++
+//                                }
+//                            } else if (started) {
+//                                goToDetail()
+//                                started = false
+//                            }
+//                        }
+//                    } catch (e: IOException) {
+//                        break
+//                    }
+//                }
+//            }
+//        }
 
         mSeries.color = Color.parseColor("#E84A48")
         graph.addSeries(mSeries)
@@ -91,26 +89,55 @@ class MainActivity : AppCompatActivity() {
         graph.viewport.isXAxisBoundsManual = true
         graph.viewport.setMinX(0.toDouble())
         graph.viewport.setMaxX(40.toDouble())
+
+        mBluetoothHelper?.started = true
+
+        launchRefreshUiCheck()
     }
 
     // Handles redirecting and passing information to the ResultsActivity
-    private fun goToDetail() {
-        mBluetoothHelper?.closeConnection()
+    fun goToDetail() {
+        //mBluetoothHelper?.closeConnection()
         val intent = Intent(this, ResultsActivity::class.java)
         var max = 0
         var actualData = ArrayList<Data>()
-        for (i in 0 until dataList.size-1) {
-            if (dataList[max].mmHg < dataList[i].mmHg)
+        var holder = mBluetoothHelper?.dataList!!
+        for (i in 0 until holder.size-1) {
+            if (holder[max].mmHg < holder[i].mmHg)
                 max = i
         }
-        var firstTime = dataList[max].timer
-        for (i in max..dataList.size-1) {
-            dataList[i].timer -= firstTime
-            actualData.add(dataList[i])
+        var firstTime = holder[max].timer
+        for (i in max until holder.size-1) {
+            holder[i].timer -= firstTime
+            actualData.add(holder[i])
         }
-        if(actualData.size>20) {
+        if(actualData.size > 20) {
+            mBluetoothHelper?.dataList!!.clear()
+            mSeries.resetData(arrayOfNulls(0))
             intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)
+        }
+    }
+
+    fun launchRefreshUiCheck() {
+        launch {
+            var dataSize = 0
+            var counter = 0.0
+            while (mBluetoothHelper?.started!!) {
+                if (dataSize != mBluetoothHelper?.dataList!!.size) {
+                    dataSize = mBluetoothHelper?.dataList!!.size
+                    runOnUiThread {
+                        if (mBluetoothHelper?.dataList!!.size > 0) {
+                            speedMeter.setSpeed(mBluetoothHelper?.dataList!![dataSize-1].mmHg.toFloat())
+                            mSeries.appendData(DataPoint(counter, mBluetoothHelper?.dataList!![dataSize-1].pulse), false, 1000)
+                            counter++
+                        }
+                    }
+                    if (mBluetoothHelper?.dataList != null && mBluetoothHelper?.dataList!!.size > 0 && mBluetoothHelper?.dataList!!.size > 250 && mBluetoothHelper?.dataList!!.last().mmHg >= 0 && mBluetoothHelper?.dataList!!.last().mmHg <= 25)
+                        mBluetoothHelper?.started = false
+                }
+            }
+            goToDetail()
         }
     }
 
@@ -120,73 +147,76 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            mBluetoothHelper?.startConnection()
-            launch {
-                mBluetoothHelper?.mConnectedThread.run {
-                    var counter = 0.0
-                    while (true) {
-                        try {
-                            val data = this?.mmInStream?.bufferedReader()?.readLine()
-                            if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
-                                val pressure = data.substringBeforeLast(';').substringAfterLast(';')
-                                val pulse = data.substringAfterLast(';')
-                                if (pressure.toFloat() > 20f) {
-                                    if (!started) {
-                                        started = true
-                                    }
-                                    runOnUiThread {
-                                        speedMeter.setSpeed(pressure.toFloat())
-                                        mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
-                                        counter++
-                                    }
-                                } else {
-                                    if (started) {
-                                        goToDetail()
-                                    }
-                                }
-                            }
-                        } catch (e: IOException) {
-                            break
-                        }
-                    }
-                }
-            }
+            //mBluetoothHelper?.startConnection()
+            mBluetoothHelper?.started = true
+            launchRefreshUiCheck()
+//            launch {
+//                mBluetoothHelper?.mConnectedThread.run {
+//                    var counter = 0.0
+//                    while (true) {
+//                        try {
+//                            val data = this?.mmInStream?.bufferedReader()?.readLine()
+//                            if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+//                                val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+//                                val pulse = data.substringAfterLast(';')
+//                                if (pressure.toFloat() > 20f) {
+//                                    if (!started) {
+//                                        started = true
+//                                    }
+//                                    runOnUiThread {
+//                                        speedMeter.setSpeed(pressure.toFloat())
+//                                        mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
+//                                        counter++
+//                                    }
+//                                } else {
+//                                    if (started) {
+//                                        goToDetail()
+//                                    }
+//                                }
+//                            }
+//                        } catch (e: IOException) {
+//                            break
+//                        }
+//                    }
+//                }
+//            }
         } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
             setResult(Activity.RESULT_OK)
             finish()
         } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
-            started = false
-
-            launch {
-                mBluetoothHelper?.mConnectedThread.run {
-                    var counter = 0.0
-                    while (true) {
-                        try {
-                            val data = this?.mmInStream?.bufferedReader()?.readLine()
-                            if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
-                                val pressure = data.substringBeforeLast(';').substringAfterLast(';')
-                                val pulse = data.substringAfterLast(';')
-                                if (pressure.toFloat() > 20f) {
-                                    if (!started) {
-                                        started = true
-                                    }
-                                    runOnUiThread {
-                                        speedMeter.setSpeed(pressure.toFloat())
-                                        mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
-                                        counter++
-                                    }
-                                } else {
-                                    if (started) {
-                                        goToDetail()
-                                    }
-                                }
-                            }
-                        } catch (e: IOException) {
-                            break
-                        }
-                    }
-                }
-            }
+            //mBluetoothHelper?.startConnection()
+            mBluetoothHelper?.started = true
+            launchRefreshUiCheck()
+//            launch {
+//                mBluetoothHelper?.mConnectedThread.run {
+//                    var counter = 0.0
+//                    while (true) {
+//                        try {
+//                            val data = this?.mmInStream?.bufferedReader()?.readLine()
+//                            if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+//                                val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+//                                val pulse = data.substringAfterLast(';')
+//                                if (pressure.toFloat() > 20f) {
+//                                    if (!started) {
+//                                        started = true
+//                                    }
+//                                    runOnUiThread {
+//                                        speedMeter.setSpeed(pressure.toFloat())
+//                                        mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
+//                                        counter++
+//                                    }
+//                                } else {
+//                                    if (started) {
+//                                        goToDetail()
+//                                    }
+//                                }
+//                            }
+//                        } catch (e: IOException) {
+//                            break
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 }

@@ -22,6 +22,8 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
@@ -42,6 +44,9 @@ class BluetoothHelper(activity: Activity) {
 
     // The default bluetooth adapter from the device.
     var mBluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    var dataList: MutableList<Data> = mutableListOf()
+    var started = false
+    //var counter = 0.0
 
     /*
      * Initializes the connection threads and checks that bluetooth is enabled in the device.
@@ -78,6 +83,7 @@ class BluetoothHelper(activity: Activity) {
      * the smart phone and runs both connect and connected threads.
      */
     fun startConnection() {
+        dataList.clear()
         var mDevice: BluetoothDevice? = null
         val pairedDevices = mBluetoothAdapter.bondedDevices
         if (pairedDevices.size > 0) {
@@ -88,10 +94,10 @@ class BluetoothHelper(activity: Activity) {
         }
 
         mConnectThread = ConnectThread(mDevice!!)
-        mConnectThread?.start()
+        mConnectThread!!.start()
 
-        mConnectedThread = ConnectedThread(mConnectThread?.mmSocket!!)
-        mConnectedThread?.start()
+        mConnectedThread = ConnectedThread(mConnectThread!!.mmSocket!!)
+        mConnectedThread!!.start()
     }
 
     /*
@@ -118,28 +124,38 @@ class BluetoothHelper(activity: Activity) {
             mmDevice = device
             try {
                 tmp = device.createRfcommSocketToServiceRecord(GENERIC_UUID)
-            } catch (e: IOException) { }
+            } catch (e: IOException) {
+
+            }
             mmSocket = tmp!!
+            mBluetoothAdapter.cancelDiscovery()
+            try {
+                mmSocket?.connect()
+            } catch( e: IOException) {
+
+            }
         }
 
         /*
          * Code that is ran when the thread is started. Cancels discovery and starts connection
          * with socket.
          */
-        override fun run() {
-            mBluetoothAdapter.cancelDiscovery()
-            try {
-                mmSocket?.connect()
-            } catch (connectException: IOException) {
-                try {
-                    mmSocket?.close()
-                } catch (closeException: IOException) {
-                }
-
-                return
-            }
-
-        }
+//        override fun run() {
+//            super.run()
+//            mBluetoothAdapter.cancelDiscovery()
+//            try {
+//                mmSocket?.connect()
+//            } catch (connectException: IOException) {
+//                try {
+//                    mmSocket?.close()
+//                } catch (closeException: IOException) {
+//                }
+//
+//                return
+//            }
+//
+//
+//        }
 
         /*
          * Cancels connection to socket
@@ -169,6 +185,40 @@ class BluetoothHelper(activity: Activity) {
             }
 
             mmInStream = tmpIn
+        }
+
+        override fun run() {
+            super.run()
+            //if (mmInStream != null) {
+            //val reader = mmInStream!!.bufferedReader()
+            while(!started && mmInStream != null) {
+                var data = mmInStream!!.bufferedReader().readLine()
+                while (started) {
+                    data = mmInStream.bufferedReader().readLine()
+                    try {
+                        if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+                            val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+                            val pulse = data.substringAfterLast(';')
+                            if (pressure.toFloat() > 20f) {
+//                                if (!started) {
+//                                    started = true
+//                                }
+
+                                dataList.add(Data(System.currentTimeMillis().toDouble(), pressure.toDouble(), pulse.toDouble()))
+                                //counter++
+//                            runOnUiThread {
+//                                speedMeter.setSpeed(pressure.toFloat())
+//                                mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
+//                                counter++
+//                            }
+                            }
+                        }
+                    } catch (e: IOException) {
+                        break
+                    }
+                }
+            }
+            //}
         }
 
          /*
