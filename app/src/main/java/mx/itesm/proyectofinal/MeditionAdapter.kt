@@ -62,6 +62,12 @@ class MeditionAdapter(var context: Context,
         fun bind (index:Int) {
             medicion = mediciones?.get(index)!!
 
+            if(medicion.verificado!!){
+                itemView.card_verified.text = "Medicion verificada"
+            } else {
+                itemView.card_verified.text = ""
+            }
+
             itemView.card_initials.text = medicion.iniciales
             itemView.card_date.text = medicion.fecha
             itemView.card_calc.text = medicion.appSistolica.toString() + "/" + medicion.appDiastolica.toString()
