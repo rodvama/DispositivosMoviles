@@ -22,7 +22,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
-import android.util.Log
+import android.os.Looper
 import android.widget.Toast
 import java.io.IOException
 import java.io.InputStream
@@ -46,6 +46,8 @@ class BluetoothHelper(activity: Activity) {
     var mBluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     var dataList: MutableList<Data> = mutableListOf()
     var started = false
+
+    val context = activity.applicationContext
     //var counter = 0.0
 
     /*
@@ -171,7 +173,7 @@ class BluetoothHelper(activity: Activity) {
      /*
       * Declaration of the Connected Thread. Inherits behaviour from the Thread class.
       */
-    inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
+    inner class ConnectedThread(private val mmSocket: BluetoothSocket?) : Thread() {
         val mmInStream: InputStream?
 
          /*
@@ -180,7 +182,7 @@ class BluetoothHelper(activity: Activity) {
         init {
             var tmpIn: InputStream? = null
             try {
-                tmpIn = mmSocket.inputStream
+                tmpIn = mmSocket?.inputStream
             } catch (e: IOException) {
             }
 
@@ -191,32 +193,39 @@ class BluetoothHelper(activity: Activity) {
             super.run()
             //if (mmInStream != null) {
             //val reader = mmInStream!!.bufferedReader()
-            while(!started && mmInStream != null) {
-                var data = mmInStream!!.bufferedReader().readLine()
-                while (started) {
-                    data = mmInStream.bufferedReader().readLine()
-                    try {
-                        if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
-                            val pressure = data.substringBeforeLast(';').substringAfterLast(';')
-                            val pulse = data.substringAfterLast(';')
-                            if (pressure.toFloat() > 20f) {
+            try {
+                while (!started && mmInStream != null) {
+                    var data = mmInStream.bufferedReader().readLine()
+                    while (started) {
+                        data = mmInStream.bufferedReader().readLine()
+                        try {
+                            if (!data.isNullOrEmpty() && data?.filter { s -> s == ';' }?.count() == 2) {
+                                val pressure = data.substringBeforeLast(';').substringAfterLast(';')
+                                val pulse = data.substringAfterLast(';')
+                                if (pressure.toFloat() > 20f) {
 //                                if (!started) {
 //                                    started = true
 //                                }
 
-                                dataList.add(Data(System.currentTimeMillis().toDouble(), pressure.toDouble(), pulse.toDouble()))
-                                //counter++
+                                    dataList.add(Data(System.currentTimeMillis().toDouble(), pressure.toDouble(), pulse.toDouble()))
+                                    //counter++
 //                            runOnUiThread {
 //                                speedMeter.setSpeed(pressure.toFloat())
 //                                mSeries.appendData(DataPoint(counter, pulse.toDouble()), false, 1000)
 //                                counter++
 //                            }
+                                }
                             }
+                        } catch (e: IOException) {
+                            break
                         }
-                    } catch (e: IOException) {
-                        break
                     }
                 }
+            } catch (e: IOException) {
+                Looper.prepare()
+                Toast.makeText(context, "No se pudo crear comunicación con el dispositivo externo", Toast.LENGTH_LONG).show()
+                Looper.loop()
+                Looper.myLooper()?.quit()
             }
             //}
         }
@@ -226,7 +235,7 @@ class BluetoothHelper(activity: Activity) {
           */
         fun cancel() {
             try {
-                mmSocket.close()
+                mmSocket?.close()
             } catch (e: IOException) {
             }
 
