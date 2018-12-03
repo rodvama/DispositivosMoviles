@@ -52,3 +52,9 @@ Este proyecto es hecho para la clase de Proyecto de Desarrollo para Dispositivos
 
 Universidad: ITESM
 Campus: Campus Monterrey
+
+### Próximas actualizaciones
+
+- Cambiar guardado de información de aparato externo de tipo ArrayList en BluetoothHandler a LiveData y escuchar los cambios.
+- Cuando se escriben tres digitos en la información de captura manual, pasar automáticamente al input del próximo dato de medición diastólica.
+- Revisar el comportamiento de la aplicación al realizar una medición y seleccionar la opción de "Reintentar".
