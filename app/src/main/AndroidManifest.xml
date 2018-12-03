@@ -12,11 +12,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
 
         </activity>
-        <activity android:name=".ResultsActivity" />
-        <activity android:name=".ConfigurationActivity">
+        <activity android:name=".ResultsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ConfigurationActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PatientList"/>
@@ -24,10 +27,12 @@
         <activity
             android:name=".ActivityDetail"
             android:parentActivityName=".PatientList"
+            android:screenOrientation="portrait"
             />
         <activity
             android:name=".PatientList"
-            android:label="@string/title_activity_patient_list">
+            android:label="@string/title_activity_patient_list"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
