@@ -59,6 +59,13 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
+        val extras = intent.extras?: return
+
+        val nombre = extras.getString("NAME")
+        val mail   = extras.getString("MAIL")
+        val photo  = extras.getString("IMG")
+
+        textView_nombre.text = "Bienvenido: "+nombre
 
         bluetoothHelper = BluetoothHelper(this)
 
