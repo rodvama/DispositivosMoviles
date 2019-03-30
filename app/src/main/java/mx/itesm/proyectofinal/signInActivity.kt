@@ -24,7 +24,7 @@ import com.google.android.gms.common.api.ApiException
 
 class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
     override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.d("bett", "onConnectionFailed:" + p0);
+        Log.d("bett", "onConnectionFailed: $p0")
     }
 
     private val RC_SIGN_IN = 9001
@@ -44,7 +44,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
                 .build()
 
         // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
         /*mGoogleApiClient = GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -67,13 +67,14 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
             // Signed in successfully, show authenticated UI.
             updateUI(account)
         } catch (e: ApiException) {
+            Log.w("aasd", "signInResult:failed code=" + e.statusCode)
             updateUI(null)
         }
 
     }
 
     fun signin(){
-        val signInIntent = mGoogleSignInClient?.getSignInIntent()
+        val signInIntent = mGoogleSignInClient?.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
@@ -84,7 +85,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
         }
     }
@@ -95,6 +96,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         val imgUrl = account?.photoUrl.toString()
 
         if(account!=null){
+            Log.i("ASd", "asdasd")
             val StartAppIntent = Intent(this,PatientList::class.java)
             StartAppIntent.putExtra("MAIL",mail)
             StartAppIntent.putExtra("NAME",nombre)
