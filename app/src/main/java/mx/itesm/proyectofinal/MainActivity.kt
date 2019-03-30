@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
                     dataSize = list.size
                     runOnUiThread {
                         if (list.size > 0) {
-                            speedMeter.setSpeed(list[dataSize-1].mmHg.toFloat())
+                            // speedMeter.setSpeed(list[dataSize-1].mmHg.toFloat())
                             mSeries.appendData(DataPoint(counter, list[dataSize-1].pulse), false, 1000)
                             counter++
                         }
