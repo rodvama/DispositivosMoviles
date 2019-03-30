@@ -17,16 +17,28 @@
 
 package mx.itesm.proyectofinal
 
+import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
+import android.bluetooth.le.BluetoothLeScanner
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Looper
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.widget.Toast
 import java.io.IOException
 import java.io.InputStream
 import java.util.*
+import android.view.InputDevice.getDevice
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult
+import android.os.AsyncTask
+
 
 /*
  * Bluetooth Helper. Handles connecting and disconnecting bluetooth communication to and from
@@ -43,6 +55,9 @@ class BluetoothHelper(activity: Activity) {
     var mConnectedThread: ConnectedThread?
 
     // The default bluetooth adapter from the device.
+    private var mBluetoothAdapterLE: BluetoothAdapter? = null
+    private var mBluetoothScannerLE: BluetoothLeScanner? = null
+
     var mBluetoothAdapter: BluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     var dataList: MutableList<Data> = mutableListOf()
     var started = false
@@ -58,26 +73,101 @@ class BluetoothHelper(activity: Activity) {
         mConnectThread = null
         mConnectedThread = null
 
-        if (!mBluetoothAdapter.isEnabled) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            activity.startActivityForResult(enableBtIntent, 1)
-        } else {
-            startConnection()
+        checkLocationPermission(activity)
+    }
+
+    fun initBLE(activity: Activity){
+        mBluetoothAdapterLE = BluetoothAdapter.getDefaultAdapter()
+        mBluetoothScannerLE = mBluetoothAdapter.bluetoothLeScanner
+        // Make sure the device has a bluetooth adapter
+        if (mBluetoothAdapterLE != null) {
+            // Check if Bluetooth is on or ask for it
+            if(!mBluetoothAdapterLE!!.isEnabled){
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            }
+//            startConnection()
+            scanLeDevice()
         }
     }
+
+    /**
+     * Check the Location Permission before calling the BLE API's
+     */
+    private fun checkLocationPermission(activity: Activity) {
+        if(!isLocationPermissionEnabled(activity)){
+            when {
+                ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) -> displayRationale(activity)
+                else -> requestLocationPermission(activity)
+            }
+        }
+        initBLE(activity)
+    }
+
+    /**
+     * If the user decline the Permission request and tick the never ask again message
+     * Then the application can't proceed further steps
+     * In such situation- App need to prompt the user to do the change form Settings Manually
+     */
+    private fun displayRationale(activity: Activity) {
+        AlertDialog.Builder(activity)
+                .setTitle(R.string.location_permission_not_granted)
+                .setMessage(R.string.location_permission_disabled)
+                .setPositiveButton(R.string.ok
+                ) { _, _ -> requestLocationPermission(activity) }
+                .setNegativeButton(R.string.cancel
+                ) { _, _ -> }
+                .show()
+    }
+
+    /**
+     * Request Location API
+     * If the request go to Android system and the System will throw a dialog message
+     * user can accept or decline the permission from there
+     */
+    private fun requestLocationPermission(activity: Activity) {
+        ActivityCompat.requestPermissions(activity,
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                REQUEST_COARSE_LOCATION_PERMISSION)
+    }
+
+    /**
+     * If the user either accept or reject the Permission- The requested App will get a callback
+     * Form the call back we can filter the user response with the help of request key
+     * If the user accept the same- We can proceed further steps
+     */
+//    fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+//                                            grantResults: IntArray) {
+//        when (requestCode) {
+//            REQUEST_COARSE_LOCATION_PERMISSION -> {
+//                if (permissions.size != 1 || grantResults.size != 1) {
+//                    throw RuntimeException("Error on requesting location permission.")
+//                }
+//                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    // initBLEModule()
+//                } else {
+//                    Toast.makeText(activity, R.string.location_permission_not_granted,
+//                            Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//        }
+//    }
+
+    /**
+     * Check with the system- If the permission already enabled or not
+     */
+    private fun isLocationPermissionEnabled(activity: Activity): Boolean {
+        return ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
 
     /*
      * Returns if the bluetooth device is connected and ready to communicate
      */
     fun isDeviceConnected(): Boolean {
         return mBluetoothAdapter.bondedDevices.size > 0
-    }
-
-    /*
-     * Returns if the bluetooth adapter is enabled
-     */
-    fun isEnabled(): Boolean {
-        return mBluetoothAdapter.isEnabled
     }
 
     /*
@@ -100,6 +190,13 @@ class BluetoothHelper(activity: Activity) {
 
         mConnectedThread = ConnectedThread(mConnectThread!!.mmSocket!!)
         mConnectedThread!!.start()
+    }
+
+    /*
+     * Returns if the bluetooth adapter is enabled
+     */
+    fun isEnabled(): Boolean {
+        return mBluetoothAdapter.isEnabled
     }
 
     /*
@@ -189,6 +286,10 @@ class BluetoothHelper(activity: Activity) {
             mmInStream = tmpIn
         }
 
+         /*
+         * Code that is ran when the thread is started. Cancels discovery and starts connection
+         * with socket.
+         */
         override fun run() {
             super.run()
             //if (mmInStream != null) {
@@ -240,5 +341,46 @@ class BluetoothHelper(activity: Activity) {
             }
 
         }
+    }
+
+//    private val mLeScanCallback = object : ScanCallback() {
+//
+//
+//        override fun onScanResult(callbackType: Int, result: ScanResult) {
+//            //super.onScanResult(callbackType, result);
+//            Log.i("BLE", result.getDevice().getName())
+//
+//        }
+//
+//        override fun onScanFailed(errorCode: Int) {
+//            Log.i("BLE", "error")
+//        }
+//    }
+
+    // Device scan callback.
+    private val mScanCallbackLE = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+            Log.i("Device Name: ", result.device.name)
+        }
+    }
+
+    val leDeviceListAdapter: LeDeviceListAdapter? = null
+
+    private val leScanCallback = BluetoothAdapter.LeScanCallback { device, rssi, scanRecord ->
+        runOnUiThread {
+            leDeviceListAdapter.addDevice(device)
+            leDeviceListAdapter.notifyDataSetChanged()
+        }
+    }
+
+    fun scanLeDevice() {
+        Log.i("Scanning", "start")
+//        mBluetoothScannerLE!!.startScan(mScanCallbackLE)
+        AsyncTask.execute { mBluetoothScannerLE!!.startScan(mScanCallbackLE) }
+    }
+
+    companion object {
+        const val REQUEST_ENABLE_BT:Int = 1
+        const val REQUEST_COARSE_LOCATION_PERMISSION:Int = 1
     }
 }

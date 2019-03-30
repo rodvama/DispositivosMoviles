@@ -24,4 +24,22 @@
     <string name="card_title1">Resultados calculados</string>
     <string name="card_title2">Resultados manuales</string>
     <string name="email_action">Enviar por email</string>
+
+
+
+
+    <string name="location_permission_disabled">Por favor dar permiso para encontrar el dispositivo</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancelar</string>
+    <string name="location_permission_not_granted">Permiso de ubicación denegado</string>
+    <string name="btn_scan">Scan</string>
+    <string name="no_device_found">No se encontro el dispositivo</string>
+
+    <string name="char_uuid_missed_connection">Your Missed Connection UUID</string>
+    <string name="char_uuid_emergency">Your Emergency Service UUID</string>
+    <string name="char_uuid_emergency_call">Your Emergency Call UUID</string>
+    <string name="char_uuid_catch">Your Catch UUID</string>
+    <string name="char_uuid_catch_all">Your Catch All UUID</string>
+    <string name="char_uuid_missed_calls">Your Missed call UUID</string>
+
 </resources>
