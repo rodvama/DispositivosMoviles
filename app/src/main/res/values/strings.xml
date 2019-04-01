@@ -26,14 +26,21 @@
     <string name="email_action">Enviar por email</string>
 
 
-
-
     <string name="location_permission_disabled">Por favor dar permiso para encontrar el dispositivo</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancelar</string>
+    <string name="bluetooth_permission_not_granted">Permiso de bluetooth denegado</string>
     <string name="location_permission_not_granted">Permiso de ubicación denegado</string>
+    <string name="bluetooth_permission_granted">Bluetooth activado</string>
+    <string name="location_permission_granted">Localización activada</string>
+
+
     <string name="btn_scan">Scan</string>
     <string name="no_device_found">No se encontro el dispositivo</string>
+
+    <string name="bluetooth_scan">Buscar</string>
+    <string name="bluetooth_device_status">Status:</string>
+    <string name="bluetooth_device_address">MAC:</string>
 
     <string name="char_uuid_missed_connection">Your Missed Connection UUID</string>
     <string name="char_uuid_emergency">Your Emergency Service UUID</string>

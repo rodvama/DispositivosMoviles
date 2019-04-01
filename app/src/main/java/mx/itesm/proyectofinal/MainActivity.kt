@@ -18,16 +18,16 @@
 package mx.itesm.proyectofinal
 
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Color
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
+import android.support.v7.app.AppCompatActivity
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.experimental.launch
-import android.content.Intent
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
 
 /*
  * MainActivity class declares the activity and inflates the view.
@@ -68,13 +68,13 @@ class MainActivity : AppCompatActivity() {
         //mBluetoothHelper?.closeConnection()
         val intent = Intent(this, ResultsActivity::class.java)
         var max = 0
-        var actualData = ArrayList<Data>()
-        var holder = mBluetoothHelper?.dataList!!
+        val actualData = ArrayList<Data>()
+        val holder = mBluetoothHelper?.dataList!!
         for (i in 0 until holder.size-1) {
             if (holder[max].mmHg < holder[i].mmHg)
                 max = i
         }
-        var firstTime = holder[max].timer
+        val firstTime = holder[max].timer
         for (i in max until holder.size-1) {
             holder[i].timer -= firstTime
             actualData.add(holder[i])
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             var dataSize = 0
             var counter = 0.0
             while (mBluetoothHelper?.started!!) {
-                var list = mBluetoothHelper?.dataList!!
+                val list = mBluetoothHelper?.dataList!!
                 if (dataSize != list.size) {
                     dataSize = list.size
                     runOnUiThread {
@@ -114,7 +114,6 @@ class MainActivity : AppCompatActivity() {
     // redirecting to PatientsList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             mBluetoothHelper?.started = true
             launchRefreshUiCheck()

@@ -20,16 +20,19 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
-import android.os.Bundle
 import android.app.Activity
+import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
-import android.arch.lifecycle.Observer
+import android.content.pm.PackageManager
+import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_patient_list.*
+import mx.itesm.proyectofinal.BluetoothHelper.Companion.REQUEST_ENABLE_BT
 
 /*
  * Declares the patient measurements list. This is the first and main page of the application
@@ -92,21 +95,60 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Starts the MainActivity, which starts measuring data from the bluetooth device.
     private fun onMeasure() {
-        var intent = Intent(this, MainActivity::class.java)
-        startActivityForResult(intent, 2)
+        val intent = Intent(this, DeviceScanActivity::class.java)
+        startActivityForResult(intent, 100)
+//        var intent = Intent(this, MainActivity::class.java)
+//        startActivityForResult(intent, 2)
     }
 
     // When receiving information from the measurement class
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == 2 && resultCode == Activity.RESULT_OK){
-            //loadMediciones()
+        // User chose not to enable Bluetooth.
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+            Toast.makeText(this, R.string.bluetooth_permission_not_granted,
+                    Toast.LENGTH_LONG).show()
+//            finish()
+            return
         }
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
+            Toast.makeText(this, R.string.bluetooth_permission_granted,
+                    Toast.LENGTH_LONG).show()
+//            finish()
+            return
+        }
+//        if(requestCode == 2 && resultCode == Activity.RESULT_OK){
+//            //loadMediciones()
+//        }
+//
+//        if (requestCode == 3 && resultCode == Activity.RESULT_OK){
+//            if (data?.getBooleanExtra(DEL, false) == true) {
+//                ioThread {
+//                    instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
+//                }
+//            }
+//        }
+    }
 
-        if (requestCode == 3 && resultCode == Activity.RESULT_OK){
-            if (data?.getBooleanExtra(DEL, false) == true) {
-                ioThread {
-                    instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
+    /**
+     * If the user either accept or reject the Permission- The requested App will get a callback
+     * Form the call back we can filter the user response with the help of request key
+     * If the user accept the same- We can proceed further steps
+     */
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        when (requestCode) {
+            BluetoothHelper.REQUEST_COARSE_LOCATION_PERMISSION -> {
+                if (permissions.size != 1 || grantResults.size != 1) {
+                    throw RuntimeException("Error on requesting location permission.")
+                }
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Toast.makeText(this, R.string.location_permission_granted,
+                            Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, R.string.location_permission_not_granted,
+                            Toast.LENGTH_LONG).show()
                 }
             }
         }
