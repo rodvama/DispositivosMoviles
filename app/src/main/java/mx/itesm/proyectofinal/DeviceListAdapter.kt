@@ -33,7 +33,8 @@ import kotlinx.android.synthetic.main.row_bluetooth.*
  * @params. activity. The activity that handles the bluetooth communication. Preferably an activity
  * that executes at the start of the application.
  */
-class DeviceListAdapter(private val context: Context) : BaseAdapter() {
+class DeviceListAdapter(private val context: Context,
+                        val listener: CustomDeviceClickListener) : BaseAdapter() {
     private var mLeDevices: ArrayList<BluetoothDevice> = arrayListOf()
 
     fun addDevice(device: BluetoothDevice) {
@@ -92,12 +93,12 @@ class DeviceListAdapter(private val context: Context) : BaseAdapter() {
      */
     inner class BluetoothDeviceViewHolder(override val containerView: View) : LayoutContainer {
 
-        fun bind(bluetoothDevice: BluetoothDevice) {
-
-            text_name.text = bluetoothDevice.name ?: "Desconocido"
-            text_status.text = if (bluetoothDevice.bondState > 10) "Conectado" else "Desconocido"
+        fun bind(btDevice: BluetoothDevice) {
+            text_name.text = btDevice.name ?: "Desconocido"
+            text_status.text = if (btDevice.bondState > 10) "Conectado" else "Desconocido"
 //            bluetoothDevice.type
-            text_address.text = bluetoothDevice.address
+            text_address.text = btDevice.address
+            containerView.setOnClickListener { view -> listener.onCustomDeviceClick(btDevice) }
         }
     }
 

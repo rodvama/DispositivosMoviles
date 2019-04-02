@@ -18,7 +18,12 @@
 package mx.itesm.proyectofinal
 
 import Database.Medicion
+import android.bluetooth.BluetoothDevice
 
 interface CustomItemClickListener {
     fun onCustomItemClick(medicion: Medicion)
+}
+
+interface CustomDeviceClickListener {
+    fun onCustomDeviceClick(blueoothDevice: BluetoothDevice)
 }

@@ -21,6 +21,7 @@ import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
@@ -47,17 +48,17 @@ class BluetoothHelper(activity: Activity) {
     // Thread that handles receiving information from external device.
 //    var mConnectedThread: ConnectedThread?
 
-    // The default bluetooth adapter from the device.
-//    private var mBluetoothAdapterLE: Lazy<BluetoothAdapter>
-
     var mBluetoothAdapter: BluetoothAdapter? = null
-    //    var mBluetoothScanner: BluetoothLeScanner? = null TODO REVISAR SI ESTO ES NECESARIO O NO
+    var mBluetoothDevice: BluetoothDevice? = null
     var dataList: MutableList<Data> = mutableListOf()
     var started = false
 
-    //var counter = 0.0
+    companion object {
+        const val REQUEST_ENABLE_BT: Int = 10
+        const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
+    }
 
-    /*
+    /**
      * Initializes the connection threads and checks that bluetooth is enabled in the device.
      * Proceeds to call the bluetooth enabling intent or start the connection.
      */
@@ -164,31 +165,17 @@ class BluetoothHelper(activity: Activity) {
      * Returns if the bluetooth device is connected and ready to communicate
      */
     fun isDeviceConnected(): Boolean {
+        // TODO mBluetoothDevice va a decidir si esta conectado o no, debe estar asginado a uno
         return false
 //        return mBluetoothAdapter.bondedDevices.size > 0
     }
 
-    companion object {
-        const val REQUEST_ENABLE_BT: Int = 1
-        const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 2
-    }
-}
-//
-//
-//
-//    /*
-//     * Returns if the bluetooth device is connected and ready to communicate
-//     */
-//    fun isDeviceConnected(): Boolean {
-//        return mBluetoothAdapter.bondedDevices.size > 0
-//    }
-//
-//    /*
-//     * Handles starting the connection to the external device depending on the paired devices with
-//     * the smart phone and runs both connect and connected threads.
-//     */
-//    fun startConnection() {
-//        dataList.clear()
+    /**
+     * Handles starting the connection to the external device depending on the paired devices with
+     * the smart phone and runs both connect and connected threads.
+     */
+    fun startConnection() {
+        dataList.clear()
 //        var mDevice: BluetoothDevice? = null
 //        val pairedDevices = mBluetoothAdapter.bondedDevices
 //        if (pairedDevices.size > 0) {
@@ -197,13 +184,15 @@ class BluetoothHelper(activity: Activity) {
 //                    mDevice = device
 //            }
 //        }
-//
+
 //        mConnectThread = ConnectThread(mDevice!!)
 //        mConnectThread!!.start()
 //
 //        mConnectedThread = ConnectedThread(mConnectThread!!.mmSocket!!)
 //        mConnectedThread!!.start()
-//    }
+    }
+}
+
 //
 //    /*
 //     * Returns if the bluetooth adapter is enabled

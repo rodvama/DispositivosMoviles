@@ -38,9 +38,11 @@
     <string name="btn_scan">Scan</string>
     <string name="no_device_found">No se encontro el dispositivo</string>
 
-    <string name="bluetooth_scan">Buscar</string>
+    <string name="bluetooth_scan_start">Buscar</string>
+    <string name="bluetooth_scan_stop">Parar</string>
     <string name="bluetooth_device_status">Status:</string>
     <string name="bluetooth_device_address">MAC:</string>
+    <string name="bluetooth_device_connected">Dispositivo seleccionado</string>
 
     <string name="char_uuid_missed_connection">Your Missed Connection UUID</string>
     <string name="char_uuid_emergency">Your Emergency Service UUID</string>

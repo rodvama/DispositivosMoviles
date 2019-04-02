@@ -28,6 +28,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -44,14 +45,19 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
      * bluetooth helper and initializes it.
      */
     companion object {
-        var PATIENT_KEY:String = "Medicion"
+        const val PATIENT_KEY: String = "Medicion"
         var bluetoothHelper: BluetoothHelper? = null
-        var DELETE_ID: String = "id"
+        const val DELETE_ID: String = "id"
         var DEL: String = "Borrar ?"
+        const val BLUETOOTH_DEVICE = 5
+        const val LOAD_MEASURE = 4
+        const val TAKE_MEASURE = 3
     }
 
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
+
+    var connected = false
 
     // The RecyclerView adapter declaration
     val adapter = MeditionAdapter(this, this)
@@ -82,7 +88,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
         }
 
-        floatingActionButton.setOnClickListener { v -> onMeasure() }
+        floatingActionButton.setOnClickListener { onMeasure() }
     }
 
     /*
@@ -95,39 +101,56 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Starts the MainActivity, which starts measuring data from the bluetooth device.
     private fun onMeasure() {
-        val intent = Intent(this, DeviceScanActivity::class.java)
-        startActivityForResult(intent, 100)
-//        var intent = Intent(this, MainActivity::class.java)
-//        startActivityForResult(intent, 2)
+        if (!connected) {
+            val intent = Intent(this, DeviceScanActivity::class.java)
+            startActivityForResult(intent, BLUETOOTH_DEVICE)
+        } else {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivityForResult(intent, LOAD_MEASURE)
+        }
     }
 
     // When receiving information from the measurement class
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            // User chose not to enable Bluetooth.
+            REQUEST_ENABLE_BT -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    Toast.makeText(this, R.string.bluetooth_permission_granted,
+                            Toast.LENGTH_LONG).show()
+//                    finish()
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    Toast.makeText(this, R.string.bluetooth_permission_not_granted,
+                            Toast.LENGTH_LONG).show()
+//                    finish()
+                }
+            }
+            BLUETOOTH_DEVICE -> {
+                Log.i("code", resultCode.toString())
+                if (resultCode == Activity.RESULT_OK) {
+                    floatingActionButton.setImageResource(R.drawable.ic_heartplus)
+                    Toast.makeText(this, R.string.bluetooth_device_connected,
+                            Toast.LENGTH_LONG).show()
+                    connected = true
+                }
+            }
+            TAKE_MEASURE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    loadMediciones()
+                }
+            }
+            LOAD_MEASURE -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data?.getBooleanExtra(DEL, false) == true) {
+                        ioThread {
+                            instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
+                        }
+                    }
+                }
+            }
+
+        }
         super.onActivityResult(requestCode, resultCode, data)
-        // User chose not to enable Bluetooth.
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            Toast.makeText(this, R.string.bluetooth_permission_not_granted,
-                    Toast.LENGTH_LONG).show()
-//            finish()
-            return
-        }
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
-            Toast.makeText(this, R.string.bluetooth_permission_granted,
-                    Toast.LENGTH_LONG).show()
-//            finish()
-            return
-        }
-//        if(requestCode == 2 && resultCode == Activity.RESULT_OK){
-//            //loadMediciones()
-//        }
-//
-//        if (requestCode == 3 && resultCode == Activity.RESULT_OK){
-//            if (data?.getBooleanExtra(DEL, false) == true) {
-//                ioThread {
-//                    instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
-//                }
-//            }
-//        }
     }
 
     /**
@@ -159,7 +182,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val intent = Intent(this, ActivityDetail::class.java)
 
         intent.putExtra(PATIENT_KEY, medicion._id)
-        startActivityForResult(intent, 3)
+        startActivityForResult(intent, LOAD_MEASURE)
     }
 
     // Loads measurements from database

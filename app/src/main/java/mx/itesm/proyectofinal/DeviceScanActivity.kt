@@ -1,16 +1,17 @@
 package mx.itesm.proyectofinal
 
+import android.app.Activity
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.BluetoothLeScanner
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import kotlinx.android.synthetic.main.activity_device_scan.*
 
-class DeviceScanActivity : AppCompatActivity() {
+class DeviceScanActivity : AppCompatActivity(), CustomDeviceClickListener {
 
     private lateinit var mBluetoothHelper: BluetoothHelper
     private lateinit var mBluetoothScanner: BluetoothLeScanner
@@ -31,12 +32,12 @@ class DeviceScanActivity : AppCompatActivity() {
         mBluetoothScanner = mBluetoothHelper.mBluetoothAdapter!!.bluetoothLeScanner
 
         // Create Adapter
-        adapter = DeviceListAdapter(this)
+        adapter = DeviceListAdapter(this, this)
         adapter.notifyDataSetChanged() // Prepares list to notify if it suffers any change
         list_devices.adapter = adapter
 
         val buttonScan: View = findViewById(R.id.button_scan)
-        buttonScan.setOnClickListener { scanLeDevice(true) }
+        buttonScan.setOnClickListener { scanLeDevice(!mScanning) }
 
     }
 
@@ -44,17 +45,22 @@ class DeviceScanActivity : AppCompatActivity() {
         if (enable) {
             // Stops scanning after a pre-defined scan period.
             mHandler?.postDelayed(Runnable {
+                button_scan.text = getString(R.string.bluetooth_scan_start)
                 mScanning = false
+//                button_scan.isEnabled = true
 //                AsyncTask.execute { mBluetoothScanner?.startScan(mLeScanCallback) }
                 mBluetoothScanner.stopScan(mLeScanCallback)
 //                invalidateOptionsMenu()
             }, SCAN_PERIOD)
 
+//            button_scan.isEnabled = false
+            button_scan.text = getString(R.string.bluetooth_scan_stop)
             mScanning = true
             mBluetoothScanner.startScan(mLeScanCallback)
         } else {
             mScanning = false
             mBluetoothScanner.stopScan(mLeScanCallback)
+//            button_scan.isEnabled = true
         }
 //        invalidateOptionsMenu()
     }
@@ -62,7 +68,6 @@ class DeviceScanActivity : AppCompatActivity() {
     // Device scan callback.
     private val mLeScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
-            Log.i("Device", "${result.device.name}    add: ${result.device.address}")
             adapter.addDevice(result.device)
             adapter.notifyDataSetChanged()
 //            // auto scroll for text view
@@ -86,4 +91,17 @@ class DeviceScanActivity : AppCompatActivity() {
 //            super.onScanFailed(errorCode)
 //        }
 //    }
+
+    /**
+     *
+     * funcion de la interface CustomItemClickListener a implementar
+     * donde nino es el item al que le dieron clic
+     */
+    override fun onCustomDeviceClick(btDevice: BluetoothDevice) {
+        mBluetoothHelper.mBluetoothDevice = btDevice
+//        val intent: Intent = Intent()
+//        intent.putExtra(MainActivity.EXTRA_BOOK, btDevice)
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
 }
