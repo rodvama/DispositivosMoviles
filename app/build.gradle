@@ -17,15 +17,33 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+    signingConfigs {
+        release {
+            storeFile file("debug.keystore")
+            storePassword "moviles"
+            keyAlias "AndroidDebugkey"
+            keyPassword "moviles"
+        }
+        debug{
+            storeFile file("debug.keystore")
+            storePassword "moviles"
+            keyAlias "AndroidDebugkey"
+            keyPassword "moviles"
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
         }
     }
     androidExtensions {
         experimental = true
     }
+
 }
 
 dependencies {
