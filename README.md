@@ -19,7 +19,7 @@ Tecnologías utilizadas.
   - Android Studios:
       - Kotlin
   - GitHub
-  - Bluetooth
+  - Bluetooth LE
 
 ### Versión
 Versión: 2.1
