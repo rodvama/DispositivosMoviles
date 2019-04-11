@@ -48,7 +48,7 @@ Fecha de última actualización: 11/04/2019
 
 | Nombre  | Email |
 | ------------- | ------------- |
-| Dr. Gonzalez  |  |
+| Dr. Gonzalez  |  med.gonzalezg@gmail.com |
 
 ### Institución
 
