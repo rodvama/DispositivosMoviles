@@ -22,17 +22,21 @@ Tecnologías utilizadas.
   - Bluetooth
 
 ### Versión
-Versión: 2.0
-Fecha de última actualización: 25/11/2018
+Versión: 2.1
+Fecha de última actualización: 11/04/2019
 
 ### Desarrolladores:
 
 | Nombre  | Correo electrónico |
 | ------------- | ------------- |
-| Juan Manuel Pérez  | a00819815@itesm.mx, juanmapf97@gmail.com  |
-| Rodrigo Valencia  | A00818256@itesm.mx, rodvama@gmail.com  |
-| Renato Sanchez  | A01281104@itesm.mx, renatosancheznevarez@gmail.com  |
-| Ian Granados  | A00818648@itesm.mx, ian.live1@gmail.com  |
+| Juan Manuel Pérez	| a00819815@itesm.mx |
+| Rodrigo Valencia	| A00818256@itesm.mx |
+| Renato Sanchez	| A01281104@itesm.mx |
+| Ian Granados	| A00818648@itesm.mx |
+| Héctor León Quiróz  | A01251806@itesm.mx  |
+| Enrique García Torres  | A00818997@itesm.mx  |
+| Manuel Torres Magdaleno  | A01066869@itesm.mx  |
+| Roberto Ramírez Monroy  | A01366943@itesm.mx  |
 
 ### Profesor:
 
@@ -54,7 +58,12 @@ Universidad: ITESM
 Campus: Campus Monterrey
 
 ### Próximas actualizaciones
-
+- Liga al Trello del proyecto: https://trello.com/b/YyBNlbqQ/androides-proyecto
 - Cambiar guardado de información de aparato externo de tipo ArrayList en BluetoothHandler a LiveData y escuchar los cambios.
 - Cuando se escriben tres digitos en la información de captura manual, pasar automáticamente al input del próximo dato de medición diastólica.
 - Revisar el comportamiento de la aplicación al realizar una medición y seleccionar la opción de "Reintentar".
+
+
+- Agregar cierre de sesión
+- Agregar pantalla de selección de tipo de usuario
+- Agregar uso de Bluetooth LE
