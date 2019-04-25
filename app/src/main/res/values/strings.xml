@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ProyectoFinal</string>
+    <string name="app_name">Proyecto Final</string>
     <string name="text_results_title_device">Resultados del dispositivo</string>
     <string name="text_results_title_manual">Resultados manuales</string>
     <string name="text_results_title_arm">Brazo usado</string>
@@ -9,6 +9,7 @@
     <string name="text_forward_slash">/</string>
     <string name="button_accept">Aceptar</string>
     <string name="button_retry">Reintentar</string>
+    <string name="button_signin">Iniciar sesión</string>
     <string name="check_verify">Verificar medición</string>
     <string name="title_activity_patient_list">PatientList</string>
     <string name="enviar_por_email">Enviar por correo</string>
@@ -20,11 +21,12 @@
     <string name="radio_right">Brazo derecho</string>
 
     <string name="settings_text">Configuración</string>
+    <string name="settings_logout">Cerrar Sesión</string>
 
     <string name="card_title1">Resultados calculados</string>
     <string name="card_title2">Resultados manuales</string>
     <string name="email_action">Enviar por email</string>
 
     <string name="unidad_medidad">mmHg</string>
-    <string name="loading">Cargando...</string>
+    <string name="loading">Cargando....</string>
 </resources>

@@ -5,4 +5,8 @@
         android:id="@+id/action_settings"
         android:title="@string/settings_text"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_logout"
+        android:title="@string/settings_logout"
+        app:showAsAction="never" />
 </menu>

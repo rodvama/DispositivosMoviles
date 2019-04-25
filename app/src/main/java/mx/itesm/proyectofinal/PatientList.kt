@@ -22,6 +22,7 @@ import Database.MedicionDatabase
 import Database.ioThread
 import android.os.Bundle
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.arch.lifecycle.Observer
@@ -30,6 +31,18 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_patient_list.*
+import android.content.DialogInterface
+import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.tasks.Task
+import android.support.annotation.NonNull
+import android.widget.Toast
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.tasks.OnCompleteListener
+
+
+
 
 /*
  * Declares the patient measurements list. This is the first and main page of the application
@@ -49,6 +62,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val DELETE_ID: String = "id"
         val DEL: String = "Borrar ?"
     }
+
+    private var mGoogleSignInClient : GoogleSignInClient? = null
 
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
@@ -159,8 +174,30 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         return when (item?.itemId){
             R.id.action_settings ->{
                 val intent = Intent(this, ConfigurationActivity::class.java)
-
                 startActivity(intent)
+                true
+            }
+            R.id.action_logout ->{
+                val builder = AlertDialog.Builder(this@PatientList)
+
+                builder.setTitle("Cerrar sesión")
+
+                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
+
+                builder.setPositiveButton("Cerrar sesión"){dialog, which ->
+                    signOut()
+                }
+
+
+                // Display a negative button on alert dialog
+                builder.setNegativeButton("Cancelar"){dialog,which ->
+                }
+
+                // Finally, make the alert dialog using builder
+                val dialog: AlertDialog = builder.create()
+
+                // Display the alert dialog on app interface
+                dialog.show()
                 true
             }
             else -> {
@@ -169,5 +206,9 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
     }
 
+    private fun signOut() {
+        Toast.makeText(applicationContext,"Cerrar sesión.",Toast.LENGTH_SHORT).show()
+        //finish()
+    }
 }
 
