@@ -10,6 +10,13 @@ import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_device_scan.*
+import android.bluetooth.BluetoothGattCharacteristic
+import android.bluetooth.BluetoothGattService
+import android.bluetooth.BluetoothGatt
+import android.bluetooth.BluetoothProfile
+import android.bluetooth.BluetoothGattCallback
+import android.util.Log
+
 
 class DeviceScanActivity : AppCompatActivity(), CustomDeviceClickListener {
 
@@ -99,9 +106,87 @@ class DeviceScanActivity : AppCompatActivity(), CustomDeviceClickListener {
      */
     override fun onCustomDeviceClick(btDevice: BluetoothDevice) {
         mBluetoothHelper.mBluetoothDevice = btDevice
+
+        var mBluetoothGatt = btDevice.connectGatt(this, false, mGattCallback)
+        mBluetoothGatt.connect()
+        Log.i("asd","asd")
 //        val intent: Intent = Intent()
 //        intent.putExtra(MainActivity.EXTRA_BOOK, btDevice)
-        setResult(Activity.RESULT_OK)
-        finish()
+
+
+//        setResult(Activity.RESULT_OK)
+//        finish()
+    }
+
+    private val mGattCallback = object : BluetoothGattCallback() {
+
+        override fun onCharacteristicWrite(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic, status: Int) {
+            Log.i("asd","asd")
+            super.onCharacteristicWrite(gatt, characteristic, status)
+            //            updateStatus(characteristic);
+        }
+
+        override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int,
+                                             newState: Int) {
+            val intentAction: String
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                Log.i("asdasd", "Connected to GATT server.")
+//                intentAction = ACTION_GATT_CONNECTED
+//                mConnectionState = STATE_CONNECTED
+//                broadcastUpdate(intentAction)
+//                Log.i(FragmentActivity.TAG, "Connected to GATT server.")
+//                // Attempts to discover services after successful connection.
+//                Log.i(FragmentActivity.TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices())
+//                val task = object : TimerTask() {
+//                    fun run() {
+//                        if (mBluetoothGatt != null)
+//                            mBluetoothGatt.readRemoteRssi()
+//                    }
+//                }
+//                val mRssiTimer = Timer()
+//                mRssiTimer.schedule(task, 1000, 1000)
+
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.i("asda", "Disconnected from GATT server.")
+//                intentAction = ACTION_GATT_DISCONNECTED
+//                mConnectionState = STATE_DISCONNECTED
+//
+//                Log.i(FragmentActivity.TAG, "Disconnected from GATT server.")
+//                broadcastUpdate(intentAction)
+            }
+        }
+
+        override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+
+            Log.i("asd","asd")
+//            if (status == BluetoothGatt.GATT_SUCCESS) {
+//                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED)
+//            } else {
+//                Log.w(FragmentActivity.TAG, "onServicesDiscovered received: $status")
+//            }
+//
+//            val mCustomService = mBluetoothGatt.getService(MY_UUID_RN4020_SERVICE)
+//
+//            val mReadCharacteristic = mCustomService.getCharacteristic(MY_UUID_RN4020_CHARACTERISTIC_READ)
+//
+//            gatt.readCharacteristic(mReadCharacteristic)
+//            gatt.setCharacteristicNotification(mReadCharacteristic, true)
+        }
+
+        override fun onCharacteristicRead(gatt: BluetoothGatt,
+                                          characteristic: BluetoothGattCharacteristic, status: Int) {
+            Log.i("asd","asd")
+//            if (status == BluetoothGatt.GATT_SUCCESS) {
+//                gatt.readCharacteristic(characteristic)
+//                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic)
+//            }
+        }
+//
+        override fun onCharacteristicChanged(gatt: BluetoothGatt,
+                                             characteristic: BluetoothGattCharacteristic) {
+            Log.i("asd","asd")
+//            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic)
+        }
+
     }
 }
