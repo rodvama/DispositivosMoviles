@@ -62,7 +62,7 @@ class BluetoothHelper(activity: Activity) {
             val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             activity.startActivityForResult(enableBtIntent, 1)
         } else {
-            startConnection()
+            //startConnection()
         }
     }
 
