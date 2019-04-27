@@ -19,6 +19,10 @@ import com.google.android.gms.common.api.ApiException
 import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_IMG
 import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_MAIL
 import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_NAME
+import android.support.annotation.NonNull
+import com.google.android.gms.tasks.OnCompleteListener
+
+
 
 
 class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
@@ -53,10 +57,22 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     override fun onStart() {
         super.onStart()
+        if(PatientList.STATUS == "si") {
+            signOut()
+        }
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        updateUI(account)
+        else {
+            val account = GoogleSignIn.getLastSignedInAccount(this)
+            updateUI(account)
+        }
+    }
+
+    private fun signOut() {
+        mGoogleSignInClient?.signOut()
+                ?.addOnCompleteListener(this) {
+                    // ...
+                }
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {

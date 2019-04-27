@@ -38,6 +38,7 @@ import com.google.android.gms.tasks.Task
 import android.support.annotation.NonNull
 import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.OnCompleteListener
 
@@ -57,6 +58,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val ACCOUNT_MAIL:String = "account_mail"
         val ACCOUNT_NAME:String = "account_name"
         val ACCOUNT_IMG:String = "account_img"
+        var STATUS:String = "no"
         val PATIENT_KEY:String = "Medicion"
         var bluetoothHelper: BluetoothHelper? = null
         val DELETE_ID: String = "id"
@@ -64,6 +66,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     }
 
     private var mGoogleSignInClient : GoogleSignInClient? = null
+
+    lateinit var account: GoogleSignInAccount
 
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
@@ -78,7 +82,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
         val extras = intent.extras?: return
-
+        STATUS = "no"
         val nombre = extras.getString(ACCOUNT_NAME)
         val mail   = extras.getString(ACCOUNT_MAIL)
         val photo  = extras.getString(ACCOUNT_IMG)
@@ -208,7 +212,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     private fun signOut() {
         Toast.makeText(applicationContext,"Cerrar sesión.",Toast.LENGTH_SHORT).show()
-        //finish()
+        STATUS = "si"
+        finish()
     }
 }
 
