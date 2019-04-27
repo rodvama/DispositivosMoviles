@@ -95,7 +95,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         val imgUrl = account?.photoUrl.toString()
 
         if(account!=null){
-            val StartAppIntent = Intent(this,PatientList::class.java)
+            val StartAppIntent = Intent(this,ElegirTipo::class.java)
             StartAppIntent.putExtra(ACCOUNT_MAIL,mail)
             StartAppIntent.putExtra(ACCOUNT_NAME,nombre)
             StartAppIntent.putExtra(ACCOUNT_IMG,imgUrl)

@@ -20,28 +20,20 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
-import android.os.Bundle
 import android.app.Activity
 import android.app.AlertDialog
+import android.arch.lifecycle.Observer
 import android.content.Context
 import android.content.Intent
-import android.arch.lifecycle.Observer
+import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
-import kotlinx.android.synthetic.main.activity_patient_list.*
-import android.content.DialogInterface
-import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.tasks.Task
-import android.support.annotation.NonNull
 import android.widget.Toast
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.tasks.OnCompleteListener
-
-
+import kotlinx.android.synthetic.main.activity_patient_list.*
+import org.jetbrains.anko.doAsync
 
 
 /*
@@ -162,11 +154,19 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Inserts a new measurements to the list in DB
     fun insertMeasurements(context: Context){
-        val measurements:List<Medicion> = MedicionData(context).listaMedicion
-        ioThread {
+        var measurements:List<Medicion>
+        doAsync {
+            measurements = Medicion.populateMeds(applicationContext)
             instanceDatabase.medicionDao().insertartListaMediciones(measurements)
             loadMediciones()
         }
+        //ioThread {
+            /*
+            * Llenar lista con las mediciones del servicio web
+            * */
+            ///instanceDatabase.medicionDao().insertartListaMediciones(measurements)
+            ///loadMediciones()
+        //}
     }
 
     // Handles clicking options item

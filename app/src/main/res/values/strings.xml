@@ -29,4 +29,8 @@
 
     <string name="unidad_medidad">mmHg</string>
     <string name="loading">Cargando....</string>
+    <string name="clinica">Clinica</string>
+    <string name="paciente">Paciente</string>
+    <string name="tipoCuenta">Elige tipo de cuenta</string>
+
 </resources>
