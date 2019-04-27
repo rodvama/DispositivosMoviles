@@ -16,10 +16,13 @@ class NetworkConnection {
                 URL("$BASE_URL/clinics/?format=json")
 
         fun buildUrlPatients(): URL =
-                URL("$BASE_URL/patients/?format=json")
+                //http://www.mocky.io/v2/5cc4d8a53400002c0076559c
+                //$BASE_URL/patients/?format=json
+                URL("http://www.mocky.io/v2/5cc4d8a53400002c0076559c")
 
         fun buildUrlPressures(): URL =
                 //http://www.mocky.io/v2/5cc3b67a3400003700765452
+                //$BASE_URL/pressures/?format=json
             URL("http://www.mocky.io/v2/5cc3b67a3400003700765452")
 
         fun getResponseFromHttpUrl(url: URL): String =

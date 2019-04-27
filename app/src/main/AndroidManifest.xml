@@ -50,15 +50,17 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".PatientList"
-            android:label="@string/title_activity_patient_list"
-            android:screenOrientation="portrait" />
+            android:label="@string/title_activity_patient_list"/>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".ElegirTipo" />
-        <activity android:name=".Clinic_list"></activity>
+        <activity
+            android:name=".Clinic_list"
+            android:label="@string/title_activity_clinic_list"
+            ></activity>
     </application>
 
 </manifest>

@@ -54,9 +54,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val DELETE_ID: String = "id"
         val DEL: String = "Borrar ?"
     }
-
-    private var mGoogleSignInClient : GoogleSignInClient? = null
-
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
 
@@ -75,7 +72,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val mail   = extras.getString(ACCOUNT_MAIL)
         val photo  = extras.getString(ACCOUNT_IMG)
 
-        textView_nombre.text = "Bienvenido: "+nombre
+        textView_nombre.text = "Paciente: "+nombre
 
         bluetoothHelper = BluetoothHelper(this)
 

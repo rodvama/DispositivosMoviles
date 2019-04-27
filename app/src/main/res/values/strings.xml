@@ -11,7 +11,8 @@
     <string name="button_retry">Reintentar</string>
     <string name="button_signin">Iniciar sesión</string>
     <string name="check_verify">Verificar medición</string>
-    <string name="title_activity_patient_list">PatientList</string>
+    <string name="title_activity_patient_list">Registros</string>
+    <string name="title_activity_clinic_list">Lista Pacientes</string>
     <string name="enviar_por_email">Enviar por correo</string>
     <string name="eliminar">Eliminar medicion</string>
     <string name="manual">Manual</string>

@@ -21,7 +21,15 @@ class ElegirTipo : AppCompatActivity() {
         photo  = extras.getString(PatientList.ACCOUNT_IMG)
 
         button_paciente.setOnClickListener { irPaciente() }
+        button_clinica.setOnClickListener { irClinica() }
+    }
 
+    fun irClinica(){
+        val StartAppIntent = Intent(this,Clinic_list::class.java)
+        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,mail)
+        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,nombre)
+        StartAppIntent.putExtra(PatientList.ACCOUNT_IMG,photo)
+        startActivity(StartAppIntent)
     }
 
     fun irPaciente(){
