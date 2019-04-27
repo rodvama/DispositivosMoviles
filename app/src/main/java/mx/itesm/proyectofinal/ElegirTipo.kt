@@ -1,6 +1,9 @@
 package mx.itesm.proyectofinal
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_elegir_tipo.*
@@ -22,6 +25,17 @@ class ElegirTipo : AppCompatActivity() {
 
         button_paciente.setOnClickListener { irPaciente() }
         button_clinica.setOnClickListener { irClinica() }
+        val broadcast_reciever = object : BroadcastReceiver() {
+
+            override fun onReceive(arg0: Context, intent: Intent) {
+                val action = intent.action
+                if (action == "sign_out") {
+                    finish()
+                    // DO WHATEVER YOU WANT.
+                }
+            }
+        }
+        registerReceiver(broadcast_reciever, IntentFilter("sign_out"))
     }
 
     fun irClinica(){
