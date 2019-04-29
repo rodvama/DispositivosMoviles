@@ -25,6 +25,7 @@
     <string name="card_title2">Resultados manuales</string>
     <string name="email_action">Enviar por email</string>
 
+    <string name="bluetooth_le_not_supported">El dispositivo no soporta LE</string>
 
     <string name="location_permission_disabled">Por favor dar permiso para encontrar el dispositivo</string>
     <string name="ok">Ok</string>
@@ -44,11 +45,18 @@
     <string name="bluetooth_device_address">MAC:</string>
     <string name="bluetooth_device_connected">Dispositivo seleccionado</string>
 
-    <string name="char_uuid_missed_connection">Your Missed Connection UUID</string>
-    <string name="char_uuid_emergency">Your Emergency Service UUID</string>
-    <string name="char_uuid_emergency_call">Your Emergency Call UUID</string>
-    <string name="char_uuid_catch">Your Catch UUID</string>
-    <string name="char_uuid_catch_all">Your Catch All UUID</string>
-    <string name="char_uuid_missed_calls">Your Missed call UUID</string>
+    <string name="char_uuid_missed_connection">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
+    <string name="char_uuid_emergency">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
+    <string name="char_uuid_emergency_call">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
+    <string name="char_uuid_catch">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
+    <string name="char_uuid_catch_all">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
+    <string name="char_uuid_missed_calls">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
+
+    <!--<string name="char_uuid_missed_connection">Your Missed Connection UUID</string>-->
+    <!--<string name="char_uuid_emergency">Your Emergency Service UUID</string>-->
+    <!--<string name="char_uuid_emergency_call">Your Emergency Call UUID</string>-->
+    <!--<string name="char_uuid_catch">Your Catch UUID</string>-->
+    <!--<string name="char_uuid_catch_all">Your Catch All UUID</string>-->
+    <!--<string name="char_uuid_missed_calls">Your Missed call UUID</string>-->
 
 </resources>

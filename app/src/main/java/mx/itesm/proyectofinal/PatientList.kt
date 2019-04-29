@@ -20,12 +20,21 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
+import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.arch.lifecycle.Observer
+import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -33,7 +42,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_patient_list.*
-import mx.itesm.proyectofinal.BluetoothHelper.Companion.REQUEST_ENABLE_BT
+import mx.itesm.proyectofinal.BLE.*
 
 /*
  * Declares the patient measurements list. This is the first and main page of the application
@@ -49,7 +58,10 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         var bluetoothHelper: BluetoothHelper? = null
         const val DELETE_ID: String = "id"
         var DEL: String = "Borrar ?"
+        const val REQUEST_ENABLE_BT: Int = 10
+        const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
         const val BLUETOOTH_DEVICE = 5
+        const val BLUETOOTH_ADDRESS = "Address"
         const val LOAD_MEASURE = 4
         const val TAKE_MEASURE = 3
     }
@@ -57,10 +69,11 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
 
-    var connected = false
-
     // The RecyclerView adapter declaration
     val adapter = MeditionAdapter(this, this)
+    private val TAG = "PATIENTLIST"
+
+    private var mDevice: BleDeviceData = BleDeviceData("","")
 
     /*
      * Creates the Patient List activity and inflates the view. Also initializes database calls.
@@ -69,18 +82,15 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
 
-        bluetoothHelper = BluetoothHelper(this)
-
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
 
         instanceDatabase = MedicionDatabase.getInstance(this)
-
         lista_pacientes.adapter = adapter
 
+         // Local Database load
         ioThread {
             val measureNum = instanceDatabase.medicionDao().getAnyMedicion()
-
             if(measureNum == 0){
                 insertMeasurements(this)
             } else{
@@ -88,7 +98,16 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
         }
 
-        floatingActionButton.setOnClickListener { onMeasure() }
+        //        bluetoothHelper = BluetoothHelper(this)
+
+        floatingActionButton.setOnClickListener { onPress() }
+        checkLocationPermission()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        BLEConnectionManager.disconnect()
+//        unRegisterServiceReceiver() TODO : check this
     }
 
     /*
@@ -100,12 +119,14 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     }
 
     // Starts the MainActivity, which starts measuring data from the bluetooth device.
-    private fun onMeasure() {
-        if (!connected) {
+    private fun onPress() {
+//        scanDevice(false)
+        if (mDevice.mDeviceAddress == "") {
             val intent = Intent(this, DeviceScanActivity::class.java)
             startActivityForResult(intent, BLUETOOTH_DEVICE)
         } else {
             val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra(BLUETOOTH_ADDRESS, mDevice)
             startActivityForResult(intent, LOAD_MEASURE)
         }
     }
@@ -126,12 +147,17 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 }
             }
             BLUETOOTH_DEVICE -> {
-                Log.i("code", resultCode.toString())
                 if (resultCode == Activity.RESULT_OK) {
-                    floatingActionButton.setImageResource(R.drawable.ic_heartplus)
                     Toast.makeText(this, R.string.bluetooth_device_connected,
                             Toast.LENGTH_LONG).show()
-                    connected = true
+
+                    if( data != null){
+                        val extras = data.extras
+                         mDevice = extras?.getParcelable(BLUETOOTH_ADDRESS)!!
+                        if(mDevice.mDeviceAddress != ""){
+                            floatingActionButton.setImageResource(R.drawable.ic_heartplus)
+                        }
+                    }
                 }
             }
             TAKE_MEASURE -> {
@@ -151,30 +177,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
         }
         super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    /**
-     * If the user either accept or reject the Permission- The requested App will get a callback
-     * Form the call back we can filter the user response with the help of request key
-     * If the user accept the same- We can proceed further steps
-     */
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
-                                            grantResults: IntArray) {
-        when (requestCode) {
-            BluetoothHelper.REQUEST_COARSE_LOCATION_PERMISSION -> {
-                if (permissions.size != 1 || grantResults.size != 1) {
-                    throw RuntimeException("Error on requesting location permission.")
-                }
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted
-                    Toast.makeText(this, R.string.location_permission_granted,
-                            Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this, R.string.location_permission_not_granted,
-                            Toast.LENGTH_LONG).show()
-                }
-            }
-        }
     }
 
     // Custom item click listener for each measurement
@@ -201,7 +203,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     }
 
     // Inserts a new measurements to the list in DB
-    fun insertMeasurements(context: Context){
+    private fun insertMeasurements(context: Context){
         val measurements:List<Medicion> = MedicionData(context).listaMedicion
         ioThread {
             instanceDatabase.medicionDao().insertartListaMediciones(measurements)
@@ -224,5 +226,107 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
     }
 
+    /**
+     * Check the Location Permission before calling the BLE API's
+     */
+    private fun checkLocationPermission() {
+        if(isAboveMarshmallow()){
+            when {
+                isLocationPermissionEnabled() -> initBLEModule()
+                ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) -> displayRationale()
+                else -> requestLocationPermission()
+            }
+        }
+        else {
+            initBLEModule()
+        }
+    }
+
+    /**
+     * The location permission is incorporated in Marshmallow and Above
+     */
+    private fun isAboveMarshmallow(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+    }
+
+    /**
+     * Check with the system- If the permission already enabled or not
+     */
+    private fun isLocationPermissionEnabled(): Boolean {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    /**
+     * Request Location API
+     * If the request go to Android system and the System will throw a dialog message
+     * user can accept or decline the permission from there
+     */
+    private fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                REQUEST_COARSE_LOCATION_PERMISSION)
+    }
+
+    /**
+     * If the user decline the Permission request and tick the never ask again message
+     * Then the application can't proceed further steps
+     * In such situation- App need to prompt the user to do the change form Settings Manually
+     */
+    private fun displayRationale() {
+        AlertDialog.Builder(this)
+                .setTitle(R.string.location_permission_not_granted)
+                .setMessage(R.string.location_permission_disabled)
+                .setPositiveButton(R.string.ok
+                ) { _, _ -> requestLocationPermission() }
+                .setNegativeButton(R.string.cancel
+                ) { _, _ -> }
+                .show()
+    }
+
+    /**
+     * If the user either accept or reject the Permission- The requested App will get a callback
+     * Form the call back we can filter the user response with the help of request key
+     * If the user accept the same- We can proceed further steps
+     */
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
+                                            grantResults: IntArray) {
+        when (requestCode) {
+            REQUEST_COARSE_LOCATION_PERMISSION -> {
+                if (permissions.size != 1 || grantResults.size != 1) {
+                    throw RuntimeException("Error on requesting location permission.")
+                }
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permission granted
+                    Toast.makeText(this, R.string.location_permission_granted,
+                            Toast.LENGTH_LONG).show()
+                    initBLEModule()
+                } else {
+                    Toast.makeText(this, R.string.location_permission_not_granted,
+                            Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+
+
+    /**
+     *After receive the Location Permission, the Application need to initialize the
+     * BLE Module and BLE Service
+     */
+    private fun initBLEModule() {
+        // BLE initialization
+        if (!BLEDeviceManager.init(this)) {
+            Toast.makeText(this, R.string.bluetooth_le_not_supported, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!BLEDeviceManager.isEnabled()) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+        }
+    }
 }
 

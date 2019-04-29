@@ -29,6 +29,8 @@ import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
+import mx.itesm.proyectofinal.PatientList.Companion.REQUEST_COARSE_LOCATION_PERMISSION
+import mx.itesm.proyectofinal.PatientList.Companion.REQUEST_ENABLE_BT
 
 
 /*
@@ -53,11 +55,6 @@ class BluetoothHelper(activity: Activity) {
     var dataList: MutableList<Data> = mutableListOf()
     var started = false
 
-    companion object {
-        const val REQUEST_ENABLE_BT: Int = 10
-        const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
-    }
-
     /**
      * Initializes the connection threads and checks that bluetooth is enabled in the device.
      * Proceeds to call the bluetooth enabling intent or start the connection.
@@ -67,8 +64,6 @@ class BluetoothHelper(activity: Activity) {
 //        mConnectedThread = null
 
         checkBluetoothPermission(activity)
-
-        checkLocationPermission(activity)
     }
 
     /**
