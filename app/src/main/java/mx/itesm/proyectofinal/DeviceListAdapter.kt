@@ -25,6 +25,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.row_bluetooth.*
+import mx.itesm.proyectofinal.BLE.BleDeviceData
 
 
 /*
@@ -34,16 +35,18 @@ import kotlinx.android.synthetic.main.row_bluetooth.*
  * that executes at the start of the application.
  */
 class DeviceListAdapter(private val context: Context,
-                        val listener: CustomDeviceClickListener) : BaseAdapter() {
-    private var mLeDevices: ArrayList<BluetoothDevice> = arrayListOf()
+                        val listener: OnDeviceScanListener) : BaseAdapter() {
+    private var mLeDevices: ArrayList<BleDeviceData> = arrayListOf()
+    private var mAddresses: MutableSet<String> = mutableSetOf()
 
-    fun addDevice(device: BluetoothDevice) {
-        if (!mLeDevices.contains(device)) {
+    fun addDevice(device: BleDeviceData) {
+        if (!mAddresses.contains(device.mDeviceAddress)) {
+            mAddresses.add(device.mDeviceAddress)
             mLeDevices.add(device)
         }
     }
 
-    fun getDevice(position: Int): BluetoothDevice {
+    fun getDevice(position: Int): BleDeviceData {
         return mLeDevices[position]
     }
 
@@ -55,7 +58,7 @@ class DeviceListAdapter(private val context: Context,
         return mLeDevices.size
     }
 
-    override fun getItem(position: Int): BluetoothDevice? {
+    override fun getItem(position: Int): BleDeviceData? {
         return mLeDevices[position]
     }
 
@@ -67,7 +70,8 @@ class DeviceListAdapter(private val context: Context,
 
         val bluetoothDeviceHolder: BluetoothDeviceViewHolder
         val rowView: View
-        val bluetoothDevice: BluetoothDevice = getItem(position) as BluetoothDevice
+//        val bluetoothDevice: BluetoothDevice = getItem(position) as BluetoothDevice
+        val bluetoothDevice: BleDeviceData = getItem(position) as BleDeviceData
 
         // General ListView optimization code.
         // si no exsite una vista para el renglón,se crea
@@ -93,12 +97,13 @@ class DeviceListAdapter(private val context: Context,
      */
     inner class BluetoothDeviceViewHolder(override val containerView: View) : LayoutContainer {
 
-        fun bind(btDevice: BluetoothDevice) {
-            text_name.text = btDevice.name ?: "Desconocido"
-            text_status.text = if (btDevice.bondState > 10) "Conectado" else "Desconocido"
+        fun bind(deviceData: BleDeviceData) {
+            text_name.text = deviceData.mDeviceName
+            text_status.text = "status"
+//            text_status.text = if (deviceData.bondState > 10) "Conectado" else "Desconocido"
 //            bluetoothDevice.type
-            text_address.text = btDevice.address
-            containerView.setOnClickListener { view -> listener.onCustomDeviceClick(btDevice) }
+            text_address.text = deviceData.mDeviceAddress
+            containerView.setOnClickListener { view -> listener.onDeviceClick(deviceData) }
         }
     }
 
