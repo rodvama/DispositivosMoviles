@@ -22,17 +22,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".signInActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+        <activity android:name=".signInActivity">
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ResultsActivity"
             android:screenOrientation="portrait" />
@@ -49,12 +50,17 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".PatientList"
-            android:label="@string/title_activity_patient_list"
-            android:screenOrientation="portrait">   </activity>
+            android:label="@string/title_activity_patient_list"/>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <activity android:name=".ElegirTipo" />
+        <activity
+            android:name=".Clinic_list"
+            android:label="@string/title_activity_clinic_list"
+            ></activity>
     </application>
 
 </manifest>

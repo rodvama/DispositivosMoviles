@@ -1,5 +1,4 @@
 package mx.itesm.proyectofinal
-
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -29,12 +28,9 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     override fun onConnectionFailed(p0: ConnectionResult) {
         Log.d("CONNECTION_FAILED", "onConnectionFailed: $p0")
     }
-
     private val RC_SIGN_IN = 9001
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mGoogleSignInClient : GoogleSignInClient? = null
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
@@ -45,7 +41,6 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build()
-
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
         /*mGoogleApiClient = GoogleApiClient.Builder(this)
@@ -59,10 +54,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         super.onStart()
         if(PatientList.STATUS == "si") {
             signOut()
-        }
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        else {
+        }else {
             val account = GoogleSignIn.getLastSignedInAccount(this)
             updateUI(account)
         }
@@ -78,24 +70,19 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
-
             // Signed in successfully, show authenticated UI.
             updateUI(account)
         } catch (e: ApiException) {
             Log.w("SIGNIN_EXCEPTION", "failed code: " + e.statusCode)
             updateUI(null)
         }
-
     }
-
     fun signin(){
         val signInIntent = mGoogleSignInClient?.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
-
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
@@ -104,14 +91,12 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
             handleSignInResult(task)
         }
     }
-
     fun updateUI(account: GoogleSignInAccount?){
         val mail = account?.email
         val nombre = account?.displayName
         val imgUrl = account?.photoUrl.toString()
-
         if(account!=null){
-            val StartAppIntent = Intent(this,PatientList::class.java)
+            val StartAppIntent = Intent(this,ElegirTipo::class.java)
             StartAppIntent.putExtra(ACCOUNT_MAIL,mail)
             StartAppIntent.putExtra(ACCOUNT_NAME,nombre)
             StartAppIntent.putExtra(ACCOUNT_IMG,imgUrl)

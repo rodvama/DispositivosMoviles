@@ -25,10 +25,11 @@ import android.content.Context
 /*
  * Declares the entity of the Measurement database based on a Singleton design pattern.
  */
-@Database(entities = [Medicion::class], version = 1, exportSchema = false)
+@Database(entities = [Medicion::class , Patient::class], version = 1, exportSchema = false)
 abstract class MedicionDatabase : RoomDatabase() {
 
     abstract fun medicionDao(): MedicionDao
+    abstract fun pacienteDao(): PacienteDao
 
     companion object {
 
