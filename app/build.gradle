@@ -40,10 +40,13 @@ android {
 
         }
     }
-    androidExtensions {
-        experimental = true
-    }
+//    androidExtensions {
+//        experimental = true
+//    }
+}
 
+androidExtensions {
+    experimental = true
 }
 
 dependencies {
