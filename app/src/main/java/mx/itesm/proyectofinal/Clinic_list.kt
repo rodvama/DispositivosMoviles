@@ -11,10 +11,18 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.google.zxing.integration.android.IntentIntegrator
+import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
+import com.google.android.gms.vision.barcode.Barcode
+import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_clinic_list.*
 import org.jetbrains.anko.doAsync
+import java.util.jar.Manifest
 
 class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
 
@@ -37,7 +45,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         val extras = intent.extras?: return
 
         val nombre = extras.getString(PatientList.ACCOUNT_NAME)
-        mail = extras.getString(PatientList.ACCOUNT_MAIL)
+        this.mail = extras.getString(PatientList.ACCOUNT_MAIL)
         val photo  = extras.getString(PatientList.ACCOUNT_IMG)
 
         textView_nombre.text = "Clinica/Doctor: "+nombre
@@ -45,7 +53,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         val layoutManager = LinearLayoutManager(this)
         lista_clinica.layoutManager = layoutManager
 
-        instanceDatabase = MedicionDatabase.getInstance(this)
+        this.instanceDatabase = MedicionDatabase.getInstance(this)
 
         lista_clinica.adapter = adapter
 
@@ -69,6 +77,13 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
             }
         }
         registerReceiver(broadcast_reciever, IntentFilter("sign_out"))
+    }
+
+
+    //Menu con la opcion de escanear el qr del paciente
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_clinic, menu)
+        return true
     }
 
     // Loads measurements from database
@@ -117,4 +132,37 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,patient.FNameP+" "+patient.LNameP)
         startActivity(StartAppIntent)
     }
+
+    // Handles clicking options item
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId){
+            R.id.action_sacnQR ->{
+                startQR()
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
+    private fun startQR() {
+        IntentIntegrator(this).initiateScan()
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
+
+        if (result != null) {
+            // If QRCode has no data.
+            if (result.contents == null) {
+                //escribe
+            } else {
+                // If QRCode contains data.
+                val email = result.contents
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
 }

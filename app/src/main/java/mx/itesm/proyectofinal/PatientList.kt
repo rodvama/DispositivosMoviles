@@ -89,7 +89,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
 
-        instanceDatabase = MedicionDatabase.getInstance(this)
+        this.instanceDatabase = MedicionDatabase.getInstance(this)
 
         lista_pacientes.adapter = adapter
 
@@ -141,7 +141,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         if (requestCode == 3 && resultCode == Activity.RESULT_OK){
             if (data?.getBooleanExtra(DEL, false) == true) {
                 ioThread {
-                    instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
+                    this.instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
                 }
             }
         }
@@ -157,7 +157,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Loads measurements from database
     private fun loadMediciones() {
-        val measurements = instanceDatabase.medicionDao().cargarMeciciones(mail)
+        val measurements = this.instanceDatabase.medicionDao().cargarMeciciones(mail)
 
         measurements.observe(this, object: Observer<List<Medicion>> {
             override fun onChanged(t: List<Medicion>?) {
@@ -177,8 +177,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     fun insertMeasurements(context: Context){
         var measurements:List<Medicion>
         doAsync {
-            measurements = Medicion.populateMeds(applicationContext,mail)
-            instanceDatabase.medicionDao().insertartListaMediciones(measurements)
+            measurements = Medicion.populateMeds(applicationContext, this@PatientList.mail)
+            this@PatientList.instanceDatabase.medicionDao().insertartListaMediciones(measurements)
             loadMediciones()
         }
         //ioThread {

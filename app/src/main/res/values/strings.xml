@@ -35,4 +35,6 @@
     <string name="paciente">Paciente</string>
     <string name="tipoCuenta">Elige tipo de cuenta</string>
 
+    <string name="escanear_qr">Escanear QR de paciente</string>
+
 </resources>
