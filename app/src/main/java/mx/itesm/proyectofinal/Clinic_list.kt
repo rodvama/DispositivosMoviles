@@ -12,6 +12,7 @@ import android.content.IntentFilter
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.view.View
 import kotlinx.android.synthetic.main.activity_clinic_list.*
 import org.jetbrains.anko.doAsync
 
@@ -57,13 +58,13 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
                 loadPacientes ()
             }
         }
+
         val broadcast_reciever = object : BroadcastReceiver() {
 
             override fun onReceive(arg0: Context, intent: Intent) {
                 val action = intent.action
                 if (action == "sign_out") {
                     finish()
-                    // DO WHATEVER YOU WANT.
                 }
             }
         }
@@ -77,9 +78,13 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         pacientes.observe(this, object: Observer<List<Patient>> {
             override fun onChanged(t: List<Patient>?) {
                 adapter.setPatient(t!!)
+                if(adapter.itemCount == 0){
+                    tv_vacia.visibility = View.VISIBLE
+                }else{
+                    tv_vacia.visibility = View.GONE
+                }
                 lista_clinica.adapter = adapter
                 lista_clinica.adapter?.notifyDataSetChanged()
-
             }
         })
 

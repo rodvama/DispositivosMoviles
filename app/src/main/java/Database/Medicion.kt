@@ -27,6 +27,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.lang.Exception
 import java.sql.Date
 
 /*
@@ -117,7 +118,13 @@ fun cargaMeds(patientMail: String) : MutableList<Medicion> {
  */
 fun cargaPatients(clinicaMail : String) : MutableList<Patient>{
     val urlP = NetworkConnection.buildUrlPatients(clinicaMail)
-    val dataJsonP : String? = NetworkConnection.getResponseFromHttpUrl(urlP)
+    var dataJsonP : String?
+    var patients : MutableList<Patient> = mutableListOf()
+    try{
+        dataJsonP = NetworkConnection.getResponseFromHttpUrl(urlP)
+    }catch (e : Exception){
+        return patients
+    }
 
     return parseJsonPats(dataJsonP!!, clinicaMail)
 }
