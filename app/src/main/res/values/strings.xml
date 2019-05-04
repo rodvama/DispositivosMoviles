@@ -21,6 +21,7 @@
     <string name="radio_left">Brazo izquierdo</string>
     <string name="radio_right">Brazo derecho</string>
 
+    <string name="settings_profile">Ver Perfil</string>
     <string name="settings_text">Configuración</string>
     <string name="settings_logout">Cerrar Sesión</string>
 

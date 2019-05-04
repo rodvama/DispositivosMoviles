@@ -30,6 +30,12 @@ interface PacienteDao {
     @Query("SELECT * FROM Patient WHERE _idP = :id")
     fun cargarPacientePorId(id: Int): Patient
 
+    @Query("SELECT * FROM Patient WHERE email = :emailS")
+    fun cargarPacientePorEmail(emailS: String?): Patient
+
+    @Query("SELECT * FROM Patient")
+    fun cargarTodosPacientes(): List<Patient>
+
     @Query("UPDATE Patient SET clinic = :clinica WHERE _idP = :id")
     fun updatePaciente(id: Int, clinica: String)
 }
