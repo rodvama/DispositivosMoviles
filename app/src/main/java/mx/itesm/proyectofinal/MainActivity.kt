@@ -33,6 +33,7 @@ import android.view.View
 import android.widget.Toast
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import de.nitri.gauge.Gauge
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_patient_list.*
@@ -40,6 +41,8 @@ import kotlinx.coroutines.experimental.launch
 import mx.itesm.proyectofinal.BLE.BLEConnectionManager
 import mx.itesm.proyectofinal.BLE.BLEConstants
 import mx.itesm.proyectofinal.BLE.BleDeviceData
+import org.jetbrains.anko.doAsync
+import java.util.*
 
 /*
  * MainActivity class declares the activity and inflates the view.
@@ -54,10 +57,12 @@ class MainActivity : AppCompatActivity() {
 
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
-    private var dataString: String = ""
-    private var valid: Boolean = false
-    //var dataList: MutableList<Data> = mutableListOf<Data>()
+    var dataList: MutableList<Data> = mutableListOf()
     //var started = false
+    var counter: Double = 0.0
+
+    private var gauge: Gauge? = null
+    private var queue: Queue<List<String>> = LinkedList()
 
     companion object {
         const val LIST_ID = "DataList"
@@ -72,13 +77,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mSeries.color = Color.parseColor("#E84A48")
-        graph.addSeries(mSeries)
-        graph.title = "Fotopletismografía"
-        graph.viewport.isXAxisBoundsManual = true
-        graph.viewport.setMinX(0.toDouble())
-        graph.viewport.setMaxX(40.toDouble())
-
 
         val extras = intent.extras?:return
         mDevice = extras.getParcelable(PatientList.BLUETOOTH_ADDRESS)!!
@@ -91,25 +89,29 @@ class MainActivity : AppCompatActivity() {
 
         val buttonScan: View = findViewById(R.id.button)
         buttonScan.setOnClickListener { onClick() }
+        gauge = findViewById(R.id.gauge)
+
     }
 
     fun onClick(){
-        writeMissedConnection()
+        unRegisterServiceReceiver()
+        BLEConnectionManager.disconnect()
+        goToDetail()
+//        writeMissedConnection()
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        BLEConnectionManager.disconnect()
         unRegisterServiceReceiver()
+        BLEConnectionManager.disconnect()
+        super.onDestroy()
     }
 
     // Handles redirecting and passing information to the ResultsActivity
     fun goToDetail() {
-        //mBluetoothHelper?.closeConnection()
         val intent = Intent(this, ResultsActivity::class.java)
         var max = 0
         val actualData = ArrayList<Data>()
-        val holder = mBluetoothHelper?.dataList!!
+        var holder = dataList
         for (i in 0 until holder.size-1) {
             if (holder[max].mmHg < holder[i].mmHg)
                 max = i
@@ -120,11 +122,31 @@ class MainActivity : AppCompatActivity() {
             actualData.add(holder[i])
         }
         if(actualData.size > 20) {
-            mBluetoothHelper?.dataList!!.clear()
+//            mBluetoothHelper?.dataList!!.clear()
             mSeries.resetData(arrayOfNulls(0))
             intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)
         }
+//        //mBluetoothHelper?.closeConnection()
+//        val intent = Intent(this, ResultsActivity::class.java)
+//        var max = 0
+//        val actualData = ArrayList<Data>()
+//        val holder = mBluetoothHelper?.dataList!!
+//        for (i in 0 until holder.size-1) {
+//            if (holder[max].mmHg < holder[i].mmHg)
+//                max = i
+//        }
+//        val firstTime = holder[max].timer
+//        for (i in max until holder.size-1) {
+//            holder[i].timer -= firstTime
+//            actualData.add(holder[i])
+//        }
+//        if(actualData.size > 20) {
+//            mBluetoothHelper?.dataList!!.clear()
+//            mSeries.resetData(arrayOfNulls(0))
+//            intent.putExtra(LIST_ID, actualData)
+//            startActivityForResult(intent, 2)
+//        }
     }
 
     fun launchRefreshUiCheck() {
@@ -191,6 +213,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val mGattUpdateReceiver = object : BroadcastReceiver() {
+        private var started: Boolean = false
+        private var stringData: String = ""
+        private var time: Double = 0.0
+
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             when {
@@ -211,36 +237,63 @@ class MainActivity : AppCompatActivity() {
                     BLEConnectionManager.findBLEGattService(this@MainActivity)
                 }
                 BLEConstants.ACTION_DATA_AVAILABLE.equals(action) -> {
+                    /**
+                     * It's a notification from the external BLE device.
+                     * From an intent we get the data and UUID of the service that send it.
+                     */
                     val data = intent.getStringExtra(BLEConstants.EXTRA_DATA)
                     val uuId = intent.getStringExtra(BLEConstants.EXTRA_UUID)
 
                     if(data != null ){
-                        if(valid){
-                            if(data.contains("\n")){
-                                var pos = data.indexOf("\n")
-                                var add = data.substring(0,pos-1)
-                                dataString += add
-                                Log.i("NEWDATA", dataString)
-                                var values: List<String> = dataString.split(';')
-                                if (pos < data.length){
-                                    dataString = data.substring(pos+1)
+                        val endDataSet = data.indexOf("\r\n") // Find for end of dataset
+                        // If it already found an end of a dataset to begin recording datasets
+                        if(started){
+//                            mSeries.appendData(DataPoint(counter, values[2].toDouble()), false, 1000)
+                            time += 6
+                            if(endDataSet > 1){
+                                stringData += data.substring(0,endDataSet) // Add data before "\r\n". Case: ";200\r\n"
+                                // Split values and convert to Float
+
+                                val values: List<String> = stringData.split(';')
+                                Log.d("DATA", values.toString())
+
+                                val space =  values[1].indexOf("\n")
+//                                    val space =  values[2].indexOf("\n")
+                                if(space > 1){
+                                    val pop = values[1].substring(0,space-1)
+//                                    values[0].toDouble()
+                                    dataList.add(Data(time, pop.toDouble(), 0.0))
+                                    if(pop.toFloat() < 20){
+                                        gauge?.moveToValue(20F)
+                                    }
+                                    else{
+                                        gauge?.moveToValue(pop.toFloat())
+                                    }
+//                                        val pop = values[2].substring(0,space-1)
+//                                        gauge?.moveToValue(pop.toFloat())
+//                                        dataString = values[2].substring(space)
+                                }
+                                else{
+//                                    values[0].toDouble()
+                                    dataList.add(Data(time, values[1].toDouble(), 0.0))
+                                    if(values[1].toDouble() < 20){
+                                        gauge?.moveToValue(20F)
+                                    }
+                                    else{
+                                        gauge?.moveToValue(values[1].toFloat())
+                                    }
                                 }
                             }
-                            else{
-                                dataString += data
-                            }
+                            stringData = data.substring(endDataSet+2) // Add remaining values. Case: "44\r\n18905;2" Case:"\r\n132455"
+                            // With this ^^^^. If "\n" is at the end, dataString ends up being ""
                         }
+                        // Haven't found the end of a dataset, keep looking for it
                         else{
-                            if(data.contains("\n")){
-                                var pos = data.indexOf("\n")
-                                if (pos < data.length){
-                                    dataString += data.substring(pos+1)
-                                    Log.i("****NEWDATA_START***", dataString)
-                                    valid = true
-                                }
-                            }
-                            else{
-                                dataString += data
+                            if(endDataSet != -1){
+                                val endChar = data.indexOf("\n") // Find for end of dataset
+                                stringData += data.substring(endChar+1)
+                                Log.d("****NEWDATA_START***", stringData)
+                                started = true
                             }
                         }
                     }
@@ -277,11 +330,14 @@ class MainActivity : AppCompatActivity() {
             //May get an exception while user denies the permission and user exists the app
             Log.e(TAG, e.message)
         }
-
     }
 
     private fun writeMissedConnection() {
         BLEConnectionManager.writeMissedConnection("A")
+    }
+
+    override fun onBackPressed() {
+        // Do Here what ever you want do on back press;
     }
 }
 

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import java.util.*
 import kotlin.experimental.and
@@ -173,6 +174,7 @@ class BLEService: Service() {
 
             // todo check this
             dataValueNew = value.toString(Charsets.US_ASCII)
+
 //            for (singleData in value) {
 ////                dataValueHex = dataValueHex + "\t" + "0x" + String.format(Locale.ENGLISH, "%02X", singleData)
 //                dataValueHex = dataValueHex + "\t" + "0x" + String.format(Locale.ENGLISH, "%02X", singleData)
@@ -183,6 +185,7 @@ class BLEService: Service() {
             intent.putExtra(BLEConstants.EXTRA_DATA, dataValueNew)
             intent.putExtra(BLEConstants.EXTRA_UUID, characteristic.uuid.toString())
             sendBroadcast(intent)
+//            LocalBroadcastManager.getInstance(this@MainActivity).sendBroadcast(intent)
         }
     }
 

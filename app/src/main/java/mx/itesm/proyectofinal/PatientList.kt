@@ -27,17 +27,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.Manifest
-import android.app.Activity
-import android.app.AlertDialog
-import android.arch.lifecycle.Observer
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -51,8 +45,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import kotlinx.android.synthetic.main.activity_patient_list.*
 import org.jetbrains.anko.doAsync
-
-import kotlinx.android.synthetic.main.activity_patient_list.*
 import mx.itesm.proyectofinal.BLE.*
 
 /*
@@ -70,10 +62,9 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val ACCOUNT_IMG:String = "account_img"
         var STATUS:String = "no"
         val DELETE_ID: String = "id"
-        val DEL: String = "Borrar ?"
+        const val DEL: String = "Borrar ?"
         const val PATIENT_KEY: String = "Medicion"
         var bluetoothHelper: BluetoothHelper? = null
-        var DEL: String = "Borrar ?"
         const val REQUEST_ENABLE_BT: Int = 10
         const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
         const val BLUETOOTH_DEVICE = 5
