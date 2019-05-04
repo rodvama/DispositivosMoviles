@@ -8,11 +8,11 @@ import android.arch.persistence.room.Query
 @Dao
 interface PacienteDao {
 
-    @Query("SELECT * FROM Patient")
-    fun cargarPacientes(): LiveData<List<Patient>>
+    @Query("SELECT * FROM Patient WHERE clinic = :clinica")
+    fun cargarPacientes(clinica : String): LiveData<List<Patient>>
 
-    @Query("SELECT COUNT (*) FROM Patient")
-    fun getAnyPaciente():Int
+    @Query("SELECT COUNT (*) FROM Patient WHERE clinic = :clinica")
+    fun getAnyPaciente(clinica : String):Int
 
     @Insert
     fun insertarPaciente(paciente: Patient)

@@ -49,8 +49,8 @@ data class Medicion(@ColumnInfo(name = "appSistolica") var appSistolica: String?
     var _id:Int = 0
 
     companion object {
-        fun populateMeds(context: Context) : MutableList<Medicion> = cargaMeds()
-        fun populatePatients(context: Context): MutableList<Patient> = cargaPatients()
+        fun populateMeds(context: Context, patientP : String) : MutableList<Medicion> = cargaMeds(patientP)
+        fun populatePatients(context: Context, clinicM : String): MutableList<Patient> = cargaPatients(clinicM)
     }
 }
 
@@ -80,17 +80,28 @@ data class Patient(@ColumnInfo(name = "email") var mailC: String?,
     var _idP:Int = 0
 }
 /*
+    {
     "id": 1,
-    "email": "rodrigocampos@example.net",
-    "first_name": "Elvia",
-    "last_name": "Modesto",
-    "age": 13,
-    "sex": "F"
+    "date": "2019-04-27",
+    "verified": true,
+    "systolic": 93,
+    "diastolic": 82,
+    "manual_systolic": 93,
+    "manual_diastolic": 82,
+    "arm": "D",
+    "patient": {
+        "id": 1,
+        "email": "A01251806@itesm.mx",
+        "first_name": "Alejandra",
+        "last_name": "Gamez",
+        "age": 78,
+        "sex": "F"
+    }
+}
 */
 
-fun cargaMeds() : MutableList<Medicion> {
-    val url = NetworkConnection.buildUrlPressures()
-    // "https://fierce-chamber-37767.herokuapp.com/pressures/"
+fun cargaMeds(patientMail: String) : MutableList<Medicion> {
+    val url = NetworkConnection.buildUrlPressures(patientMail)
     val dataJson :String? = NetworkConnection.getResponseFromHttpUrl(url)
 
     return parseJsonMeds(dataJson!!)
@@ -104,11 +115,11 @@ fun cargaMeds() : MutableList<Medicion> {
         "age": 13,
         "sex": "F"
  */
-fun cargaPatients() : MutableList<Patient>{
-    val urlP = NetworkConnection.buildUrlPatients()
+fun cargaPatients(clinicaMail : String) : MutableList<Patient>{
+    val urlP = NetworkConnection.buildUrlPatients(clinicaMail)
     val dataJsonP : String? = NetworkConnection.getResponseFromHttpUrl(urlP)
 
-    return parseJsonPats(dataJsonP!!)
+    return parseJsonPats(dataJsonP!!, clinicaMail)
 }
 
 fun parseJsonMeds(jsonString: String): MutableList<Medicion>{
@@ -117,7 +128,7 @@ fun parseJsonMeds(jsonString: String): MutableList<Medicion>{
     //Primero es array
     try {
         val dataJsonList : JSONArray = JSONArray(jsonString)
-        for(i in 0 until 10){
+        for(i in 0 until dataJsonList.length()){
             val jsonMed : JSONObject = dataJsonList.getJSONObject(i)
             val dateMed = jsonMed.getString("date")
             val verMed = jsonMed.getBoolean("verified")
@@ -128,9 +139,9 @@ fun parseJsonMeds(jsonString: String): MutableList<Medicion>{
             val armMedMed = jsonMed.getString("arm")
             //patient object
             val patientMed = jsonMed.getJSONObject("patient")
-            val patientNameMed = patientMed.getString("first_name")
+            val patientMedMail = patientMed.getString("email").toString().toLowerCase()
 
-            press = Medicion(sysMed,disMed,m_sysMed,m_disMed,dateMed,verMed,armMedMed,null,patientNameMed)
+            press = Medicion(sysMed,disMed,m_sysMed,m_disMed,dateMed,verMed,armMedMed,null,patientMedMail)
             pressures.add(press)
         }
     }catch (e: JSONException) {
@@ -140,13 +151,13 @@ fun parseJsonMeds(jsonString: String): MutableList<Medicion>{
     return pressures
 }
 
-fun parseJsonPats(jsonString: String): MutableList<Patient>{
+fun parseJsonPats(jsonString: String, clinicPat : String): MutableList<Patient>{
     var patients : MutableList<Patient> = mutableListOf()
     var pat : Patient
     //Primero es array
     try {
         val dataJsonList : JSONArray = JSONArray(jsonString)
-        for(i in 0 until 20){
+        for(i in 0 until dataJsonList.length()){
             val jsonPat : JSONObject = dataJsonList.getJSONObject(i)
             val patMail = jsonPat.getString("email")
             val patFname = jsonPat.getString("first_name")
@@ -154,7 +165,7 @@ fun parseJsonPats(jsonString: String): MutableList<Patient>{
             val patAge = jsonPat.getInt("age")
             val patSex = jsonPat.getString("sex")
 
-            pat = Patient(patMail,patFname,patLname,patAge,patSex,null)
+            pat = Patient(patMail,patFname,patLname,patAge,patSex,clinicPat)
             patients.add(pat)
         }
     }catch (e: JSONException) {

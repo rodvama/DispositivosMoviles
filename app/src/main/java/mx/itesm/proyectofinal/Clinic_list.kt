@@ -5,8 +5,10 @@ import Database.MedicionDatabase
 import Database.Patient
 import Database.ioThread
 import android.arch.lifecycle.Observer
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -21,6 +23,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         val ACCOUNT_IMG:String = "account_img"
     }
 
+    lateinit var mail : String
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
 
@@ -33,7 +36,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         val extras = intent.extras?: return
 
         val nombre = extras.getString(PatientList.ACCOUNT_NAME)
-        val mail   = extras.getString(PatientList.ACCOUNT_MAIL)
+        mail = extras.getString(PatientList.ACCOUNT_MAIL)
         val photo  = extras.getString(PatientList.ACCOUNT_IMG)
 
         textView_nombre.text = "Clinica/Doctor: "+nombre
@@ -46,7 +49,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         lista_clinica.adapter = adapter
 
         ioThread {
-            val pacienteNum = instanceDatabase.pacienteDao().getAnyPaciente()
+            val pacienteNum = instanceDatabase.pacienteDao().getAnyPaciente(mail)
 
             if(pacienteNum == 0){
                 insertPacientes(this)
@@ -54,11 +57,22 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
                 loadPacientes ()
             }
         }
+        val broadcast_reciever = object : BroadcastReceiver() {
+
+            override fun onReceive(arg0: Context, intent: Intent) {
+                val action = intent.action
+                if (action == "sign_out") {
+                    finish()
+                    // DO WHATEVER YOU WANT.
+                }
+            }
+        }
+        registerReceiver(broadcast_reciever, IntentFilter("sign_out"))
     }
 
     // Loads measurements from database
     private fun loadPacientes() {
-        val pacientes = instanceDatabase.pacienteDao().cargarPacientes()
+        val pacientes = instanceDatabase.pacienteDao().cargarPacientes(mail)
 
         pacientes.observe(this, object: Observer<List<Patient>> {
             override fun onChanged(t: List<Patient>?) {
@@ -75,7 +89,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
     fun insertPacientes(context: Context){
         var patients:List<Patient>
         doAsync {
-            patients = Medicion.populatePatients(applicationContext)
+            patients = Medicion.populatePatients(applicationContext, mail)
             instanceDatabase.pacienteDao().insertartListaPacientes(patients)
             loadPacientes()
         }
@@ -93,5 +107,9 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         //val intent = Intent(this, ::class.java)
         //intent.putExtra(PatientList.PATIENT_KEY, patient._idP)
         //startActivityForResult(intent, 3)
+        val StartAppIntent = Intent(this,PatientList::class.java)
+        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,patient.mailC)
+        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,patient.FNameP+" "+patient.LNameP)
+        startActivity(StartAppIntent)
     }
 }

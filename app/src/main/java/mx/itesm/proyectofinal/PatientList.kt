@@ -23,8 +23,10 @@ import Database.ioThread
 import android.app.Activity
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -58,6 +60,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     }
 
     lateinit var account: GoogleSignInAccount
+    lateinit var mail : String
 
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
@@ -75,7 +78,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
         STATUS = "no"
         val nombre = extras.getString(ACCOUNT_NAME)
-        val mail   = extras.getString(ACCOUNT_MAIL)
+        mail   = extras.getString(ACCOUNT_MAIL)
         val photo  = extras.getString(ACCOUNT_IMG)
 
         textView_nombre.text = "Paciente: "+nombre
@@ -90,7 +93,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         lista_pacientes.adapter = adapter
 
         ioThread {
-            val measureNum = instanceDatabase.medicionDao().getAnyMedicion()
+            val measureNum = instanceDatabase.medicionDao().getAnyMedicion(mail)
 
             if(measureNum == 0){
                 insertMeasurements(this)
@@ -100,6 +103,17 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
 
         floatingActionButton.setOnClickListener { v -> onMeasure() }
+        val broadcast_reciever = object : BroadcastReceiver() {
+
+            override fun onReceive(arg0: Context, intent: Intent) {
+                val action = intent.action
+                if (action == "sign_out") {
+                    finish()
+                    // DO WHATEVER YOU WANT.
+                }
+            }
+        }
+        registerReceiver(broadcast_reciever, IntentFilter("sign_out"))
     }
 
     /*
@@ -142,24 +156,22 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Loads measurements from database
     private fun loadMediciones() {
-        val measurements = instanceDatabase.medicionDao().cargarMeciciones()
+        val measurements = instanceDatabase.medicionDao().cargarMeciciones(mail)
 
         measurements.observe(this, object: Observer<List<Medicion>> {
             override fun onChanged(t: List<Medicion>?) {
                 adapter.setMedicion(t!!)
                 lista_pacientes.adapter = adapter
                 lista_pacientes.adapter?.notifyDataSetChanged()
-
             }
         })
-
     }
 
     // Inserts a new measurements to the list in DB
     fun insertMeasurements(context: Context){
         var measurements:List<Medicion>
         doAsync {
-            measurements = Medicion.populateMeds(applicationContext)
+            measurements = Medicion.populateMeds(applicationContext,mail)
             instanceDatabase.medicionDao().insertartListaMediciones(measurements)
             loadMediciones()
         }
