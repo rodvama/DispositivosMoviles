@@ -103,7 +103,13 @@ data class Patient(@ColumnInfo(name = "email") var mailC: String?,
 
 fun cargaMeds(patientMail: String) : MutableList<Medicion> {
     val url = NetworkConnection.buildUrlPressures(patientMail)
-    val dataJson :String? = NetworkConnection.getResponseFromHttpUrl(url)
+    var dataJson : String?
+    var meds : MutableList<Medicion> = mutableListOf()
+    try{
+        dataJson = NetworkConnection.getResponseFromHttpUrl(url)
+    } catch (e : Exception){
+        return meds
+    }
 
     return parseJsonMeds(dataJson!!)
 }

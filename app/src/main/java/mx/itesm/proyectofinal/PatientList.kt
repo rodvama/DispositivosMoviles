@@ -32,6 +32,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -161,6 +162,11 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         measurements.observe(this, object: Observer<List<Medicion>> {
             override fun onChanged(t: List<Medicion>?) {
                 adapter.setMedicion(t!!)
+                if(adapter.itemCount == 0){
+                    tv_vacia_med.visibility = View.VISIBLE
+                }else{
+                    tv_vacia_med.visibility = View.GONE
+                }
                 lista_pacientes.adapter = adapter
                 lista_pacientes.adapter?.notifyDataSetChanged()
             }

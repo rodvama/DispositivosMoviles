@@ -27,6 +27,7 @@
     <string name="card_title1">Resultados calculados</string>
     <string name="card_title2">Resultados manuales</string>
     <string name="email_action">Enviar por email</string>
+    <string name="dimen">Añade Mediciones! :)</string>
     <string name="vacia">Lista Vacía</string>
     <string name="unidad_medidad">mmHg</string>
     <string name="loading">Cargando....</string>
