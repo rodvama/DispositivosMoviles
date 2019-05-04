@@ -53,6 +53,13 @@
                 android:value=".PatientList" />
         </activity>
         <activity
+            android:name=".PerfilActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".PatientList" />
+        </activity>
+        <activity
             android:name=".ActivityDetail"
             android:parentActivityName=".PatientList"
             android:screenOrientation="portrait" />

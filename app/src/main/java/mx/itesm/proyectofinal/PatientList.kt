@@ -20,14 +20,20 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
+import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
@@ -61,13 +67,15 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     }
 
     lateinit var account: GoogleSignInAccount
-    lateinit var mail : String
-
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
 
     // The RecyclerView adapter declaration
     val adapter = MeditionAdapter(this, this)
+    private val TAG = "PATIENTLIST"
+
+    lateinit var nombre: String
+    lateinit var mail: String
 
     /*
      * Creates the Patient List activity and inflates the view. Also initializes database calls.
@@ -78,7 +86,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val extras = intent.extras?: return
 
         STATUS = "no"
-        val nombre = extras.getString(ACCOUNT_NAME)
+        nombre = extras.getString(ACCOUNT_NAME)
         mail   = extras.getString(ACCOUNT_MAIL)
         val photo  = extras.getString(ACCOUNT_IMG)
 
@@ -104,17 +112,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
 
         floatingActionButton.setOnClickListener { v -> onMeasure() }
-        val broadcast_reciever = object : BroadcastReceiver() {
-
-            override fun onReceive(arg0: Context, intent: Intent) {
-                val action = intent.action
-                if (action == "sign_out") {
-                    finish()
-                    // DO WHATEVER YOU WANT.
-                }
-            }
-        }
-        registerReceiver(broadcast_reciever, IntentFilter("sign_out"))
     }
 
     /*
@@ -198,27 +195,11 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 startActivity(intent)
                 true
             }
-            R.id.action_logout ->{
-                val builder = AlertDialog.Builder(this@PatientList)
-
-                builder.setTitle("Cerrar sesión")
-
-                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
-
-                builder.setPositiveButton("Cerrar sesión"){dialog, which ->
-                    signOut()
-                }
-
-
-                // Display a negative button on alert dialog
-                builder.setNegativeButton("Cancelar"){dialog,which ->
-                }
-
-                // Finally, make the alert dialog using builder
-                val dialog: AlertDialog = builder.create()
-
-                // Display the alert dialog on app interface
-                dialog.show()
+            R.id.action_perfil ->{
+                val intent = Intent(this, PerfilActivity::class.java)
+                intent.putExtra(ACCOUNT_NAME,nombre)
+                intent.putExtra(ACCOUNT_MAIL,mail)
+                startActivity(intent)
                 true
             }
             else -> {
@@ -226,13 +207,30 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
         }
     }
+    /**
+     * Check the Location Permission before calling the BLE API's
+     */
 
-    private fun signOut() {
-        Toast.makeText(applicationContext,"Cerrar sesión.",Toast.LENGTH_SHORT).show()
-        //finish()
-        STATUS = "si"
-        val intent = Intent("sign_out")
-        sendBroadcast(intent)
-        finish()
+
+    /**
+     * The location permission is incorporated in Marshmallow and Above
+     */
+    private fun isAboveMarshmallow(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
     }
+
+    /**
+     * Check with the system- If the permission already enabled or not
+     */
+    private fun isLocationPermissionEnabled(): Boolean {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+    }
+
+    /**
+     * Request Location API
+     * If the request go to Android system and the System will throw a dialog message
+     * user can accept or decline the permission from there
+     */
+
 }
