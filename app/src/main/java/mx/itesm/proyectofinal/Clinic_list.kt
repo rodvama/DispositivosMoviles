@@ -155,8 +155,8 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         if (result != null) {
             // If QRCode has no data.
             if (result.contents == null) {
-                //escribe
-            } else {
+            }
+            else {
                 // If QRCode contains data.
                 val email = result.contents
             }

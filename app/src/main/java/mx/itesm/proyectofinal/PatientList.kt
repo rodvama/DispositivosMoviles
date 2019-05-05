@@ -83,7 +83,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
-        val extras = intent.extras?: return
+        val extras = this.intent.extras?: return
 
         STATUS = "no"
         nombre = extras.getString(ACCOUNT_NAME)
@@ -197,8 +197,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
             R.id.action_perfil ->{
                 val intent = Intent(this, PerfilActivity::class.java)
-                intent.putExtra(ACCOUNT_NAME,nombre)
-                intent.putExtra(ACCOUNT_MAIL,mail)
+                intent.putExtra(ACCOUNT_NAME, this.nombre)
+                intent.putExtra(ACCOUNT_MAIL, this.mail)
                 startActivity(intent)
                 true
             }
