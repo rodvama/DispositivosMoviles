@@ -100,6 +100,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
             val profile: Profile = Profile(mail!!, nombre!!, imgUrl!!)
             StartAppIntent.putExtra(ACCOUNT, profile)
             startActivity(StartAppIntent)
+            finish()
         }
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="mx.itesm.proyectofinal">
     <!--
      Declare this required feature if you want to make the app available to BLE-capable
@@ -22,7 +23,8 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/logo_icono"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".SplashActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
@@ -32,6 +34,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ElegirTipo"
+            android:launchMode="singleTask"/>
         <activity android:name=".signInActivity">
 
             <!-- <intent-filter> -->
@@ -44,10 +48,7 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".DeviceScanActivity"></activity>
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="portrait"></activity>
+        <activity android:name=".DeviceScanActivity"/>
         <activity
             android:name=".ResultsActivity"
             android:screenOrientation="portrait" />
@@ -69,13 +70,11 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <activity android:name=".ElegirTipo" />
         <activity
             android:name=".Clinic_list"
             android:label="@string/title_activity_clinic_list"
-            ></activity>
-        <service android:name=".BLE.BLEService"></service>
+            />
+        <service android:name=".BLE.BLEService"/>
     </application>
 
 </manifest>

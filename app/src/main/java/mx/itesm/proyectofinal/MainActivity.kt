@@ -309,10 +309,6 @@ class MainActivity : AppCompatActivity() {
     private fun writeMissedConnection() {
         BLEConnectionManager.writeMissedConnection("A")
     }
-
-//    override fun onBackPressed() {
-//        // Do Here what ever you want do on back press;
-//    }
 }
 
 // Data class. An ArrayList of this type is sent to ResultsActivity
