@@ -10,18 +10,15 @@ import kotlinx.android.synthetic.main.activity_elegir_tipo.*
 
 class ElegirTipo : AppCompatActivity() {
 
-    var nombre : String = ""
-    var mail : String = ""
-    var photo : String = ""
+    lateinit var profile: Profile
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_elegir_tipo)
 
         val extras = intent.extras?: return
 
-        nombre = extras.getString(PatientList.ACCOUNT_NAME)
-        mail   = extras.getString(PatientList.ACCOUNT_MAIL)
-        photo  = extras.getString(PatientList.ACCOUNT_IMG)
+        profile = extras.getParcelable(PatientList.ACCOUNT)!!
 
         button_paciente.setOnClickListener { irPaciente() }
         button_clinica.setOnClickListener { irClinica() }
@@ -40,17 +37,15 @@ class ElegirTipo : AppCompatActivity() {
 
     fun irClinica(){
         val StartAppIntent = Intent(this,Clinic_list::class.java)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,mail)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,nombre)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_IMG,photo)
+        StartAppIntent.putExtra(PatientList.ACCOUNT,profile)
+        StartAppIntent.putExtra(PatientList.ACCOUNT_TYPE,0)
         startActivity(StartAppIntent)
     }
 
     fun irPaciente(){
         val StartAppIntent = Intent(this,PatientList::class.java)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,mail)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,nombre)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_IMG,photo)
+        StartAppIntent.putExtra(PatientList.ACCOUNT,profile)
+        StartAppIntent.putExtra(PatientList.ACCOUNT_TYPE,1)
         startActivity(StartAppIntent)
     }
 

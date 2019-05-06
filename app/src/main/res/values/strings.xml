@@ -58,4 +58,7 @@
     <string name="chart_nodata">No hay datos significativos</string>
     <string name="chart_label">Presión arterial</string>
 
+    <string name="type_patient">Perfil personal</string>
+    <string name="type_clinic">Clínica</string>
+
 </resources>

@@ -53,9 +53,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
      * bluetooth helper and initializes it.
      */
     companion object {
-        const val ACCOUNT_MAIL:String = "account_mail"
-        const val ACCOUNT_NAME:String = "account_name"
-        const val ACCOUNT_IMG:String = "account_img"
+        const val ACCOUNT:String = "account"
+        const val ACCOUNT_TYPE:String = "account_type"
         var STATUS:String = "no"
         const val DELETE_ID: String = "id"
         const val DEL: String = "Borrar ?"
@@ -77,6 +76,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     val adapter = MeditionAdapter(this, this)
     private val TAG = "PATIENTLIST"
 
+    lateinit var profile: Profile
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
     /**
@@ -86,12 +86,18 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
         val extras = intent.extras?: return
+        profile = extras.getParcelable(ACCOUNT)!!
+        val type = extras.getInt(ACCOUNT_TYPE)
 
-        val nombre = extras.getString(ACCOUNT_NAME)
-        val mail   = extras.getString(ACCOUNT_MAIL)
-        val photo  = extras.getString(ACCOUNT_IMG)
+//        actionBar.setTitle("Hello world App")
+        if(type == 1){
+            supportActionBar?.setTitle(R.string.type_patient)
+        }
+        else{
+            supportActionBar?.setTitle(R.string.type_clinic)
+        }
 
-        textView_nombre.text = "Paciente: " + nombre
+        textView_nombre.text = "Paciente: ${profile.name}"
 
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager

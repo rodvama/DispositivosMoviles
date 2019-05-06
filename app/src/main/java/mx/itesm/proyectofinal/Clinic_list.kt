@@ -23,6 +23,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
 
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
+    lateinit var profile: Profile
 
     // The RecyclerView adapter declaration
     val adapter = PatientAdapter(this, this)
@@ -32,11 +33,9 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         setContentView(R.layout.activity_clinic_list)
         val extras = intent.extras?: return
 
-        val nombre = extras.getString(PatientList.ACCOUNT_NAME)
-        val mail   = extras.getString(PatientList.ACCOUNT_MAIL)
-        val photo  = extras.getString(PatientList.ACCOUNT_IMG)
+        profile = extras.getParcelable(PatientList.ACCOUNT)!!
 
-        textView_nombre.text = "Clinica/Doctor: "+nombre
+        textView_nombre.text = "Clinica/Doctor: ${profile.name}"
 
         val layoutManager = LinearLayoutManager(this)
         lista_clinica.layoutManager = layoutManager

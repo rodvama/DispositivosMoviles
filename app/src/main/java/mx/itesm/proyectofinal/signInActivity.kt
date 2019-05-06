@@ -1,4 +1,5 @@
 package mx.itesm.proyectofinal
+import Database.MedicionDatabase
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -6,6 +7,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import android.content.Intent
+import android.os.Parcelable
 import android.support.v4.app.FragmentActivity
 import android.util.Log
 import android.widget.Button
@@ -15,13 +17,11 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.common.api.ApiException
-import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_IMG
-import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_MAIL
-import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_NAME
 import android.support.annotation.NonNull
 import com.google.android.gms.tasks.OnCompleteListener
-
-
+import kotlinx.android.parcel.Parcelize
+import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT
+import org.jetbrains.anko.doAsync
 
 
 class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
@@ -92,15 +92,18 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         }
     }
     fun updateUI(account: GoogleSignInAccount?){
-        val mail = account?.email
-        val nombre = account?.displayName
-        val imgUrl = account?.photoUrl.toString()
         if(account!=null){
+            val mail = account.email
+            val nombre = account.displayName
+            val imgUrl = account.photoUrl.toString()
             val StartAppIntent = Intent(this,ElegirTipo::class.java)
-            StartAppIntent.putExtra(ACCOUNT_MAIL,mail)
-            StartAppIntent.putExtra(ACCOUNT_NAME,nombre)
-            StartAppIntent.putExtra(ACCOUNT_IMG,imgUrl)
+            val profile: Profile = Profile(mail!!, nombre!!, imgUrl!!)
+            StartAppIntent.putExtra(ACCOUNT, profile)
             startActivity(StartAppIntent)
         }
     }
 }
+
+// Data class. An ArrayList of this type is sent to ResultsActivity
+@Parcelize
+data class Profile(var mail: String, var name: String, var img: String) : Parcelable
