@@ -14,8 +14,9 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -35,23 +36,22 @@
             </intent-filter>
         </activity>
         <activity android:name=".ElegirTipo"
-            android:launchMode="singleTask"/>
-        <activity android:name=".signInActivity">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+            android:launchMode="singleTask">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".signInActivity" />
         </activity>
+
+        <activity android:name=".signInActivity"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".DeviceScanActivity"/>
+        <activity android:name=".DeviceScanActivity"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ResultsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ConfigurationActivity"
             android:screenOrientation="portrait">
