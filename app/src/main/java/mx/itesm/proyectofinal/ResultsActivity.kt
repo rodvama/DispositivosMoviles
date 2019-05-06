@@ -76,10 +76,6 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
         val dataList: List<Data> = extras.getParcelableArrayList(MainActivity.LIST_ID)!!
 
-//        mSeries.color = Color.parseColor("#FF6860")
-//        time_graph.addSeries(mSeries)
-//        time_graph.title = "Datos de presión"
-
         chart = findViewById(R.id.chart)
         chart.setNoDataText(resources.getString(R.string.chart_nodata))
         chart.setNoDataTextColor(Color.GRAY)
@@ -104,8 +100,6 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
                     val resultIntent = Intent()
 
                     val fecha = toString(Calendar.getInstance().time)
-
-//                    val image = toByteArray(time_graph.takeSnapshot())
 
                     val instanceDatabase = MedicionDatabase.getInstance(this)
                     ioThread {

@@ -28,16 +28,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
-import android.content.BroadcastReceiver
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -47,7 +43,7 @@ import kotlinx.android.synthetic.main.activity_patient_list.*
 import org.jetbrains.anko.doAsync
 import mx.itesm.proyectofinal.BLE.*
 
-/*
+/**
  * Declares the patient measurements list. This is the first and main page of the application
  */
 class PatientList : AppCompatActivity(), CustomItemClickListener {
@@ -57,11 +53,11 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
      * bluetooth helper and initializes it.
      */
     companion object {
-        val ACCOUNT_MAIL:String = "account_mail"
-        val ACCOUNT_NAME:String = "account_name"
-        val ACCOUNT_IMG:String = "account_img"
+        const val ACCOUNT_MAIL:String = "account_mail"
+        const val ACCOUNT_NAME:String = "account_name"
+        const val ACCOUNT_IMG:String = "account_img"
         var STATUS:String = "no"
-        val DELETE_ID: String = "id"
+        const val DELETE_ID: String = "id"
         const val DEL: String = "Borrar ?"
         const val PATIENT_KEY: String = "Medicion"
         const val REQUEST_ENABLE_BT: Int = 10
@@ -83,7 +79,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
-    /*
+    /**
      * Creates the Patient List activity and inflates the view. Also initializes database calls.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,12 +87,11 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         setContentView(R.layout.activity_patient_list)
         val extras = intent.extras?: return
 
-        STATUS = "no"
         val nombre = extras.getString(ACCOUNT_NAME)
         val mail   = extras.getString(ACCOUNT_MAIL)
         val photo  = extras.getString(ACCOUNT_IMG)
 
-        textView_nombre.text = "Paciente: "+nombre
+        textView_nombre.text = "Paciente: " + nombre
 
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
