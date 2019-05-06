@@ -88,7 +88,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
 
     // Loads measurements from database
     private fun loadPacientes() {
-        val pacientes = instanceDatabase.pacienteDao().cargarPacientes(mail)
+        val pacientes = this.instanceDatabase.pacienteDao().cargarPacientes(mail)
 
         pacientes.observe(this, object: Observer<List<Patient>> {
             override fun onChanged(t: List<Patient>?) {
@@ -110,7 +110,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         var patients:List<Patient>
         doAsync {
             patients = Medicion.populatePatients(applicationContext, mail)
-            instanceDatabase.pacienteDao().insertartListaPacientes(patients)
+            this@Clinic_list.instanceDatabase.pacienteDao().insertartListaPacientes(patients)
             loadPacientes()
         }
         //ioThread {
@@ -164,5 +164,4 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
-
 }
