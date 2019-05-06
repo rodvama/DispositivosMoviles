@@ -24,7 +24,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.Parcelable
 import android.support.v7.app.AppCompatActivity
@@ -35,14 +34,15 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import de.nitri.gauge.Gauge
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_patient_list.*
-import kotlinx.coroutines.experimental.launch
 import mx.itesm.proyectofinal.BLE.BLEConnectionManager
 import mx.itesm.proyectofinal.BLE.BLEConstants
 import mx.itesm.proyectofinal.BLE.BleDeviceData
-import org.jetbrains.anko.doAsync
 import java.util.*
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.data.LineData
+
 
 /*
  * MainActivity class declares the activity and inflates the view.
@@ -52,17 +52,15 @@ class MainActivity : AppCompatActivity() {
     private val TAG: String = "uuidMainActivity"
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
 
-    // TODO Delete this
-    var mBluetoothHelper: BluetoothHelper? = PatientList.bluetoothHelper
-
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
     var dataList: MutableList<Data> = mutableListOf()
-    //var started = false
-    var counter: Double = 0.0
 
-    private var gauge: Gauge? = null
-    private var queue: Queue<List<String>> = LinkedList()
+    private lateinit var chart: LineChart
+    private lateinit var gauge: Gauge
+
+    var entries: MutableList<Entry> = mutableListOf()
+
 
     companion object {
         const val LIST_ID = "DataList"
@@ -90,12 +88,16 @@ class MainActivity : AppCompatActivity() {
         val buttonScan: View = findViewById(R.id.button)
         buttonScan.setOnClickListener { onClick() }
         gauge = findViewById(R.id.gauge)
-
+        chart = findViewById(R.id.chart)
+        chart.setNoDataText(resources.getString(R.string.chart_nodata))
+        chart.setNoDataTextColor(Color.GRAY)
+        chart.setDrawBorders(false)
+        chart.isKeepPositionOnRotation = true
     }
 
     fun onClick(){
-        unRegisterServiceReceiver()
-        BLEConnectionManager.disconnect()
+//        unRegisterServiceReceiver()
+//        BLEConnectionManager.disconnect()
         goToDetail()
 //        writeMissedConnection()
     }
@@ -127,26 +129,6 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)
         }
-//        //mBluetoothHelper?.closeConnection()
-//        val intent = Intent(this, ResultsActivity::class.java)
-//        var max = 0
-//        val actualData = ArrayList<Data>()
-//        val holder = mBluetoothHelper?.dataList!!
-//        for (i in 0 until holder.size-1) {
-//            if (holder[max].mmHg < holder[i].mmHg)
-//                max = i
-//        }
-//        val firstTime = holder[max].timer
-//        for (i in max until holder.size-1) {
-//            holder[i].timer -= firstTime
-//            actualData.add(holder[i])
-//        }
-//        if(actualData.size > 20) {
-//            mBluetoothHelper?.dataList!!.clear()
-//            mSeries.resetData(arrayOfNulls(0))
-//            intent.putExtra(LIST_ID, actualData)
-//            startActivityForResult(intent, 2)
-//        }
     }
 
     fun launchRefreshUiCheck() {
@@ -178,16 +160,16 @@ class MainActivity : AppCompatActivity() {
     // redirecting to PatientsList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            mBluetoothHelper?.started = true
-            launchRefreshUiCheck()
-        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-            setResult(Activity.RESULT_OK)
-            finish()
-        } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
-            mBluetoothHelper?.started = true
-            launchRefreshUiCheck()
-        }
+//        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+//            mBluetoothHelper?.started = true
+//            launchRefreshUiCheck()
+//        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
+//            setResult(Activity.RESULT_OK)
+//            finish()
+//        } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
+//            mBluetoothHelper?.started = true
+//            launchRefreshUiCheck()
+//        }
     }
 
      /**
@@ -245,55 +227,47 @@ class MainActivity : AppCompatActivity() {
                     val uuId = intent.getStringExtra(BLEConstants.EXTRA_UUID)
 
                     if(data != null ){
-                        val endDataSet = data.indexOf("\r\n") // Find for end of dataset
                         // If it already found an end of a dataset to begin recording datasets
                         if(started){
-//                            mSeries.appendData(DataPoint(counter, values[2].toDouble()), false, 1000)
-                            time += 6
-                            if(endDataSet > 1){
-                                stringData += data.substring(0,endDataSet) // Add data before "\r\n". Case: ";200\r\n"
-                                // Split values and convert to Float
+                            val endDataSet = stringData.indexOf("\r\n") // Find for end of dataset
+                            time += 5
+                            if(endDataSet != -1){
+                                val dataString = stringData.substring(0,endDataSet) // Get dataset
+                                val values: List<Float> = dataString.split(';').map { it.toFloat() }
+                                if(values.size == 3){ // Check if it fulfills being the three values
+                                    Log.d("DATA", values.toString())
+                                    /**
+                                     * Since we have the three values for this dataset,
+                                     * it's time to assign them to the different representations or
+                                     * structures that we would be using.
+                                     */
+                                    // Add to the list of every dataset
+                                    dataList.add(Data(values[0], values[1], values[2]))
+                                    // Move gauge
+                                    gauge.moveToValue(values[1])
+                                    // Add to graph
+                                    // Turn your data into Entry objects
+                                    entries.add(Entry(time.toFloat(), values[1]))
+                                    val dataSet = LineDataSet(entries, resources.getString(R.string.chart_label)) // add entries to dataset
+                                    dataSet.color = resources.getColor(R.color.colorButton)
+                                    dataSet.setDrawCircles(false)
 
-                                val values: List<String> = stringData.split(';')
-                                Log.d("DATA", values.toString())
-
-                                val space =  values[1].indexOf("\n")
-//                                    val space =  values[2].indexOf("\n")
-                                if(space > 1){
-                                    val pop = values[1].substring(0,space-1)
-//                                    values[0].toDouble()
-                                    dataList.add(Data(time, pop.toDouble(), 0.0))
-                                    if(pop.toFloat() < 20){
-                                        gauge?.moveToValue(20F)
-                                    }
-                                    else{
-                                        gauge?.moveToValue(pop.toFloat())
-                                    }
-//                                        val pop = values[2].substring(0,space-1)
-//                                        gauge?.moveToValue(pop.toFloat())
-//                                        dataString = values[2].substring(space)
+                                    val lineData = LineData(dataSet)
+                                    chart.data = lineData
+                                    chart.notifyDataSetChanged() // let the chart know it's data changed
+                                    chart.invalidate() // refresh chart
                                 }
-                                else{
-//                                    values[0].toDouble()
-                                    dataList.add(Data(time, values[1].toDouble(), 0.0))
-                                    if(values[1].toDouble() < 20){
-                                        gauge?.moveToValue(20F)
-                                    }
-                                    else{
-                                        gauge?.moveToValue(values[1].toFloat())
-                                    }
-                                }
+                                stringData = stringData.substring(endDataSet+2) // Remove dataset used
                             }
-                            stringData = data.substring(endDataSet+2) // Add remaining values. Case: "44\r\n18905;2" Case:"\r\n132455"
-                            // With this ^^^^. If "\n" is at the end, dataString ends up being ""
+                            stringData += data // Add new data to the string
                         }
                         // Haven't found the end of a dataset, keep looking for it
                         else{
+                            val endDataSet = data.indexOf("\r\n") // Find for end of dataset
                             if(endDataSet != -1){
                                 val endChar = data.indexOf("\n") // Find for end of dataset
                                 stringData += data.substring(endChar+1)
-                                Log.d("****NEWDATA_START***", stringData)
-                                started = true
+                                started = true // Found the end, next dataset most likely to be complete
                             }
                         }
                     }
@@ -336,13 +310,13 @@ class MainActivity : AppCompatActivity() {
         BLEConnectionManager.writeMissedConnection("A")
     }
 
-    override fun onBackPressed() {
-        // Do Here what ever you want do on back press;
-    }
+//    override fun onBackPressed() {
+//        // Do Here what ever you want do on back press;
+//    }
 }
 
 // Data class. An ArrayList of this type is sent to ResultsActivity
 @Parcelize
-data class Data(var timer: Double, var mmHg: Double, var pulse: Double) : Parcelable
+data class Data(var timer: Float, var mmHg: Float, var pulse: Float) : Parcelable
 
 

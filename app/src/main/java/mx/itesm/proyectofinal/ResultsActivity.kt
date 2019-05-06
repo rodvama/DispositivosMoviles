@@ -29,6 +29,10 @@ import android.os.Bundle
 import android.view.View
 import android.widget.RadioButton
 import android.widget.Toast
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_results.*
@@ -57,6 +61,9 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
     var validateCheck: Boolean = false
     var selectedArm: String = ""
 
+    private lateinit var chart: LineChart
+    var entries: MutableList<Entry> = mutableListOf()
+
     private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,10 +76,15 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
         val dataList: List<Data> = extras.getParcelableArrayList(MainActivity.LIST_ID)!!
 
-        mSeries.color = Color.parseColor("#FF6860")
-        time_graph.addSeries(mSeries)
-        time_graph.title = "Datos de presión"
+//        mSeries.color = Color.parseColor("#FF6860")
+//        time_graph.addSeries(mSeries)
+//        time_graph.title = "Datos de presión"
 
+        chart = findViewById(R.id.chart)
+        chart.setNoDataText(resources.getString(R.string.chart_nodata))
+        chart.setNoDataTextColor(Color.GRAY)
+        chart.setDrawBorders(false)
+        chart.isKeepPositionOnRotation = true
 
         calculateResults(dataList)
         verifyNurseMode()
@@ -93,7 +105,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
                     val fecha = toString(Calendar.getInstance().time)
 
-                    val image = toByteArray(time_graph.takeSnapshot())
+//                    val image = toByteArray(time_graph.takeSnapshot())
 
                     val instanceDatabase = MedicionDatabase.getInstance(this)
                     ioThread {
@@ -104,7 +116,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
                                 fecha,
                                 validateCheck,
                                 selectedArm,
-                                image,
+                                null,
                                 edit_initials.text.toString()))
                     }
 
@@ -163,27 +175,45 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
         val diastolic = arrayOfNulls<Double>(data.size) //Arreglo para guardar los cálculos de presión diastólica
 
         //Cálculo de primeros valores filtrados de mmHg
-        fixed[0] = data[0].mmHg
-        fixed[1] = data[1].mmHg
+        fixed[0] = data[0].mmHg.toDouble()
+        fixed[1] = data[1].mmHg.toDouble()
 
-        mSeries.appendData(DataPoint(data[0].timer, fixed[0]!!), false, 1000)
-        mSeries.appendData(DataPoint(data[1].timer, fixed[1]!!), false, 1000)
+//        mSeries.appendData(DataPoint(data[0].timer.toDouble(), fixed[0]!!), false, 1000)
+//        mSeries.appendData(DataPoint(data[1].timer.toDouble(), fixed[1]!!), false, 1000)
+
+        entries.add(Entry(data[0].timer, fixed[0]!!.toFloat()))
+        entries.add(Entry(data[1].timer, fixed[1]!!.toFloat()))
+        val dataSet = LineDataSet(entries, resources.getString(R.string.chart_label)) // add entries to dataset
+        dataSet.color = resources.getColor(R.color.colorButton)
+        dataSet.setDrawCircles(false)
+
+        val lineData = LineData(dataSet)
+        chart.data = lineData
+        chart.notifyDataSetChanged() // let the chart know it's data changed
+        chart.invalidate() // refresh chart
 
 
         //Primer recorrido
         for(i in 2 until data.size){
             //Cálculo de los datos de presión filtrados
             if(abs(data[i].mmHg - data[i-1].mmHg) < 4){
-                fixed[i] = data[i].mmHg
+                fixed[i] = data[i].mmHg.toDouble()
             } else if(abs(data[i-1].mmHg - data[i-2].mmHg) >= 4){
-                fixed[i] = data[i].mmHg
+                fixed[i] = data[i].mmHg.toDouble()
             } else if(i+1>=data.size){
-                fixed[i] = (data[i-1].mmHg + data[i+1].mmHg) / 2
+                fixed[i] = (data[i-1].mmHg.toDouble() + data[i+1].mmHg) / 2
             }else{
-                fixed[i] = data[i-1].mmHg
+                fixed[i] = data[i-1].mmHg.toDouble()
             }
 
-            mSeries.appendData(DataPoint(data[i].timer, fixed[i]!!), false, 1000)
+            entries.add(Entry(data[i].timer, fixed[i]!!.toFloat()))
+            val dataSet = LineDataSet(entries, resources.getString(R.string.chart_label)) // add entries to dataset
+            dataSet.color = resources.getColor(R.color.colorButton)
+            dataSet.setDrawCircles(false)
+            val lineData = LineData(dataSet)
+            chart.data = lineData
+            chart.notifyDataSetChanged() // let the chart know it's data changed
+            chart.invalidate() // refresh chart
 
             //Cálculo de mmHg mov (hasta n-5)
             fixedSum += fixed[i]!!
@@ -341,7 +371,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
             tv_device_systolic.visibility = View.GONE
             divider2.visibility = View.GONE
             divider3.visibility = View.GONE
-            time_graph.visibility = View.INVISIBLE
+//            time_graph.visibility = View.INVISIBLE
         }
     }
 

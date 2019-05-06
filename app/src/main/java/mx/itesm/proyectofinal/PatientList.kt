@@ -64,7 +64,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val DELETE_ID: String = "id"
         const val DEL: String = "Borrar ?"
         const val PATIENT_KEY: String = "Medicion"
-        var bluetoothHelper: BluetoothHelper? = null
         const val REQUEST_ENABLE_BT: Int = 10
         const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
         const val BLUETOOTH_DEVICE = 5
@@ -114,8 +113,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 loadMediciones()
             }
         }
-
-        //        bluetoothHelper = BluetoothHelper(this)
 
         floatingActionButton.setOnClickListener { onPress() }
         checkLocationPermission()
