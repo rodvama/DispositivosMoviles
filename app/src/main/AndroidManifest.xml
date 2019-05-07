@@ -44,14 +44,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".ElegirTipo"
+            android:launchMode="singleTask"/>
+
+        <activity android:name=".signInActivity"
             android:launchMode="singleTask">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".signInActivity" />
+                android:value=".ElegirTipo" />
         </activity>
-
-        <activity android:name=".signInActivity"
-            android:launchMode="singleTask"/>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />

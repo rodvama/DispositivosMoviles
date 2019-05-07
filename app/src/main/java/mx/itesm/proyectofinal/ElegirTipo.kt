@@ -14,75 +14,27 @@ import kotlinx.android.synthetic.main.activity_elegir_tipo.*
 
 class ElegirTipo : AppCompatActivity() {
 
-    lateinit var profile: Profile
+    companion object {
+        val TYPE:String = "tipo"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_elegir_tipo)
 
-        val extras = intent.extras?: return
-
-        profile = extras.getParcelable(PatientList.ACCOUNT)!!
-
-        button_paciente.setOnClickListener { irPaciente() }
-        button_clinica.setOnClickListener { irClinica() }
+        button_paciente.setOnClickListener { signInPaciente() }
+        button_clinica.setOnClickListener { signInClinica() }
     }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_tipo, menu)
-        return true
-    }
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
-            R.id.action_settings -> {
-                val intent = Intent(this, ConfigurationActivity::class.java)
-                startActivity(intent)
-                true
-            }
-            R.id.action_logout -> {
-                val builder = AlertDialog.Builder(this@ElegirTipo)
-
-                builder.setTitle("Cerrar sesión")
-
-                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
-
-                builder.setPositiveButton("Cerrar sesión") { dialog, which ->
-                    signOut()
-                }
-
-                // Display a negative button on alert dialog
-                builder.setNegativeButton("Cancelar") { dialog, which ->
-                }
-
-                // Finally, make the alert dialog using builder
-                val dialog: AlertDialog = builder.create()
-
-                // Display the alert dialog on app interface
-                dialog.show()
-                true
-            }
-            else -> {
-                false
-            }
-        }
-    }
-    fun irClinica(){
-        val StartAppIntent = Intent(this,Clinic_list::class.java)
-        StartAppIntent.putExtra(PatientList.ACCOUNT,profile)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_TYPE,0)
+    fun signInClinica(){
+        val StartAppIntent = Intent(this,signInActivity::class.java)
+        StartAppIntent.putExtra(TYPE,"clinica")
         startActivity(StartAppIntent)
     }
 
-    fun irPaciente(){
-        val StartAppIntent = Intent(this,PatientList::class.java)
-        StartAppIntent.putExtra(PatientList.ACCOUNT,profile)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_TYPE,1)
+    fun signInPaciente(){
+        val StartAppIntent = Intent(this,signInActivity::class.java)
+        StartAppIntent.putExtra(TYPE,"paciente")
         startActivity(StartAppIntent)
-    }
-    private fun signOut() {
-        Toast.makeText(applicationContext,"Cerrar sesión.", Toast.LENGTH_SHORT).show()
-        //finish()
-        PatientList.STATUS = "si"
-        finish()
     }
 
     override fun onBackPressed() {

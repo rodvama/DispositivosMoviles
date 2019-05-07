@@ -77,7 +77,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     private val TAG = "PATIENTLIST"
 
     lateinit var nombre: String
-    lateinit var mail: String
     lateinit var profile: Profile
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
@@ -109,7 +108,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
          // Local Database load
         ioThread {
-            val measureNum = instanceDatabase.medicionDao().getAnyMedicion(mail)
+            val measureNum = instanceDatabase.medicionDao().getAnyMedicion(profile.mail)
             if(measureNum == 0){
                 insertMeasurements(this)
             } else{
@@ -206,7 +205,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Loads measurements from database
     private fun loadMediciones() {
-        val measurements = this.instanceDatabase.medicionDao().cargarMeciciones(mail)
+        val measurements = this.instanceDatabase.medicionDao().cargarMeciciones(profile.mail)
 
         measurements.observe(this, object: Observer<List<Medicion>> {
             override fun onChanged(t: List<Medicion>?) {
@@ -226,7 +225,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     fun insertMeasurements(context: Context){
         var measurements:List<Medicion>
         doAsync {
-            measurements = Medicion.populateMeds(applicationContext, this@PatientList.mail)
+            measurements = Medicion.populateMeds(applicationContext, this@PatientList.profile.mail)
             this@PatientList.instanceDatabase.medicionDao().insertartListaMediciones(measurements)
             loadMediciones()
         }

@@ -37,6 +37,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     private lateinit var detailsJSON: JSONObject
     lateinit var profile: Profile
+    lateinit var tipo: String
 
     private val RC_SIGN_IN = 9001
     private var mGoogleApiClient: GoogleApiClient? = null
@@ -55,6 +56,8 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         //btnLogout = findViewById(R.id.btnLogout)
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        val extras = intent.extras?: return
+        tipo = extras.getString(ElegirTipo.TYPE)!!
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build()
@@ -121,18 +124,29 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     fun checkUser(email: String, name: String){
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
-        val url = "https://pacific-tundra-10593.herokuapp.com/account/"
-        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "email" to "asd@asd.com")
+        lateinit var url: String
+        when(tipo){
+            "clinica"->{
+                url = "https://heart-app-tec.herokuapp.com/clinics/"
+            }
+            "paciente"->{
+                url = "https://heart-app-tec.herokuapp.com/patients/"+email
+            }
+
+        }
+        println(url)
+        val map: HashMap<String, String> = hashMapOf("name" to name, "email" to email)
 //        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "lastName" to "Jahagirdar", "email" to "asd@asd.com")
 
-        request.POST(url, map, object: Callback {
+        request.GET(url, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
+                println(response.toString())
                 val responseData = response.body()?.string()
                 runOnUiThread{
                     try {
                         var json = JSONObject(responseData)
                         detailsJSON = json
-                        this@signInActivity.fetchComplete()
+                        fetchComplete()
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
@@ -146,8 +160,19 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     }
 
     override fun fetchComplete() {
-        val startAppIntent = Intent(this,ElegirTipo::class.java)
+        lateinit var startAppIntent:Intent
+        println(tipo)
+        when(tipo){
+            "clinica"->{
+                startAppIntent = Intent(this,Clinic_list::class.java)
+            }
+            "paciente"->{
+                startAppIntent = Intent(this,PatientList::class.java)
+            }
+
+        }
         startAppIntent.putExtra(ACCOUNT, profile)
+        println()
         startActivity(startAppIntent)
         finish()
     }
