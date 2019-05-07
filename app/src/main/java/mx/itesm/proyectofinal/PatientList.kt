@@ -38,10 +38,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import kotlinx.android.synthetic.main.activity_patient_list.*
 import org.jetbrains.anko.doAsync
 import mx.itesm.proyectofinal.BLE.*
+import mx.itesm.proyectofinal.Utils.CustomItemClickListener
 
 /**
  * Declares the patient measurements list. This is the first and main page of the application

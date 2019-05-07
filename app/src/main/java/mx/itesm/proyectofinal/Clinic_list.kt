@@ -6,14 +6,14 @@ import Database.Patient
 import Database.ioThread
 import android.arch.lifecycle.Observer
 import android.content.Context
-import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_clinic_list.*
+import mx.itesm.proyectofinal.Utils.CustomItemClickListener2
 import org.jetbrains.anko.doAsync
 
-class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
+class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
     companion object {
         val ACCOUNT_MAIL:String = "account_mail"

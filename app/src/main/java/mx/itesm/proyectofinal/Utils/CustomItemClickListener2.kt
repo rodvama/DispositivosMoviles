@@ -15,10 +15,10 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package mx.itesm.proyectofinal
+package mx.itesm.proyectofinal.Utils
 
-import Database.Medicion
+import Database.Patient
 
-interface CustomItemClickListener {
-    fun onCustomItemClick(medicion: Medicion)
+interface CustomItemClickListener2 {
+    fun onCustomItemClick(paciente: Patient)
 }

@@ -1,5 +1,7 @@
 package mx.itesm.proyectofinal
+
 import Database.MedicionDatabase
+import NetworkUtility.OkHttpRequest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -20,17 +22,32 @@ import com.google.android.gms.common.api.ApiException
 import android.support.annotation.NonNull
 import com.google.android.gms.tasks.OnCompleteListener
 import kotlinx.android.parcel.Parcelize
+import me.rohanjahagirdar.outofeden.Utils.FetchCompleteListener
 import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT
-import org.jetbrains.anko.doAsync
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 
 
-class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.d("CONNECTION_FAILED", "onConnectionFailed: $p0")
-    }
+class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener, FetchCompleteListener {
+
+    private lateinit var detailsJSON: JSONObject
+    lateinit var profile: Profile
+
     private val RC_SIGN_IN = 9001
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mGoogleSignInClient : GoogleSignInClient? = null
+
+
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        Log.d("CONNECTION_FAILED", "onConnectionFailed: $p0")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
@@ -94,14 +111,45 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     fun updateUI(account: GoogleSignInAccount?){
         if(account!=null){
             val mail = account.email
-            val nombre = account.displayName
+            val name = account.displayName
             val imgUrl = account.photoUrl.toString()
-            val StartAppIntent = Intent(this,ElegirTipo::class.java)
-            val profile: Profile = Profile(mail!!, nombre!!, imgUrl!!)
-            StartAppIntent.putExtra(ACCOUNT, profile)
-            startActivity(StartAppIntent)
-            finish()
+            profile = Profile(mail!!, name!!, imgUrl!!)
+            checkUser(mail!!, name!!)
         }
+    }
+
+    fun checkUser(email: String, name: String){
+        var client = OkHttpClient()
+        var request= OkHttpRequest(client)
+        val url = "https://pacific-tundra-10593.herokuapp.com/account/"
+        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "email" to "asd@asd.com")
+//        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "lastName" to "Jahagirdar", "email" to "asd@asd.com")
+
+        request.POST(url, map, object: Callback {
+            override fun onResponse(call: Call?, response: Response) {
+                val responseData = response.body()?.string()
+                runOnUiThread{
+                    try {
+                        var json = JSONObject(responseData)
+                        detailsJSON = json
+                        this@signInActivity.fetchComplete()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+                Log.d("FAILURE", "REQUEST FAILURE")
+            }
+        })
+    }
+
+    override fun fetchComplete() {
+        val startAppIntent = Intent(this,ElegirTipo::class.java)
+        startAppIntent.putExtra(ACCOUNT, profile)
+        startActivity(startAppIntent)
+        finish()
     }
 }
 
