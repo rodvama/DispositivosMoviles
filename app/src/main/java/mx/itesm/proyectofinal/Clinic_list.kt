@@ -4,6 +4,7 @@ import Database.Medicion
 import Database.MedicionDatabase
 import Database.Patient
 import Database.ioThread
+import android.app.AlertDialog
 import android.arch.lifecycle.Observer
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -18,9 +19,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_clinic_list.*
+import mx.itesm.proyectofinal.R.id.action_logout
 import mx.itesm.proyectofinal.Utils.CustomItemClickListener2
 import org.jetbrains.anko.doAsync
 import java.util.jar.Manifest
@@ -138,6 +141,28 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
                 startQR()
                 true
             }
+            R.id.action_logout -> {
+                val builder = AlertDialog.Builder(this@Clinic_list)
+
+                builder.setTitle("Cerrar sesión")
+
+                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
+
+                builder.setPositiveButton("Cerrar sesión") { dialog, which ->
+                    signOut()
+                }
+
+                // Display a negative button on alert dialog
+                builder.setNegativeButton("Cancelar") { dialog, which ->
+                }
+
+                // Finally, make the alert dialog using builder
+                val dialog: AlertDialog = builder.create()
+
+                // Display the alert dialog on app interface
+                dialog.show()
+                true
+            }
             else -> {
                 false
             }
@@ -162,4 +187,12 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
+
+    private fun signOut() {
+        Toast.makeText(applicationContext,"Cerrar sesión.", Toast.LENGTH_SHORT).show()
+        //finish()
+        PatientList.STATUS = "si"
+        finish()
+    }
+
 }

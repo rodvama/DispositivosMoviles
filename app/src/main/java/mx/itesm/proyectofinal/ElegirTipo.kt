@@ -22,7 +22,7 @@ class ElegirTipo : AppCompatActivity() {
 
         val extras = intent.extras?: return
 
-        profile = extras.getParcelable(PatientList.ACCOUNT)!!
+        this.profile = extras.getParcelable(PatientList.ACCOUNT)!!
 
         button_paciente.setOnClickListener { irPaciente() }
         button_clinica.setOnClickListener { irClinica() }
@@ -36,28 +36,6 @@ class ElegirTipo : AppCompatActivity() {
             R.id.action_settings -> {
                 val intent = Intent(this, ConfigurationActivity::class.java)
                 startActivity(intent)
-                true
-            }
-            R.id.action_logout -> {
-                val builder = AlertDialog.Builder(this@ElegirTipo)
-
-                builder.setTitle("Cerrar sesión")
-
-                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
-
-                builder.setPositiveButton("Cerrar sesión") { dialog, which ->
-                    signOut()
-                }
-
-                // Display a negative button on alert dialog
-                builder.setNegativeButton("Cancelar") { dialog, which ->
-                }
-
-                // Finally, make the alert dialog using builder
-                val dialog: AlertDialog = builder.create()
-
-                // Display the alert dialog on app interface
-                dialog.show()
                 true
             }
             else -> {
@@ -78,13 +56,6 @@ class ElegirTipo : AppCompatActivity() {
         StartAppIntent.putExtra(PatientList.ACCOUNT_TYPE,1)
         startActivity(StartAppIntent)
     }
-    private fun signOut() {
-        Toast.makeText(applicationContext,"Cerrar sesión.", Toast.LENGTH_SHORT).show()
-        //finish()
-        PatientList.STATUS = "si"
-        finish()
-    }
-
     override fun onBackPressed() {
         // Do Here what ever you want do on back press;
         finish()

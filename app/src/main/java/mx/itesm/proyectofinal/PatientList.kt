@@ -253,6 +253,28 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 startActivity(intent)
                 true
             }
+            R.id.action_logout -> {
+                val builder = AlertDialog.Builder(this@PatientList)
+
+                builder.setTitle("Cerrar sesión")
+
+                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
+
+                builder.setPositiveButton("Cerrar sesión") { dialog, which ->
+                    signOut()
+                }
+
+                // Display a negative button on alert dialog
+                builder.setNegativeButton("Cancelar") { dialog, which ->
+                }
+
+                // Finally, make the alert dialog using builder
+                val dialog: AlertDialog = builder.create()
+
+                // Display the alert dialog on app interface
+                dialog.show()
+                true
+            }
             else -> {
                 false
             }
@@ -366,4 +388,12 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         }
     }
+
+    private fun signOut() {
+        Toast.makeText(applicationContext,"Cerrar sesión.", Toast.LENGTH_SHORT).show()
+        //finish()
+        PatientList.STATUS = "si"
+        finish()
+    }
+
 }

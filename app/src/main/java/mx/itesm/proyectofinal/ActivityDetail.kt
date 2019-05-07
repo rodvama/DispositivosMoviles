@@ -48,12 +48,12 @@ class ActivityDetail : AppCompatActivity() {
 
 
         val extras = intent.extras?:return
-        idExtra = extras.getInt(PatientList.PATIENT_KEY)
+        this.idExtra = extras.getInt(PatientList.PATIENT_KEY)
 
         ioThread {
-           measurementObj = instanceDatabase.medicionDao().cargarMedicionId(idExtra)
+           this.measurementObj = instanceDatabase.medicionDao().cargarMedicionId(idExtra)
 
-            measurementObj.observe(this, object: Observer<Medicion>{
+            this.measurementObj.observe(this, object: Observer<Medicion>{
                 override fun onChanged(measurementObj: Medicion?) {
                     title = measurementObj?.iniciales
 
@@ -82,7 +82,7 @@ class ActivityDetail : AppCompatActivity() {
 
         checkbox_verified.setOnCheckedChangeListener { buttonView, isChecked ->
             ioThread {
-                instanceDatabase.medicionDao().updateMedicion(idExtra, isChecked)
+                this.instanceDatabase.medicionDao().updateMedicion(idExtra, isChecked)
             }
         }
 
@@ -112,7 +112,7 @@ class ActivityDetail : AppCompatActivity() {
                 data.putExtra(DEL, true )
                 setResult(Activity.RESULT_OK, data)
 
-                measurementObj.removeObservers(this)
+                this.measurementObj.removeObservers(this)
                 finish()
                 true
             }
@@ -128,7 +128,7 @@ class ActivityDetail : AppCompatActivity() {
 
     fun sendMail () {
         ioThread {
-            val measure = instanceDatabase.medicionDao().cargarMedicionPorId(idExtra)
+            val measure = this.instanceDatabase.medicionDao().cargarMedicionPorId(idExtra)
             val i = Intent(Intent.ACTION_SEND)
             i.type = "message/rfc822"
             //Cliente ingresa correo de remitente

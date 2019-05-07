@@ -113,7 +113,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
             val mail = account.email
             val name = account.displayName
             val imgUrl = account.photoUrl.toString()
-            profile = Profile(mail!!, name!!, imgUrl!!)
+            this.profile = Profile(mail!!, name!!, imgUrl!!)
             checkUser(mail!!, name!!)
         }
     }
@@ -131,7 +131,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
                 runOnUiThread{
                     try {
                         var json = JSONObject(responseData)
-                        detailsJSON = json
+                        this@signInActivity.detailsJSON = json
                         this@signInActivity.fetchComplete()
                     } catch (e: JSONException) {
                         e.printStackTrace()
