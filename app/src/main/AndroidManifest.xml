@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="mx.itesm.proyectofinal">
+    <!--
+     Declare this required feature if you want to make the app available to BLE-capable
+    devices only.  If you want to make your app available to devices that don't support BLE,
+    you should omit this in the manifest.  Instead, determine BLE capability by using
+    PackageManager.hasSystemFeature(FEATURE_BLUETOOTH_LE)
+    -->
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -12,6 +21,7 @@
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -42,6 +52,7 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".DeviceScanActivity"></activity>
         <activity
             android:name=".ResultsActivity"
             android:screenOrientation="portrait" />
@@ -76,6 +87,7 @@
             android:name=".Clinic_list"
             android:label="@string/title_activity_clinic_list"
             ></activity>
+        <service android:name=".BLE.BLEService"></service>
     </application>
 
 </manifest>
