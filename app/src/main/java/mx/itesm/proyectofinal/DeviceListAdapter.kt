@@ -99,9 +99,6 @@ class DeviceListAdapter(private val context: Context,
 
         fun bind(deviceData: BleDeviceData) {
             text_name.text = deviceData.mDeviceName
-            text_status.text = "status"
-//            text_status.text = if (deviceData.bondState > 10) "Conectado" else "Desconocido"
-//            bluetoothDevice.type
             text_address.text = deviceData.mDeviceAddress
             containerView.setOnClickListener { view -> listener.onDeviceClick(deviceData) }
         }

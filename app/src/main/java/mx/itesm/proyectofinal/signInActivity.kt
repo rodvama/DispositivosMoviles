@@ -1,4 +1,7 @@
 package mx.itesm.proyectofinal
+
+import Database.MedicionDatabase
+import NetworkUtility.OkHttpRequest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -6,6 +9,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.android.synthetic.main.activity_sign_in.*
 import android.content.Intent
+import android.os.Parcelable
 import android.support.v4.app.FragmentActivity
 import android.util.Log
 import android.widget.Button
@@ -15,22 +19,35 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.common.api.ApiException
-import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_IMG
-import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_MAIL
-import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_NAME
 import android.support.annotation.NonNull
 import com.google.android.gms.tasks.OnCompleteListener
+import kotlinx.android.parcel.Parcelize
+import me.rohanjahagirdar.outofeden.Utils.FetchCompleteListener
+import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 
 
+class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener, FetchCompleteListener {
 
+    private lateinit var detailsJSON: JSONObject
+    lateinit var profile: Profile
 
-class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedListener {
-    override fun onConnectionFailed(p0: ConnectionResult) {
-        Log.d("CONNECTION_FAILED", "onConnectionFailed: $p0")
-    }
     private val RC_SIGN_IN = 9001
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mGoogleSignInClient : GoogleSignInClient? = null
+
+
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        Log.d("CONNECTION_FAILED", "onConnectionFailed: $p0")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
@@ -92,15 +109,50 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         }
     }
     fun updateUI(account: GoogleSignInAccount?){
-        val mail = account?.email
-        val nombre = account?.displayName
-        val imgUrl = account?.photoUrl.toString()
         if(account!=null){
-            val StartAppIntent = Intent(this,ElegirTipo::class.java)
-            StartAppIntent.putExtra(ACCOUNT_MAIL,mail)
-            StartAppIntent.putExtra(ACCOUNT_NAME,nombre)
-            StartAppIntent.putExtra(ACCOUNT_IMG,imgUrl)
-            startActivity(StartAppIntent)
+            val mail = account.email
+            val name = account.displayName
+            val imgUrl = account.photoUrl.toString()
+            profile = Profile(mail!!, name!!, imgUrl!!)
+            checkUser(mail!!, name!!)
         }
     }
+
+    fun checkUser(email: String, name: String){
+        var client = OkHttpClient()
+        var request= OkHttpRequest(client)
+        val url = "https://pacific-tundra-10593.herokuapp.com/account/"
+        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "email" to "asd@asd.com")
+//        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "lastName" to "Jahagirdar", "email" to "asd@asd.com")
+
+        request.POST(url, map, object: Callback {
+            override fun onResponse(call: Call?, response: Response) {
+                val responseData = response.body()?.string()
+                runOnUiThread{
+                    try {
+                        var json = JSONObject(responseData)
+                        detailsJSON = json
+                        this@signInActivity.fetchComplete()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+                Log.d("FAILURE", "REQUEST FAILURE")
+            }
+        })
+    }
+
+    override fun fetchComplete() {
+        val startAppIntent = Intent(this,ElegirTipo::class.java)
+        startAppIntent.putExtra(ACCOUNT, profile)
+        startActivity(startAppIntent)
+        finish()
+    }
 }
+
+// Data class. An ArrayList of this type is sent to ResultsActivity
+@Parcelize
+data class Profile(var mail: String, var name: String, var img: String) : Parcelable

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="mx.itesm.proyectofinal">
     <!--
      Declare this required feature if you want to make the app available to BLE-capable
@@ -11,17 +12,18 @@
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true"/>
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
-
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -31,6 +33,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".SplashActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
@@ -40,22 +43,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".signInActivity">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+        <activity android:name=".ElegirTipo"
+            android:launchMode="singleTask">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".signInActivity" />
         </activity>
+
+        <activity android:name=".signInActivity"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".DeviceScanActivity"></activity>
+        <activity android:name=".DeviceScanActivity"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".ResultsActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ConfigurationActivity"
             android:screenOrientation="portrait">
@@ -81,13 +85,11 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <activity android:name=".ElegirTipo" />
         <activity
             android:name=".Clinic_list"
             android:label="@string/title_activity_clinic_list"
-            ></activity>
-        <service android:name=".BLE.BLEService"></service>
+            />
+        <service android:name=".BLE.BLEService"/>
     </application>
 
 </manifest>

@@ -57,12 +57,14 @@
     <string name="bluetooth_device_address">MAC:</string>
     <string name="bluetooth_device_connected">Dispositivo seleccionado</string>
 
-    <string name="char_uuid_missed_connection">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
-    <string name="char_uuid_emergency">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
-    <string name="char_uuid_emergency_call">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
-    <string name="char_uuid_catch">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
-    <string name="char_uuid_catch_all">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
-    <string name="char_uuid_missed_calls">0000FFE1&#8211;0000&#8211;1000&#8211;8000&#8211;00805F9B34FB</string>
-    
+
+    <string name="chart_nodata">No hay datos significativos</string>
+    <string name="chart_label">Presión arterial</string>
+
+    <string name="type_patient">Perfil personal</string>
+    <string name="type_clinic">Clínica</string>
+
+    <string name="internet_no_title">No estás conectado</string>
+    <string name="internet_no_desc">Por favor conectate a una red para iniciar sesión</string>
 
 </resources>

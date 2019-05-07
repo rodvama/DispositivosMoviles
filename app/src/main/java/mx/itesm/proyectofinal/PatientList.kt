@@ -27,9 +27,9 @@ import android.arch.lifecycle.Observer
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -42,8 +42,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.android.synthetic.main.activity_patient_list.*
 import org.jetbrains.anko.doAsync
 import mx.itesm.proyectofinal.BLE.*
+import mx.itesm.proyectofinal.Utils.CustomItemClickListener
 
-/*
+/**
  * Declares the patient measurements list. This is the first and main page of the application
  */
 class PatientList : AppCompatActivity(), CustomItemClickListener {
@@ -53,14 +54,12 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
      * bluetooth helper and initializes it.
      */
     companion object {
-        val ACCOUNT_MAIL:String = "account_mail"
-        val ACCOUNT_NAME:String = "account_name"
-        val ACCOUNT_IMG:String = "account_img"
+        const val ACCOUNT:String = "account"
+        const val ACCOUNT_TYPE:String = "account_type"
         var STATUS:String = "no"
-        val DELETE_ID: String = "id"
+        const val DELETE_ID: String = "id"
         const val DEL: String = "Borrar ?"
         const val PATIENT_KEY: String = "Medicion"
-        var bluetoothHelper: BluetoothHelper? = null
         const val REQUEST_ENABLE_BT: Int = 10
         const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
         const val BLUETOOTH_DEVICE = 5
@@ -79,22 +78,28 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     lateinit var nombre: String
     lateinit var mail: String
+    lateinit var profile: Profile
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
-    /*
+    /**
      * Creates the Patient List activity and inflates the view. Also initializes database calls.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_patient_list)
         val extras = intent.extras?: return
+        profile = extras.getParcelable(ACCOUNT)!!
+        val type = extras.getInt(ACCOUNT_TYPE)
 
-        STATUS = "no"
-        nombre = extras.getString(ACCOUNT_NAME)
-        mail   = extras.getString(ACCOUNT_MAIL)
-        val photo  = extras.getString(ACCOUNT_IMG)
+//        actionBar.setTitle("Hello world App")
+        if(type == 1){
+            supportActionBar?.setTitle(R.string.type_patient)
+        }
+        else{
+            supportActionBar?.setTitle(R.string.type_clinic)
+        }
 
-        textView_nombre.text = "Paciente: "+nombre
+        textView_nombre.text = "Paciente: ${profile.name}"
 
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
@@ -111,8 +116,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 loadMediciones()
             }
         }
-
-        //        bluetoothHelper = BluetoothHelper(this)
 
         floatingActionButton.setOnClickListener { onPress() }
         checkLocationPermission()
@@ -246,8 +249,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
             R.id.action_perfil ->{
                 val intent = Intent(this, PerfilActivity::class.java)
-                intent.putExtra(ACCOUNT_NAME,nombre)
-                intent.putExtra(ACCOUNT_MAIL,mail)
+                intent.putExtra(ACCOUNT,profile)
                 startActivity(intent)
                 true
             }

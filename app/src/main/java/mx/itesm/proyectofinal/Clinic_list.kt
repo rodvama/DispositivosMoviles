@@ -21,10 +21,11 @@ import android.widget.TextView
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_clinic_list.*
+import mx.itesm.proyectofinal.Utils.CustomItemClickListener2
 import org.jetbrains.anko.doAsync
 import java.util.jar.Manifest
 
-class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
+class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
     companion object {
         val ACCOUNT_MAIL:String = "account_mail"
@@ -35,6 +36,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
     lateinit var mail : String
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
+    lateinit var profile: Profile
 
     // The RecyclerView adapter declaration
     val adapter = PatientAdapter(this, this)
@@ -43,12 +45,9 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_clinic_list)
         val extras = intent.extras?: return
+        profile = extras.getParcelable(PatientList.ACCOUNT)!!
 
-        val nombre = extras.getString(PatientList.ACCOUNT_NAME)
-        this.mail = extras.getString(PatientList.ACCOUNT_MAIL)
-        val photo  = extras.getString(PatientList.ACCOUNT_IMG)
-
-        textView_nombre.text = "Clinica/Doctor: "+nombre
+        textView_nombre.text = "Clinica/Doctor: ${profile.name}"
 
         val layoutManager = LinearLayoutManager(this)
         lista_clinica.layoutManager = layoutManager
@@ -128,8 +127,7 @@ class Clinic_list : AppCompatActivity(),CustomItemClickListener2 {
         //intent.putExtra(PatientList.PATIENT_KEY, patient._idP)
         //startActivityForResult(intent, 3)
         val StartAppIntent = Intent(this,PatientList::class.java)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,patient.mailC)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,patient.FNameP+" "+patient.LNameP)
+        StartAppIntent.putExtra(PatientList.ACCOUNT,profile)
         startActivity(StartAppIntent)
     }
 

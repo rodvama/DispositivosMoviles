@@ -46,6 +46,7 @@ import android.view.WindowManager
 // Configuration activity declaration and view inflation
 class PerfilActivity : AppCompatActivity() {
     lateinit var instanceDatabase: MedicionDatabase
+    lateinit var profile: Profile
 
 
     // Creates the activity and inflates the view
@@ -54,12 +55,11 @@ class PerfilActivity : AppCompatActivity() {
         setContentView(R.layout.activity_perfil)
         val extras = intent.extras?: return
         this.title = "Perfil"
-        val nombre = extras.getString(PatientList.ACCOUNT_NAME)
-        val email = extras.getString(PatientList.ACCOUNT_MAIL)
-        perfil_nombre.text = nombre
+        profile = extras.getParcelable(PatientList.ACCOUNT)!!
+        perfil_nombre.text = profile.name
         instanceDatabase = MedicionDatabase.getInstance(this)
         ioThread {
-            val paciente = instanceDatabase.pacienteDao().cargarPacientePorEmail(email)
+            val paciente = instanceDatabase.pacienteDao().cargarPacientePorEmail(profile.mail)
             runOnUiThread {
                 if(paciente != null){
                     perfil_genero.text = paciente.sexP
@@ -69,7 +69,7 @@ class PerfilActivity : AppCompatActivity() {
                     Toast.makeText(applicationContext,"No existes en la base de datos.", Toast.LENGTH_SHORT).show()
             }
         }
-        createQRCode(email)
+        createQRCode(profile.mail)
 
     }
 
