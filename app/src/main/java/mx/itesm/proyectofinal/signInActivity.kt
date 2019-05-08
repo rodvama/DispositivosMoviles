@@ -1,6 +1,9 @@
 package mx.itesm.proyectofinal
 
 import Database.MedicionDatabase
+import NetworkUtility.NetworkConnection
+import NetworkUtility.NetworkConnection.Companion
+import NetworkUtility.NetworkConnection.Companion.buildStringAccount
 import NetworkUtility.OkHttpRequest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -28,6 +31,8 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Response
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.okButton
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -73,7 +78,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
             signOut()
         }else {
             val account = GoogleSignIn.getLastSignedInAccount(this)
-            updateUI(account)
+            updateUILogged(account)
         }
     }
 
@@ -95,8 +100,23 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         }
     }
     fun signin(){
-        val signInIntent = mGoogleSignInClient?.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
+
+        if (NetworkConnection.isNetworkConnected(this)) {
+            val signInIntent = mGoogleSignInClient?.signInIntent
+            startActivityForResult(signInIntent, RC_SIGN_IN)
+        } else {
+
+            // alerta usando la librería de ANKO
+            alert(message = resources.getString(R.string.internet_no_desc), title = resources.getString(R.string.internet_no_title)) {
+                okButton {  }
+            }.show()
+            // otra forma de poner un alerta
+            /*AlertDialog.Builder(this).setTitle("No Internet Connection")
+                .setMessage("Please check your internet connection and try again")
+                .setPositiveButton(android.R.string.ok) { _, _ -> }
+                .setIcon(android.R.drawable.ic_dialog_alert).show()
+                */
+        }
     }
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -108,22 +128,32 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
             handleSignInResult(task)
         }
     }
+
     fun updateUI(account: GoogleSignInAccount?){
         if(account!=null){
             val mail = account.email
             val name = account.displayName
             val imgUrl = account.photoUrl.toString()
-            profile = Profile(mail!!, name!!, imgUrl!!)
-            checkUser(mail!!, name!!)
+            profile = Profile(mail!!, name!!, imgUrl)
+            checkUser(mail, name)
+        }
+    }
+
+    fun updateUILogged(account: GoogleSignInAccount?){
+        if(account!=null){
+            val mail = account.email
+            val name = account.displayName
+            val imgUrl = account.photoUrl.toString()
+            profile = Profile(mail!!, name!!, imgUrl)
+            fetchComplete()
         }
     }
 
     fun checkUser(email: String, name: String){
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
-        val url = "https://pacific-tundra-10593.herokuapp.com/account/"
-        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "email" to "asd@asd.com")
-//        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "lastName" to "Jahagirdar", "email" to "asd@asd.com")
+        val url = buildStringAccount()
+        val map: HashMap<String, String> = hashMapOf("name" to profile.name, "email" to profile.mail)
 
         request.POST(url, map, object: Callback {
             override fun onResponse(call: Call?, response: Response) {

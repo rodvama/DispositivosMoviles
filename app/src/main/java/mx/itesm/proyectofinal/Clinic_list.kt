@@ -33,7 +33,6 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
         val ACCOUNT_IMG:String = "account_img"
     }
 
-    lateinit var mail : String
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
     lateinit var profile: Profile
@@ -58,7 +57,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
         lista_clinica.adapter = adapter
 
         ioThread {
-            val pacienteNum = instanceDatabase.pacienteDao().getAnyPaciente(mail)
+            val pacienteNum = instanceDatabase.pacienteDao().getAnyPaciente(profile.mail)
 
             if(pacienteNum == 0){
                 insertPacientes(this)
@@ -66,17 +65,6 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
                 loadPacientes ()
             }
         }
-
-        val broadcast_reciever = object : BroadcastReceiver() {
-
-            override fun onReceive(arg0: Context, intent: Intent) {
-                val action = intent.action
-                if (action == "sign_out") {
-                    finish()
-                }
-            }
-        }
-        registerReceiver(broadcast_reciever, IntentFilter("sign_out"))
     }
 
 
@@ -88,7 +76,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
     // Loads measurements from database
     private fun loadPacientes() {
-        val pacientes = this.instanceDatabase.pacienteDao().cargarPacientes(mail)
+        val pacientes = this.instanceDatabase.pacienteDao().cargarPacientes(profile.mail)
 
         pacientes.observe(this, object: Observer<List<Patient>> {
             override fun onChanged(t: List<Patient>?) {
@@ -109,7 +97,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
     fun insertPacientes(context: Context){
         var patients:List<Patient>
         doAsync {
-            patients = Medicion.populatePatients(applicationContext, mail)
+            patients = Medicion.populatePatients(applicationContext, profile.mail)
             this@Clinic_list.instanceDatabase.pacienteDao().insertartListaPacientes(patients)
             loadPacientes()
         }
@@ -124,13 +112,14 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
     // Custom item click listener for each measurement
     override fun onCustomItemClick(patient: Patient) {
-        //val intent = Intent(this, ::class.java)
-        //intent.putExtra(PatientList.PATIENT_KEY, patient._idP)
-        //startActivityForResult(intent, 3)
-        val StartAppIntent = Intent(this,PatientList::class.java)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,patient.mailC)
-        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,patient.FNameP+" "+patient.LNameP)
-        startActivity(StartAppIntent)
+        val startAppIntent = Intent(this,PatientList::class.java)
+        startAppIntent.putExtra(PatientList.ACCOUNT,profile)
+        startAppIntent.putExtra(PatientList.ACCOUNT_TYPE,0)
+        startActivity(startAppIntent)
+//        val StartAppIntent = Intent(this,PatientList::class.java)
+//        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,patient.mailC)
+//        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,patient.FNameP+" "+patient.LNameP)
+//        startActivity(StartAppIntent)
     }
 
     // Handles clicking options item

@@ -32,10 +32,6 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.content.pm.PackageManager
-import android.os.Build
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -114,7 +110,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
          // Local Database load
         ioThread {
-            val measureNum = instanceDatabase.medicionDao().getAnyMedicion(mail)
+            val measureNum = instanceDatabase.medicionDao().getAnyMedicion(profile.mail)
 
             if(measureNum == 0){
                 insertMeasurements(this)
@@ -212,7 +208,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Loads measurements from database
     private fun loadMediciones() {
-        val measurements = this.instanceDatabase.medicionDao().cargarMeciciones(mail)
+        val measurements = this.instanceDatabase.medicionDao().cargarMeciciones(profile.mail)
 
         measurements.observe(this, object: Observer<List<Medicion>> {
             override fun onChanged(t: List<Medicion>?) {
@@ -232,7 +228,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     fun insertMeasurements(context: Context){
         var measurements:List<Medicion>
         doAsync {
-            measurements = Medicion.populateMeds(applicationContext, this@PatientList.mail)
+            measurements = Medicion.populateMeds(applicationContext, this@PatientList.profile.mail)
             this@PatientList.instanceDatabase.medicionDao().insertartListaMediciones(measurements)
             loadMediciones()
         }
@@ -255,8 +251,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
             R.id.action_perfil ->{
                 val intent = Intent(this, PerfilActivity::class.java)
-                intent.putExtra(ACCOUNT_NAME, this.nombre)
-                intent.putExtra(ACCOUNT_MAIL, this.mail)
+                intent.putExtra(PatientList.ACCOUNT,profile)
+                intent.putExtra(PatientList.ACCOUNT_TYPE,0)
                 startActivity(intent)
                 true
             }
@@ -264,25 +260,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 false
             }
         }
-    }
-    /**
-     * Check the Location Permission before calling the BLE API's
-     */
-
-
-    /**
-     * The location permission is incorporated in Marshmallow and Above
-     */
-    private fun isAboveMarshmallow(): Boolean {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-    }
-
-    /**
-     * Check with the system- If the permission already enabled or not
-     */
-    private fun isLocationPermissionEnabled(): Boolean {
-        return ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
     
     /**
