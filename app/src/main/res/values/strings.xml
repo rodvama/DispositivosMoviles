@@ -21,13 +21,15 @@
     <string name="radio_left">Brazo izquierdo</string>
     <string name="radio_right">Brazo derecho</string>
 
+    <string name="settings_profile">Ver Perfil</string>
     <string name="settings_text">Configuración</string>
     <string name="settings_logout">Cerrar Sesión</string>
 
     <string name="card_title1">Resultados calculados</string>
     <string name="card_title2">Resultados manuales</string>
     <string name="email_action">Enviar por email</string>
-
+    <string name="dimen">Añade Mediciones! :)</string>
+    <string name="vacia">Lista Vacía</string>
     <string name="unidad_medidad">mmHg</string>
     <string name="loading">Cargando....</string>
     <string name="clinica">Clinica</string>
@@ -63,5 +65,6 @@
 
     <string name="internet_no_title">No estás conectado</string>
     <string name="internet_no_desc">Por favor conectate a una red para iniciar sesión</string>
+    <string name="escanear_qr">Escanear QR de paciente</string>
 
 </resources>

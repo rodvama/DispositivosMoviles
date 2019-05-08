@@ -20,11 +20,17 @@ package mx.itesm.proyectofinal
 import Database.Medicion
 import Database.MedicionDatabase
 import Database.ioThread
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
+import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -36,6 +42,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.android.synthetic.main.activity_patient_list.*
@@ -68,7 +75,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     }
 
     lateinit var account: GoogleSignInAccount
-
     // Database variable initialization
     lateinit var instanceDatabase: MedicionDatabase
 
@@ -102,12 +108,14 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         val layoutManager = LinearLayoutManager(this)
         lista_pacientes.layoutManager = layoutManager
 
-        instanceDatabase = MedicionDatabase.getInstance(this)
+        this.instanceDatabase = MedicionDatabase.getInstance(this)
+
         lista_pacientes.adapter = adapter
 
          // Local Database load
         ioThread {
-            val measureNum = instanceDatabase.medicionDao().getAnyMedicion()
+            val measureNum = instanceDatabase.medicionDao().getAnyMedicion(mail)
+
             if(measureNum == 0){
                 insertMeasurements(this)
             } else{
@@ -204,25 +212,28 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
 
     // Loads measurements from database
     private fun loadMediciones() {
-        val measurements = instanceDatabase.medicionDao().cargarMeciciones()
+        val measurements = this.instanceDatabase.medicionDao().cargarMeciciones(mail)
 
         measurements.observe(this, object: Observer<List<Medicion>> {
             override fun onChanged(t: List<Medicion>?) {
                 adapter.setMedicion(t!!)
+                if(adapter.itemCount == 0){
+                    tv_vacia_med.visibility = View.VISIBLE
+                }else{
+                    tv_vacia_med.visibility = View.GONE
+                }
                 lista_pacientes.adapter = adapter
                 lista_pacientes.adapter?.notifyDataSetChanged()
-
             }
         })
-
     }
 
     // Inserts a new measurements to the list in DB
     fun insertMeasurements(context: Context){
         var measurements:List<Medicion>
         doAsync {
-            measurements = Medicion.populateMeds(applicationContext)
-            instanceDatabase.medicionDao().insertartListaMediciones(measurements)
+            measurements = Medicion.populateMeds(applicationContext, this@PatientList.mail)
+            this@PatientList.instanceDatabase.medicionDao().insertartListaMediciones(measurements)
             loadMediciones()
         }
         //ioThread {
@@ -242,27 +253,11 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 startActivity(intent)
                 true
             }
-            R.id.action_logout ->{
-                val builder = AlertDialog.Builder(this@PatientList)
-
-                builder.setTitle("Cerrar sesión")
-
-                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
-
-                builder.setPositiveButton("Cerrar sesión"){dialog, which ->
-                    signOut()
-                }
-
-
-                // Display a negative button on alert dialog
-                builder.setNegativeButton("Cancelar"){dialog,which ->
-                }
-
-                // Finally, make the alert dialog using builder
-                val dialog: AlertDialog = builder.create()
-
-                // Display the alert dialog on app interface
-                dialog.show()
+            R.id.action_perfil ->{
+                val intent = Intent(this, PerfilActivity::class.java)
+                intent.putExtra(ACCOUNT_NAME, this.nombre)
+                intent.putExtra(ACCOUNT_MAIL, this.mail)
+                startActivity(intent)
                 true
             }
             else -> {
@@ -270,14 +265,24 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
         }
     }
+    /**
+     * Check the Location Permission before calling the BLE API's
+     */
 
-    private fun signOut() {
-        Toast.makeText(applicationContext,"Cerrar sesión.",Toast.LENGTH_SHORT).show()
-        //finish()
-        STATUS = "si"
-        val intent = Intent("sign_out")
-        sendBroadcast(intent)
-        finish()
+
+    /**
+     * The location permission is incorporated in Marshmallow and Above
+     */
+    private fun isAboveMarshmallow(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+    }
+
+    /**
+     * Check with the system- If the permission already enabled or not
+     */
+    private fun isLocationPermissionEnabled(): Boolean {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     }
     
     /**
