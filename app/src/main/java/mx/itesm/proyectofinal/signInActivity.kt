@@ -42,6 +42,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     private lateinit var detailsJSON: JSONObject
     lateinit var profile: Profile
+    lateinit var tipo: String
 
     private val RC_SIGN_IN = 9001
     private var mGoogleApiClient: GoogleApiClient? = null
@@ -60,6 +61,8 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         //btnLogout = findViewById(R.id.btnLogout)
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        val extras = intent.extras?: return
+        tipo = extras.getString(ElegirTipo.TYPE)!!
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build()
@@ -74,6 +77,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     override fun onStart() {
         super.onStart()
+
         if(PatientList.STATUS == "si") {
             signOut()
         }else {
@@ -131,6 +135,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     fun updateUI(account: GoogleSignInAccount?){
         if(account!=null){
+            setContentView(R.layout.activity_loading_acc)
             val mail = account.email
             val name = account.displayName
             val imgUrl = account.photoUrl.toString()
@@ -155,14 +160,15 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         val url = buildStringAccount()
         val map: HashMap<String, String> = hashMapOf("name" to profile.name, "email" to profile.mail)
 
-        request.POST(url, map, object: Callback {
+        request.GET(url, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
+                println(response.toString())
                 val responseData = response.body()?.string()
                 runOnUiThread{
                     try {
                         var json = JSONObject(responseData)
                         detailsJSON = json
-                        this@signInActivity.fetchComplete()
+                        fetchComplete()
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
@@ -176,7 +182,18 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     }
 
     override fun fetchComplete() {
-        val startAppIntent = Intent(this,ElegirTipo::class.java)
+        lateinit var startAppIntent:Intent
+        PatientList.STATUS = "no"
+        when(tipo){
+            "clinica"->{
+                startAppIntent = Intent(this,Clinic_list::class.java)
+                PatientList.ACTIV = "sign"
+            }
+            "paciente"->{
+                startAppIntent = Intent(this,PatientList::class.java)
+            }
+
+        }
         startAppIntent.putExtra(ACCOUNT, profile)
         startActivity(startAppIntent)
         finish()

@@ -4,6 +4,8 @@ import Database.Medicion
 import Database.MedicionDatabase
 import Database.Patient
 import Database.ioThread
+import NetworkUtility.OkHttpRequest
+import android.app.AlertDialog
 import android.arch.lifecycle.Observer
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -14,15 +16,26 @@ import android.os.Bundle
 import com.google.zxing.integration.android.IntentIntegrator
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_clinic_list.*
+import mx.itesm.proyectofinal.R.id.action_logout
 import mx.itesm.proyectofinal.Utils.CustomItemClickListener2
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Response
 import org.jetbrains.anko.doAsync
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 import java.util.jar.Manifest
 
 class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
@@ -44,7 +57,6 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_clinic_list)
         val extras = intent.extras?: return
-
         profile = extras.getParcelable(PatientList.ACCOUNT)!!
 
         textView_nombre.text = "Clinica/Doctor: ${profile.name}"
@@ -76,21 +88,57 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
     // Loads measurements from database
     private fun loadPacientes() {
-        val pacientes = this.instanceDatabase.pacienteDao().cargarPacientes(profile.mail)
-
-        pacientes.observe(this, object: Observer<List<Patient>> {
-            override fun onChanged(t: List<Patient>?) {
-                adapter.setPatient(t!!)
-                if(adapter.itemCount == 0){
-                    tv_vacia.visibility = View.VISIBLE
-                }else{
-                    tv_vacia.visibility = View.GONE
+        var client = OkHttpClient()
+        var request= OkHttpRequest(client)
+        val url = "https://heart-app-tec.herokuapp.com/clinics/"+ profile.mail
+        request.GET(url, object: Callback {
+            override fun onResponse(call: Call?, response: Response) {
+                println(response.toString())
+                val responseData = response.body()?.string()
+                runOnUiThread {
+                    try {
+                        val t = parseJsonPats(responseData, profile.mail)
+                        adapter.setPatient(t!!)
+                        if (adapter.itemCount == 0) {
+                            tv_vacia.visibility = View.VISIBLE
+                        } else {
+                            tv_vacia.visibility = View.GONE
+                        }
+                        lista_clinica.adapter = adapter
+                        lista_clinica.adapter?.notifyDataSetChanged()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
                 }
-                lista_clinica.adapter = adapter
-                lista_clinica.adapter?.notifyDataSetChanged()
+
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+                Log.d("FAILURE", "REQUEST FAILURE")
             }
         })
+    }
+    fun parseJsonPats(jsonString: String?, clinicPat : String): MutableList<Patient>{
+        var patients : MutableList<Patient> = mutableListOf()
+        var pat : Patient
+        //Primero es array
+        try {
+            val dataJsonList : JSONArray = JSONArray(jsonString)
+            for(i in 0 until dataJsonList.length()){
+                val jsonPat : JSONObject = dataJsonList.getJSONObject(i)
+                val patMail = jsonPat.getString("email")
+                val name = jsonPat.getString("name")
+                val patAge = jsonPat.getInt("age")
+                val patSex = jsonPat.getString("sex")
 
+                pat = Patient(patMail,name,"",patAge,patSex,clinicPat)
+                patients.add(pat)
+            }
+        }catch (e: JSONException) {
+            e.printStackTrace()
+            throw IOException("JSONException")
+        }
+        return patients
     }
 
     // Inserts a new measurements to the list in DB
@@ -129,6 +177,28 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
                 startQR()
                 true
             }
+            R.id.action_logout -> {
+                val builder = AlertDialog.Builder(this@Clinic_list)
+
+                builder.setTitle("Cerrar sesión")
+
+                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
+
+                builder.setPositiveButton("Cerrar sesión") { dialog, which ->
+                    signOut()
+                }
+
+                // Display a negative button on alert dialog
+                builder.setNegativeButton("Cancelar") { dialog, which ->
+                }
+
+                // Finally, make the alert dialog using builder
+                val dialog: AlertDialog = builder.create()
+
+                // Display the alert dialog on app interface
+                dialog.show()
+                true
+            }
             else -> {
                 false
             }
@@ -153,4 +223,12 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
+
+    private fun signOut() {
+        Toast.makeText(applicationContext,"Cerrar sesión.", Toast.LENGTH_SHORT).show()
+        //finish()
+        PatientList.STATUS = "si"
+        finish()
+    }
+
 }

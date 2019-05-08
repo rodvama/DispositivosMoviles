@@ -23,12 +23,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_configuration.*
 import kotlinx.android.synthetic.main.activity_perfil.*
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.runOnUiThread
-import org.jetbrains.anko.toast
-import org.jetbrains.anko.uiThread
 import androidmads.library.qrgenearator.QRGContents
 import androidmads.library.qrgenearator.QRGEncoder
 import com.google.zxing.WriterException
@@ -53,16 +48,14 @@ class PerfilActivity : AppCompatActivity() {
     lateinit var instanceDatabase: MedicionDatabase
     lateinit var profile: Profile
 
+
     // Creates the activity and inflates the view
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_perfil)
         val extras = intent.extras?: return
         this.title = "Perfil"
-
         profile = extras.getParcelable(PatientList.ACCOUNT)!!
-
-
         perfil_nombre.text = profile.name
         instanceDatabase = MedicionDatabase.getInstance(this)
         ioThread {
