@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.android.synthetic.main.activity_elegir_tipo.*
 
 class ElegirTipo : AppCompatActivity() {
@@ -21,7 +22,6 @@ class ElegirTipo : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_elegir_tipo)
-
         button_paciente.setOnClickListener { signInPaciente() }
         button_clinica.setOnClickListener { signInClinica() }
     }

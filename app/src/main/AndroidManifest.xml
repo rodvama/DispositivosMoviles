@@ -80,7 +80,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".PatientList"
-            android:label="@string/title_activity_patient_list"/>
+            android:label="@string/title_activity_patient_list"
+            android:launchMode="singleTask"/>
 
         <meta-data
             android:name="preloaded_fonts"
@@ -88,6 +89,7 @@
         <activity
             android:name=".Clinic_list"
             android:label="@string/title_activity_clinic_list"
+            android:launchMode="singleTask"
             />
         <service android:name=".BLE.BLEService"/>
     </application>

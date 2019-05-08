@@ -72,6 +72,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     override fun onStart() {
         super.onStart()
+
         if(PatientList.STATUS == "si") {
             signOut()
         }else {
@@ -113,10 +114,11 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     }
     fun updateUI(account: GoogleSignInAccount?){
         if(account!=null){
+            setContentView(R.layout.activity_loading_acc)
             val mail = account.email
             val name = account.displayName
             val imgUrl = account.photoUrl.toString()
-            profile = Profile(mail!!, name!!, imgUrl!!)
+            this.profile = Profile(mail!!, name!!, imgUrl!!)
             checkUser(mail!!, name!!)
         }
     }
@@ -125,15 +127,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
         lateinit var url: String
-        when(tipo){
-            "clinica"->{
-                url = "https://heart-app-tec.herokuapp.com/clinics/"
-            }
-            "paciente"->{
-                url = "https://heart-app-tec.herokuapp.com/patients/"+email
-            }
-
-        }
+        url = "https://heart-app-tec.herokuapp.com/patients/"+email
         println(url)
         val map: HashMap<String, String> = hashMapOf("name" to name, "email" to email)
 //        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "lastName" to "Jahagirdar", "email" to "asd@asd.com")
@@ -161,10 +155,11 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     override fun fetchComplete() {
         lateinit var startAppIntent:Intent
-        println(tipo)
+        PatientList.STATUS = "no"
         when(tipo){
             "clinica"->{
                 startAppIntent = Intent(this,Clinic_list::class.java)
+                PatientList.ACTIV = "sign"
             }
             "paciente"->{
                 startAppIntent = Intent(this,PatientList::class.java)
@@ -172,7 +167,6 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
         }
         startAppIntent.putExtra(ACCOUNT, profile)
-        println()
         startActivity(startAppIntent)
         finish()
     }

@@ -56,6 +56,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
     companion object {
         const val ACCOUNT:String = "account"
         const val ACCOUNT_TYPE:String = "account_type"
+        var ACTIV:String = "sign"
         var STATUS:String = "no"
         const val DELETE_ID: String = "id"
         const val DEL: String = "Borrar ?"
@@ -85,9 +86,18 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.title = "Registros"
         setContentView(R.layout.activity_patient_list)
         val extras = intent.extras?: return
-        profile = extras.getParcelable(ACCOUNT)!!
+        if(ACTIV == "clinic"){
+            val name= extras.getString(Clinic_list.ACCOUNT_NAME)
+            val mail= extras.getString(Clinic_list.ACCOUNT_MAIL)
+            this.profile = Profile(mail!!, name!!, ""!!)
+
+        }
+        else{
+            profile = extras.getParcelable(ACCOUNT)!!
+        }
         val type = extras.getInt(ACCOUNT_TYPE)
 
 //        actionBar.setTitle("Hello world App")
@@ -130,7 +140,12 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
      * Inflates FAB button
      */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+        if(ACTIV == "clinic"){
+            menuInflater.inflate(R.menu.menu_cpat, menu)
+        }
+        else{
+            menuInflater.inflate(R.menu.menu_main, menu)
+        }
         return true
     }
 
@@ -252,6 +267,28 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                 startActivity(intent)
                 true
             }
+            R.id.action_logout -> {
+                val builder = AlertDialog.Builder(this@PatientList)
+
+                builder.setTitle("Cerrar sesión")
+
+                builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
+
+                builder.setPositiveButton("Cerrar sesión") { dialog, which ->
+                    signOut()
+                }
+
+                // Display a negative button on alert dialog
+                builder.setNegativeButton("Cancelar") { dialog, which ->
+                }
+
+                // Finally, make the alert dialog using builder
+                val dialog: AlertDialog = builder.create()
+
+                // Display the alert dialog on app interface
+                dialog.show()
+                true
+            }
             else -> {
                 false
             }
@@ -365,4 +402,12 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
         }
     }
+
+    private fun signOut() {
+        Toast.makeText(applicationContext,"Cerrar sesión.", Toast.LENGTH_SHORT).show()
+        //finish()
+        PatientList.STATUS = "si"
+        finish()
+    }
+
 }
