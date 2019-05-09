@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.row.view.*
+import mx.itesm.proyectofinal.Utils.CustomItemClickListener
 
 // Declares the adapter for the RecyclerView in PatientsList
 class MeditionAdapter(var context: Context,
@@ -68,8 +69,8 @@ class MeditionAdapter(var context: Context,
                 itemView.card_verified.text = ""
             }
 
-            itemView.card_initials.text = medicion.iniciales
-            itemView.card_date.text = medicion.fecha
+            //itemView.card_name.text = medicion.iniciales
+            itemView.card_date.text = "Fecha Med: "+medicion.fecha
             itemView.card_calc.text = medicion.appSistolica.toString() + "/" + medicion.appDiastolica.toString()
             itemView.card_manual.text = medicion.manSistolica.toString() + "/" + medicion.manDiastolica.toString()
         }

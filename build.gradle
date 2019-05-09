@@ -2,6 +2,8 @@
 
 buildscript {
     ext.kotlin_version = '1.2.61'
+    ext.anko_version = '0.10.0'
+
     repositories {
         google()
         jcenter()
@@ -19,6 +21,13 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url 'https://www.jitpack.io'
+        }
+        // If you're using a version of Gradle lower than 4.1, you must instead use:
+        maven {
+            url 'https://maven.google.com'
+        }
     }
 }
 
