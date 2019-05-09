@@ -68,6 +68,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         const val BLUETOOTH_ADDRESS = "Address"
         const val LOAD_MEASURE = 4
         const val TAKE_MEASURE = 3
+        var profilePatient: Profile? = null
     }
 
     lateinit var account: GoogleSignInAccount
@@ -97,6 +98,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         }
         else{
             profile = extras.getParcelable(ACCOUNT)!!
+            profilePatient = profile
         }
         val type = extras.getInt(ACCOUNT_TYPE)
 

@@ -154,9 +154,8 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         val url = buildStringAccount()
         val map: HashMap<String, String> = hashMapOf("name" to profile.name, "email" to profile.mail)
 
-        request.GET(url, object: Callback {
+        request.POST(url, map, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
-                println(response.toString())
                 val responseData = response.body()?.string()
                 runOnUiThread{
                     try {

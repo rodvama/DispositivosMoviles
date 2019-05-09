@@ -57,6 +57,8 @@ import java.util.*
  */
 class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchCompleteListener {
 
+    private lateinit var detailsJSON: JSONObject
+
     companion object {
         const val SYSTOLIC_DEVICE = "systolic_results"
         const val DIASTOLIC_DEVICE = "diastolic_results"
@@ -103,30 +105,40 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchComplete
     }
 
     fun postPressure(email: String, name: String){
-//        var client = OkHttpClient()
-//        var request= OkHttpRequest(client)
-//        val url = NetworkConnection.buildStringAccount()
-////        val map: HashMap<String, String> = hashMapOf("name" to profile.name, "email" to profile.mail)
-//
-//        request.GET(url, object: Callback {
-//            override fun onResponse(call: Call?, response: Response) {
-//                println(response.toString())
-//                val responseData = response.body()?.string()
-//                runOnUiThread{
-//                    try {
-//                        var json = JSONObject(responseData)
-//                        detailsJSON = json
-//                        fetchComplete()
-//                    } catch (e: JSONException) {
-//                        e.printStackTrace()
-//                    }
-//                }
-//            }
-//
-//            override fun onFailure(call: Call?, e: IOException?) {
-//                Log.d("FAILURE", "REQUEST FAILURE")
-//            }
-//        })
+        var client = OkHttpClient()
+        var request= OkHttpRequest(client)
+        val url = NetworkConnection.buildStringAccount()
+        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val currentDate = sdf.format(Date())
+        val map: HashMap<String, String> = hashMapOf(
+                "date" to currentDate,
+                "systolic" to systolicRes.toInt().toString(),
+                "diastolic" to diastolicRes.toInt().toString(),
+                "manual_systolic" to edit_systolic_manual.text.toString(),
+                "manual_diastolic" to edit_diastolic_manual.text.toString(),
+                "arm" to selectedArm,
+                "patient" to PatientList.profilePatient!!.mail
+                )
+
+        request.POST(url, map, object: Callback {
+            override fun onResponse(call: Call?, response: Response) {
+                println(response.toString())
+                val responseData = response.body()?.string()
+                runOnUiThread{
+                    try {
+                        var json = JSONObject(responseData)
+                        detailsJSON = json
+                        fetchComplete()
+                    } catch (e: JSONException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call?, e: IOException?) {
+                Log.d("FAILURE", "REQUEST FAILURE")
+            }
+        })
     }
 
     override fun onClick(view: View?) {
@@ -426,20 +438,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchComplete
     }
 
     override fun fetchComplete() {
-//        lateinit var startAppIntent:Intent
-//        PatientList.STATUS = "no"
-//        when(tipo){
-//            "clinica"->{
-//                startAppIntent = Intent(this,Clinic_list::class.java)
-//                PatientList.ACTIV = "sign"
-//            }
-//            "paciente"->{
-//                startAppIntent = Intent(this,PatientList::class.java)
-//            }
-//
-//        }
-//        startAppIntent.putExtra(ACCOUNT, profile)
-//        startActivity(startAppIntent)
-//        finish()
+        setResult(Activity.RESULT_OK)
+        finish()
     }
 }
