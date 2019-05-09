@@ -63,6 +63,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         const val PATIENT_KEY: String = "Medicion"
         const val REQUEST_ENABLE_BT: Int = 10
         const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
+        const val BLUETOOTH_DISCONNECT = 12
         const val BLUETOOTH_DEVICE = 5
         const val BLUETOOTH_ADDRESS = "Address"
         const val LOAD_MEASURE = 4
@@ -157,7 +158,7 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         } else {
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra(BLUETOOTH_ADDRESS, mDevice)
-            startActivityForResult(intent, LOAD_MEASURE)
+            startActivityForResult(intent, TAKE_MEASURE)
         }
     }
 
@@ -192,7 +193,15 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
             }
             TAKE_MEASURE -> {
                 if (resultCode == Activity.RESULT_OK) {
+                    Toast.makeText(this, R.string.bluetooth_device_disconnected_ok,
+                            Toast.LENGTH_LONG).show()
                     loadMediciones()
+                }
+                else{
+                    Toast.makeText(this, R.string.bluetooth_device_disconnected_cancel,
+                            Toast.LENGTH_LONG).show()
+                    floatingActionButton.setImageResource(R.drawable.ic_bluetooth_searching)
+                    mDevice.mDeviceAddress = ""
                 }
             }
             LOAD_MEASURE -> {
@@ -201,6 +210,8 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
                         ioThread {
                             instanceDatabase.medicionDao().borrarMedicion(data.getIntExtra(DELETE_ID, 0))
                         }
+                        Toast.makeText(this, R.string.pressure_del,
+                                Toast.LENGTH_LONG).show()
                     }
                 }
             }

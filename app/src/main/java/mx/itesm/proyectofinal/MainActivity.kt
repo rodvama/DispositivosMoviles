@@ -40,6 +40,7 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.LineData
+import mx.itesm.proyectofinal.PatientList.Companion.BLUETOOTH_DISCONNECT
 
 
 /*
@@ -47,7 +48,7 @@ import com.github.mikephil.charting.data.LineData
  */
 class MainActivity : AppCompatActivity() {
 
-    private val TAG: String = "uuidMainActivity"
+    private val TAG: String = "uuidMain"
 
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
@@ -57,6 +58,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var gauge: Gauge
 
     var entries: MutableList<Entry> = mutableListOf()
+
+    private var started: Boolean = false
+    private var valid: Boolean = false
+    private var stringData: String = ""
+    private var time: Double = 0.0
 
 
     companion object {
@@ -90,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         chart.setNoDataTextColor(Color.GRAY)
         chart.setDrawBorders(false)
         chart.isKeepPositionOnRotation = true
+        chart.description.isEnabled = false
     }
 
     fun onClick(){
@@ -101,6 +108,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         unRegisterServiceReceiver()
+        BLEConnectionManager.unBindBLEService(this@MainActivity)
         BLEConnectionManager.disconnect()
         super.onDestroy()
     }
@@ -128,44 +136,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun launchRefreshUiCheck() {
+        registerServiceReceiver()
+        entries.clear()
+        chart.invalidate() // refresh chart
+        chart.clear() // clear chart
 
+        started = false
+        valid = false
+        stringData = ""
+        time = 0.0
 
-//        launch {
-//            var dataSize = 0
-//            var counter = 0.0
-//            while (mBluetoothHelper?.started!!) {
-//                val list = mBluetoothHelper?.dataList!!
-//                if (dataSize != list.size) {
-//                    dataSize = list.size
-//                    runOnUiThread {
-//                        if (list.size > 0) {
-//                            speedMeter.setSpeed(list[dataSize-1].mmHg.toFloat())
-//                            mSeries.appendData(DataPoint(counter, list[dataSize-1].pulse), false, 1000)
-//                            counter++
-//                        }
-//                    }
-//                    if (list != null && list.size > 0 && list.size > 250 && list.last().mmHg >= 0 && list.last().mmHg <= 25)
-//                        mBluetoothHelper?.started = false
-//                }
-//            }
-//            goToDetail()
-//        }
     }
 
     // Handles receiving information from the ResultsActivity and either restarting measurement or
     // redirecting to PatientsList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-//        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
 //            mBluetoothHelper?.started = true
-//            launchRefreshUiCheck()
-//        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
-//            setResult(Activity.RESULT_OK)
-//            finish()
-//        } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
+            launchRefreshUiCheck()
+        } else if (requestCode == 2 && resultCode == Activity.RESULT_OK) {
+            setResult(Activity.RESULT_OK)
+            finish()
+        } else if (requestCode == 2 && resultCode == Activity.RESULT_CANCELED) {
 //            mBluetoothHelper?.started = true
-//            launchRefreshUiCheck()
-//        }
+            launchRefreshUiCheck()
+        }
     }
 
      /**
@@ -178,6 +174,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, "DEVICE CONNECTED", Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(this@MainActivity, "DEVICE CONNECTION FAILED", Toast.LENGTH_LONG).show()
+                setResult(Activity.RESULT_CANCELED)
             }
         }, 500)
 //         100
@@ -191,9 +188,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val mGattUpdateReceiver = object : BroadcastReceiver() {
-        private var started: Boolean = false
-        private var stringData: String = ""
-        private var time: Double = 0.0
 
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
@@ -229,30 +223,47 @@ class MainActivity : AppCompatActivity() {
                             time += 5
                             if(endDataSet != -1){
                                 val dataString = stringData.substring(0,endDataSet) // Get dataset
-                                val values: List<Float> = dataString.split(';').map { it.toFloat() }
-                                if(values.size == 3){ // Check if it fulfills being the three values
-                                    Log.d("DATA", values.toString())
-                                    /**
-                                     * Since we have the three values for this dataset,
-                                     * it's time to assign them to the different representations or
-                                     * structures that we would be using.
-                                     */
-                                    // Add to the list of every dataset
-                                    dataList.add(Data(values[0], values[1], values[2]))
-                                    // Move gauge
-                                    gauge.moveToValue(values[1])
-                                    // Add to graph
-                                    // Turn your data into Entry objects
-                                    entries.add(Entry(time.toFloat(), values[1]))
-                                    val dataSet = LineDataSet(entries, resources.getString(R.string.chart_label)) // add entries to dataset
-                                    dataSet.color = resources.getColor(R.color.colorButton)
-                                    dataSet.setDrawCircles(false)
+                                var values: List<Float>
+                                try{
+                                    values = dataString.split(';').map { it.toFloat() }
+                                    if(values.size == 3){ // Check if it fulfills being the three values
+                                        /**
+                                         * Since we have the three values for this dataset,
+                                         * it's time to assign them to the different representations or
+                                         * structures that we would be using.
+                                         */
+                                        Log.d("DATA", values.toString())
+                                        // Add to the list of every dataset
+                                        dataList.add(Data(values[0], values[1], values[2]))
+                                        // Move gauge
+                                        gauge.moveToValue(values[1])
+                                        if(valid){
+                                            // Add to graph
+                                            // Turn your data into Entry objects
+                                            entries.add(Entry(time.toFloat(), values[1]))
+                                            val dataSet = LineDataSet(entries, resources.getString(R.string.chart_label)) // add entries to dataset
+                                            dataSet.color = resources.getColor(R.color.colorButton)
+                                            dataSet.setDrawCircles(false)
 
-                                    val lineData = LineData(dataSet)
-                                    chart.data = lineData
-                                    chart.notifyDataSetChanged() // let the chart know it's data changed
-                                    chart.invalidate() // refresh chart
+                                            val lineData = LineData(dataSet)
+                                            chart.data = lineData
+                                            chart.notifyDataSetChanged() // let the chart know it's data changed
+                                            chart.invalidate() // refresh chart
+                                            if(values[1] < 30){
+                                                valid = false
+                                                unRegisterServiceReceiver()
+                                                goToDetail()
+                                            }
+                                        }
+                                        else if(values[1] > 140){
+                                            valid = true
+                                        }
+                                    }
                                 }
+                                catch (e: NumberFormatException){
+                                    null
+                                }
+
                                 stringData = stringData.substring(endDataSet+2) // Remove dataset used
                             }
                             stringData += data // Add new data to the string
@@ -304,6 +315,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun writeMissedConnection() {
         BLEConnectionManager.writeMissedConnection("A")
+    }
+
+    // Handles clicking the back button
+    override fun onBackPressed() {
+        unRegisterServiceReceiver()
+        BLEConnectionManager.disconnect()
+        setResult(Activity.RESULT_CANCELED)
+        finish()
     }
 }
 

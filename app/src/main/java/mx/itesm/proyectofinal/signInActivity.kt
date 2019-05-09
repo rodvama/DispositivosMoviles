@@ -103,25 +103,19 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
             updateUI(null)
         }
     }
-    fun signin(){
 
+    fun signin(){
         if (NetworkConnection.isNetworkConnected(this)) {
             val signInIntent = mGoogleSignInClient?.signInIntent
             startActivityForResult(signInIntent, RC_SIGN_IN)
         } else {
-
             // alerta usando la librería de ANKO
             alert(message = resources.getString(R.string.internet_no_desc), title = resources.getString(R.string.internet_no_title)) {
                 okButton {  }
             }.show()
-            // otra forma de poner un alerta
-            /*AlertDialog.Builder(this).setTitle("No Internet Connection")
-                .setMessage("Please check your internet connection and try again")
-                .setPositiveButton(android.R.string.ok) { _, _ -> }
-                .setIcon(android.R.drawable.ic_dialog_alert).show()
-                */
         }
     }
+
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);

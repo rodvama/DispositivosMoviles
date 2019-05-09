@@ -46,7 +46,7 @@
     <string name="bluetooth_permission_granted">Bluetooth activado</string>
     <string name="location_permission_granted">Localización activada</string>
 
-
+    <string name="pressure_del">Presión borrada</string>
     <string name="btn_scan">Scan</string>
     <string name="no_device_found">No se encontro el dispositivo</string>
 
@@ -55,6 +55,8 @@
     <string name="bluetooth_device_status">Status:</string>
     <string name="bluetooth_device_address">MAC:</string>
     <string name="bluetooth_device_connected">Dispositivo seleccionado</string>
+    <string name="bluetooth_device_disconnected_ok">Toma guardada</string>
+    <string name="bluetooth_device_disconnected_cancel">Dispositivo desconectado</string>
 
 
     <string name="chart_nodata">No hay datos significativos</string>
