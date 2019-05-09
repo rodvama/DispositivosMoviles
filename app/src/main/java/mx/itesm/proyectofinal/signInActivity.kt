@@ -77,7 +77,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     override fun onStart() {
         super.onStart()
-
+        PatientList.ACTIV = "sign"
         if(PatientList.STATUS == "si") {
             signOut()
         }else {
@@ -180,7 +180,6 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         when(tipo){
             "clinica"->{
                 startAppIntent = Intent(this,Clinic_list::class.java)
-                PatientList.ACTIV = "sign"
             }
             "paciente"->{
                 startAppIntent = Intent(this,PatientList::class.java)

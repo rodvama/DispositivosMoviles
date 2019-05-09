@@ -1,24 +1,9 @@
-/*
-    Copyright (C) 2018 - ITESM
-
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 
 package mx.itesm.proyectofinal
 
 import Database.MedicionDatabase
 import Database.ioThread
+import NetworkUtility.OkHttpRequest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -36,11 +21,16 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.view.Display
+import android.view.View
 import android.view.WindowManager
-
-
-
-
+import kotlinx.android.synthetic.main.activity_clinic_list.*
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.IOException
 
 
 // Configuration activity declaration and view inflation
@@ -59,15 +49,31 @@ class PerfilActivity : AppCompatActivity() {
         perfil_nombre.text = profile.name
         instanceDatabase = MedicionDatabase.getInstance(this)
         ioThread {
-            val paciente = instanceDatabase.pacienteDao().cargarPacientePorEmail(profile.mail)
-            runOnUiThread {
-                if(paciente != null){
-                    perfil_genero.text = paciente.sexP
-                    perfil_edad.text = paciente.ageP.toString()
+            var client = OkHttpClient()
+            var request= OkHttpRequest(client)
+            val url = "https://heart-app-tec.herokuapp.com/patients/" + profile.mail
+            request.GET(url, object: Callback {
+                override fun onResponse(call: Call?, response: Response) {
+                    println(response.toString())
+                    val responseData = response.body()?.string()
+                    runOnUiThread {
+                        try {
+                            var json = JSONObject(responseData)
+                            perfil_genero.text = json.get("sex").toString()
+                            perfil_edad.text = json.get("age").toString()
+
+                        } catch (e: JSONException) {
+                            Toast.makeText(applicationContext,"No existes en la base de datos.", Toast.LENGTH_SHORT).show()
+                            e.printStackTrace()
+                        }
+                    }
+
                 }
-                else
-                    Toast.makeText(applicationContext,"No existes en la base de datos.", Toast.LENGTH_SHORT).show()
-            }
+
+                override fun onFailure(call: Call?, e: IOException?) {
+                    Log.d("FAILURE", "REQUEST FAILURE")
+                }
+            })
         }
         createQRCode(profile.mail)
 
