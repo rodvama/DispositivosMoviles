@@ -83,8 +83,8 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
     // Loads measurements from database
     private fun loadPacientes() {
-        var client = OkHttpClient()
-        var request= OkHttpRequest(client)
+        val client = OkHttpClient()
+        val request= OkHttpRequest(client)
         val url = buildStringPatients(profile.mail)
         request.GET(url, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
@@ -93,7 +93,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
                     try {
                         val t = parseJsonPats(responseData, profile.mail)
                         println(t)
-                        adapter.setPatient(t!!)
+                        adapter.setPatient(t)
                         if (adapter.itemCount == 0) {
                             tv_vacia.visibility = View.VISIBLE
                         } else {
@@ -158,11 +158,11 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
         //val intent = Intent(this, ::class.java)
         //intent.putExtra(PatientList.PATIENT_KEY, patient._idP)
         //startActivityForResult(intent, 3)
-        val StartAppIntent = Intent(this,PatientList::class.java)
+        val startAppIntent = Intent(this,PatientList::class.java)
         PatientList.ACTIV = "clinic"
-        StartAppIntent.putExtra(ACCOUNT_NAME,patient.FNameP)
-        StartAppIntent.putExtra(ACCOUNT_MAIL,patient.mailC)
-        startActivity(StartAppIntent)
+        startAppIntent.putExtra(PatientList.ACCOUNT, profile)
+        startAppIntent.putExtra(PatientList.ACCOUNT_TYPE, 0)
+        startActivity(startAppIntent)
     }
 
     // Handles clicking options item
@@ -179,12 +179,12 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
                 builder.setMessage("¿Estás seguro de que quieres cerrar sesión?")
 
-                builder.setPositiveButton("Cerrar sesión") { dialog, which ->
+                builder.setPositiveButton("Cerrar sesión") { _, _ ->
                     signOut()
                 }
 
                 // Display a negative button on alert dialog
-                builder.setNegativeButton("Cancelar") { dialog, which ->
+                builder.setNegativeButton("Cancelar") { _, _ ->
                 }
 
                 // Finally, make the alert dialog using builder

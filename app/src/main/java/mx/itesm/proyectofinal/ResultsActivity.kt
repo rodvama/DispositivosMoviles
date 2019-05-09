@@ -114,7 +114,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchComplete
         val sdf = SimpleDateFormat("yyyy-MM-dd")
         val currentDate = sdf.format(Date())
 
-        val map: HashMap<String, String> = hashMapOf(
+        val map: HashMap<String, Any> = hashMapOf(
                 "date" to currentDate,
                 "verified" to validateCheck.toString(),
                 "systolic" to systolicRes.toInt().toString(),

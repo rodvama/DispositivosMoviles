@@ -40,7 +40,6 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.LineData
-import mx.itesm.proyectofinal.PatientList.Companion.BLUETOOTH_DISCONNECT
 
 
 /*

@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import kotlinx.android.parcel.Parcelize
 import me.rohanjahagirdar.outofeden.Utils.FetchCompleteListener
 import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT
+import mx.itesm.proyectofinal.PatientList.Companion.ACCOUNT_TYPE
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -152,7 +153,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
         val url = buildStringAccount()
-        val map: HashMap<String, String> = hashMapOf("name" to profile.name, "email" to profile.mail)
+        val map: HashMap<String, Any> = hashMapOf("name" to profile.name, "email" to profile.mail)
 
         request.POST(url, map, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
@@ -180,9 +181,11 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         when(tipo){
             "clinica"->{
                 startAppIntent = Intent(this,Clinic_list::class.java)
+                startAppIntent.putExtra(ACCOUNT_TYPE, 0)
             }
             "paciente"->{
                 startAppIntent = Intent(this,PatientList::class.java)
+                startAppIntent.putExtra(ACCOUNT_TYPE, 1)
             }
 
         }

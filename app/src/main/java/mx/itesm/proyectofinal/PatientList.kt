@@ -65,7 +65,6 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         const val PATIENT_KEY: String = "Medicion"
         const val REQUEST_ENABLE_BT: Int = 10
         const val REQUEST_COARSE_LOCATION_PERMISSION: Int = 11
-        const val BLUETOOTH_DISCONNECT = 12
         const val BLUETOOTH_DEVICE = 5
         const val BLUETOOTH_ADDRESS = "Address"
         const val LOAD_MEASURE = 4
@@ -92,16 +91,10 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         this.title = "Registros"
         setContentView(R.layout.activity_patient_list)
         val extras = intent.extras?: return
-        if(ACTIV == "clinic"){
-            val name= extras.getString(Clinic_list.ACCOUNT_NAME)
-            val mail= extras.getString(Clinic_list.ACCOUNT_MAIL)
-            this.profile = Profile(mail!!, name!!, ""!!)
 
-        }
-        else{
-            profile = extras.getParcelable(ACCOUNT)!!
-            profilePatient = profile
-        }
+        profile = extras.getParcelable(ACCOUNT)!!
+        profilePatient = profile
+
         val type = extras.getInt(ACCOUNT_TYPE)
 
 //        actionBar.setTitle("Hello world App")
