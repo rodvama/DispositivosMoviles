@@ -4,7 +4,6 @@ import Database.Medicion
 import Database.MedicionDatabase
 import Database.Patient
 import Database.ioThread
-import NetworkUtility.NetworkConnection.Companion.buildStringPatients
 import NetworkUtility.OkHttpRequest
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
@@ -14,6 +13,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import com.google.zxing.integration.android.IntentIntegrator
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.LinearLayoutManager
@@ -69,22 +69,12 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
         lista_clinica.adapter = adapter
 
-        ioThread {
-            val pacienteNum = instanceDatabase.pacienteDao().getAnyPaciente(profile.mail)
+        loadPacientes()
 
-            if(pacienteNum == 0){
-                insertPacientes(this)
-            } else{
-                loadPacientes ()
-            }
-        }
     }
 
 
-    /**
-     * Menu con la opcion de escanear el qr del paciente
-     * con el objetivo de cambiar su clínica
-     */
+    //Menu con la opcion de escanear el qr del paciente
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_clinic, menu)
         return true
@@ -94,7 +84,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
     private fun loadPacientes() {
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
-        val url = buildStringPatients(profile.mail)
+        val url = "https://heart-app-tec.herokuapp.com/clinics/"+ profile.mail
         request.GET(url, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
                 println(response.toString())
@@ -164,14 +154,14 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
 
     // Custom item click listener for each measurement
     override fun onCustomItemClick(patient: Patient) {
-        val startAppIntent = Intent(this,PatientList::class.java)
-        startAppIntent.putExtra(PatientList.ACCOUNT,profile)
-        startAppIntent.putExtra(PatientList.ACCOUNT_TYPE,0)
-        startActivity(startAppIntent)
-//        val StartAppIntent = Intent(this,PatientList::class.java)
-//        StartAppIntent.putExtra(PatientList.ACCOUNT_MAIL,patient.mailC)
-//        StartAppIntent.putExtra(PatientList.ACCOUNT_NAME,patient.FNameP+" "+patient.LNameP)
-//        startActivity(StartAppIntent)
+        //val intent = Intent(this, ::class.java)
+        //intent.putExtra(PatientList.PATIENT_KEY, patient._idP)
+        //startActivityForResult(intent, 3)
+        val StartAppIntent = Intent(this,PatientList::class.java)
+        PatientList.ACTIV = "clinic"
+        StartAppIntent.putExtra(ACCOUNT_NAME,patient.FNameP)
+        StartAppIntent.putExtra(ACCOUNT_MAIL,patient.mailC)
+        startActivity(StartAppIntent)
     }
 
     // Handles clicking options item
@@ -193,7 +183,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
                 }
 
                 // Display a negative button on alert dialog
-                builder.setNegativeButton("Cancelar") { _,_ ->
+                builder.setNegativeButton("Cancelar") { dialog, which ->
                 }
 
                 // Finally, make the alert dialog using builder
@@ -233,6 +223,19 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
         //finish()
         PatientList.STATUS = "si"
         finish()
+    }
+
+    private var doubleBackToExitPressedOnce = false
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            moveTaskToBack(true);
+            finish()
+        }
+
+        this.doubleBackToExitPressedOnce = true
+        Toast.makeText(this, "Presione atrás otra vez para salir", Toast.LENGTH_SHORT).show()
+
+        Handler().postDelayed(Runnable { doubleBackToExitPressedOnce = false }, 2000)
     }
 
 }

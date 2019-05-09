@@ -30,6 +30,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -43,6 +44,7 @@ import kotlinx.android.synthetic.main.activity_patient_list.*
 import org.jetbrains.anko.doAsync
 import mx.itesm.proyectofinal.BLE.*
 import mx.itesm.proyectofinal.Utils.CustomItemClickListener
+import kotlin.system.exitProcess
 
 /**
  * Declares the patient measurements list. This is the first and main page of the application
@@ -416,6 +418,19 @@ class PatientList : AppCompatActivity(), CustomItemClickListener {
         //finish()
         PatientList.STATUS = "si"
         finish()
+    }
+
+    private var doubleBackToExitPressedOnce = false
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            moveTaskToBack(true);
+            finish()
+        }
+
+        this.doubleBackToExitPressedOnce = true
+        Toast.makeText(this, "Presione atrás otra vez para salir", Toast.LENGTH_SHORT).show()
+
+        Handler().postDelayed(Runnable { doubleBackToExitPressedOnce = false }, 2000)
     }
 
 }
