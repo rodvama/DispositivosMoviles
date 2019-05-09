@@ -91,6 +91,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
                 runOnUiThread {
                     try {
                         val t = parseJsonPats(responseData, profile.mail)
+                        println(t)
                         adapter.setPatient(t!!)
                         if (adapter.itemCount == 0) {
                             tv_vacia.visibility = View.VISIBLE
@@ -211,6 +212,28 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
             else {
                 // If QRCode contains data.
                 val email = result.contents
+                var client = OkHttpClient()
+                var request= OkHttpRequest(client)
+                var url = "https://heart-app-tec.herokuapp.com/patients/"+ email
+                val map: HashMap<String, Any> = hashMapOf("clinic" to profile.mail, "age" to 77, "sex" to 'M')
+                println(map)
+
+                request.POST(url, map, object: Callback {
+                    override fun onResponse(call: Call?, response: Response) {
+                        println(response.toString())
+                        val responseData = response.body()?.string()
+                        runOnUiThread{
+                            try {
+                                loadPacientes()
+                            } catch (e: JSONException) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                    override fun onFailure(call: Call?, e: IOException?) {
+                        Log.d("FAILURE", "REQUEST FAILURE")
+                    }
+                })
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)

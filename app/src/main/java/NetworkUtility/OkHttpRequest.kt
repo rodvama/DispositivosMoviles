@@ -30,14 +30,13 @@ class OkHttpRequest(client: OkHttpClient) {
         this.client = client
     }
 
-    fun POST(url: String, parameters: HashMap<String, String>, callback: Callback): Call {
+    fun POST(url: String, parameters: HashMap<String, Any>, callback: Callback): Call {
         val builder = FormBody.Builder()
         val it = parameters.entries.iterator()
         while (it.hasNext()) {
             val pair = it.next() as Map.Entry<*, *>
             builder.add(pair.key.toString(), pair.value.toString())
         }
-
         val formBody = builder.build()
         val request = Request.Builder()
                 .url(url)

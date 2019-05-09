@@ -72,7 +72,7 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
 
     override fun onStart() {
         super.onStart()
-
+        PatientList.ACTIV = "sign"
         if(PatientList.STATUS == "si") {
             signOut()
         }else {
@@ -126,13 +126,11 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
     fun checkUser(email: String, name: String){
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
-        lateinit var url: String
-        url = "https://heart-app-tec.herokuapp.com/patients/"+email
+        val url = "https://heart-app-tec.herokuapp.com/account/"
         println(url)
-        val map: HashMap<String, String> = hashMapOf("name" to name, "email" to email)
-//        val map: HashMap<String, String> = hashMapOf("first_name" to "Rohan", "lastName" to "Jahagirdar", "email" to "asd@asd.com")
+        val map: HashMap<String, Any> = hashMapOf("name" to name, "email" to email)
 
-        request.GET(url, object: Callback {
+        request.POST(url, map, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
                 println(response.toString())
                 val responseData = response.body()?.string()
@@ -159,7 +157,6 @@ class signInActivity : AppCompatActivity(), GoogleApiClient.OnConnectionFailedLi
         when(tipo){
             "clinica"->{
                 startAppIntent = Intent(this,Clinic_list::class.java)
-                PatientList.ACTIV = "sign"
             }
             "paciente"->{
                 startAppIntent = Intent(this,PatientList::class.java)
