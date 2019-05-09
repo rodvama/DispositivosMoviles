@@ -14,6 +14,8 @@ class NetworkConnection {
 
         fun buildStringAccount(): String = "$BASE_URL/account/"
 
+        fun buildStringPatients(clinic: String): String = "$BASE_URL/clinics/$clinic"
+
         fun buildUrlClinics(): URL =
                 URL("$BASE_URL/clinics/?format=json")
 

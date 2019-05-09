@@ -33,8 +33,6 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.jjoe64.graphview.series.DataPoint
-import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_results.*
 import java.io.ByteArrayOutputStream
 import java.lang.Math.abs
@@ -63,8 +61,6 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var chart: LineChart
     var entries: MutableList<Entry> = mutableListOf()
-
-    private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

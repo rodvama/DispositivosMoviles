@@ -30,8 +30,6 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import com.jjoe64.graphview.series.DataPoint
-import com.jjoe64.graphview.series.LineGraphSeries
 import de.nitri.gauge.Gauge
 import kotlinx.android.parcel.Parcelize
 import mx.itesm.proyectofinal.BLE.BLEConnectionManager
@@ -50,7 +48,6 @@ import com.github.mikephil.charting.data.LineData
 class MainActivity : AppCompatActivity() {
 
     private val TAG: String = "uuidMainActivity"
-    private var mSeries: LineGraphSeries<DataPoint?> = LineGraphSeries()
 
     private var mDevice: BleDeviceData = BleDeviceData("","")
 
@@ -125,7 +122,6 @@ class MainActivity : AppCompatActivity() {
         }
         if(actualData.size > 20) {
 //            mBluetoothHelper?.dataList!!.clear()
-            mSeries.resetData(arrayOfNulls(0))
             intent.putExtra(LIST_ID, actualData)
             startActivityForResult(intent, 2)
         }

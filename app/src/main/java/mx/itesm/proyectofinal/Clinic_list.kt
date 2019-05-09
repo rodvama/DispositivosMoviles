@@ -4,6 +4,7 @@ import Database.Medicion
 import Database.MedicionDatabase
 import Database.Patient
 import Database.ioThread
+import NetworkUtility.NetworkConnection.Companion.buildStringPatients
 import NetworkUtility.OkHttpRequest
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
@@ -80,7 +81,10 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
     }
 
 
-    //Menu con la opcion de escanear el qr del paciente
+    /**
+     * Menu con la opcion de escanear el qr del paciente
+     * con el objetivo de cambiar su clínica
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_clinic, menu)
         return true
@@ -90,7 +94,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
     private fun loadPacientes() {
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
-        val url = "https://heart-app-tec.herokuapp.com/clinics/"+ profile.mail
+        val url = buildStringPatients(profile.mail)
         request.GET(url, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
                 println(response.toString())
@@ -189,7 +193,7 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
                 }
 
                 // Display a negative button on alert dialog
-                builder.setNegativeButton("Cancelar") { dialog, which ->
+                builder.setNegativeButton("Cancelar") { _,_ ->
                 }
 
                 // Finally, make the alert dialog using builder
