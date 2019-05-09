@@ -10,38 +10,66 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "mx.itesm.proyectofinal"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
-    buildTypes {
+    signingConfigs {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            storeFile file("debug.keystore")
+            storePassword "moviles"
+            keyAlias "AndroidDebugkey"
+            keyPassword "moviles"
+        }
+        debug {
+            storeFile file("debug.keystore")
+            storePassword "moviles"
+            keyAlias "AndroidDebugkey"
+            keyPassword "moviles"
         }
     }
-    androidExtensions {
-        experimental = true
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/proguard/androidx-annotations.pro'
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
+    //noinspection GradleCompatible
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.5"
-    implementation 'com.jjoe64:graphview:4.2.2'
     implementation 'in.unicodelabs.sorbh:kdgaugeview:1.0.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.github.Pygmalion69:Gauge:1.5'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
+    implementation 'androidmads.library.qrgenearator:QRGenearator:1.0.3'
 
     kapt "android.arch.persistence.room:compiler:1.1.1"
     implementation "android.arch.persistence.room:runtime:1.1.1"
@@ -50,4 +78,8 @@ dependencies {
     implementation 'android.arch.lifecycle:extensions:1.1.1'
     kapt 'android.arch.lifecycle:compiler:1.1.1'
     implementation 'com.android.support:design:28.0.0'
+    implementation "org.jetbrains.anko:anko-common:$anko_version"
+    implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
+    implementation 'com.google.android.gms:play-services-vision:11.8.0'
+
 }
