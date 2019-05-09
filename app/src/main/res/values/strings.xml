@@ -66,5 +66,7 @@
 
     <string name="internet_no_title">No estás conectado</string>
     <string name="internet_no_desc">Por favor conectate a una red para iniciar sesión</string>
+    <string name="search_view">Enter search</string>
+
 
 </resources>
