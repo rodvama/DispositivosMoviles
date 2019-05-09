@@ -4,6 +4,7 @@ import Database.Medicion
 import Database.MedicionDatabase
 import Database.Patient
 import Database.ioThread
+import NetworkUtility.NetworkConnection.Companion.buildStringPatients
 import NetworkUtility.OkHttpRequest
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
@@ -84,10 +85,9 @@ class Clinic_list : AppCompatActivity(), CustomItemClickListener2 {
     private fun loadPacientes() {
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
-        val url = "https://heart-app-tec.herokuapp.com/clinics/"+ profile.mail
+        val url = buildStringPatients(profile.mail)
         request.GET(url, object: Callback {
             override fun onResponse(call: Call?, response: Response) {
-                println(response.toString())
                 val responseData = response.body()?.string()
                 runOnUiThread {
                     try {

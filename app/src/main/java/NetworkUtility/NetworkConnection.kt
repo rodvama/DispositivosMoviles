@@ -16,9 +16,9 @@ class NetworkConnection {
 
         fun buildStringPatients(clinic: String): String = "$BASE_URL/clinics/$clinic"
 
-        fun buildStringPressures(patient: String): String = "$BASE_URL/clinics/$patient/pressures"
+        fun buildStringPatientsPressures(patient: String): String = "$BASE_URL/clinics/$patient/pressures/"
 
-        fun buildStringPostPressure(clinic: String): String = "$BASE_URL/clinics/$clinic"
+        fun buildStringPressures(): String = "$BASE_URL/pressures/"
 
         fun buildUrlClinics(): URL =
                 URL("$BASE_URL/clinics/?format=json")
