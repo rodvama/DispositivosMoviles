@@ -51,6 +51,8 @@ import java.io.IOException
 import java.lang.Math.abs
 import java.text.SimpleDateFormat
 import java.util.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /*
  * Resulsts activtiy. Creates the activity and inflates the view.
@@ -73,6 +75,7 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchComplete
     var diastolicRes: Double = 0.0
     var validateCheck: Boolean = false
     var selectedArm: String = ""
+    var fecha: String? = ""
 
     private lateinit var chart: LineChart
     var entries: MutableList<Entry> = mutableListOf()
@@ -104,14 +107,16 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchComplete
         }
     }
 
-    fun postPressure(email: String, name: String){
+    fun postPressure(){
         var client = OkHttpClient()
         var request= OkHttpRequest(client)
-        val url = NetworkConnection.buildStringAccount()
-        val sdf = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+        val url = NetworkConnection.buildStringPressures()
+        val sdf = SimpleDateFormat("yyyy-MM-dd")
         val currentDate = sdf.format(Date())
+
         val map: HashMap<String, String> = hashMapOf(
                 "date" to currentDate,
+                "verified" to validateCheck.toString(),
                 "systolic" to systolicRes.toInt().toString(),
                 "diastolic" to diastolicRes.toInt().toString(),
                 "manual_systolic" to edit_systolic_manual.text.toString(),
@@ -145,9 +150,8 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchComplete
         when(view!!.id){
             R.id.button_accept -> {
                 if(!(edit_diastolic_manual.text.isEmpty() || edit_systolic_manual.text.isEmpty() || selectedArm == "" || edit_initials.text.isEmpty())) {
-                    val resultIntent = Intent()
 
-                    val fecha = toString(Calendar.getInstance().time)
+                    fecha = toString(Calendar.getInstance().time)
 
                     val instanceDatabase = MedicionDatabase.getInstance(this)
                     ioThread {
@@ -162,17 +166,13 @@ class ResultsActivity : AppCompatActivity(), View.OnClickListener, FetchComplete
                                 edit_initials.text.toString()))
                     }
                     if (NetworkConnection.isNetworkConnected(this)) {
-
-//                        setResult(Activity.RESULT_OK)
-//                        finish()
+                        postPressure()
                     } else {
                         // alerta usando la librería de ANKO
                         alert(message = resources.getString(R.string.internet_no_desc), title = resources.getString(R.string.internet_no_title)) {
                             okButton {  }
                         }.show()
                     }
-
-
                 }
                 else {
                     Toast.makeText(this, "Llena todos los campos manuales", Toast.LENGTH_LONG).show()
